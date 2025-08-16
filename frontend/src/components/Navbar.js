@@ -18,7 +18,7 @@ const CloseIcon = () => (
 const ROUTE_MAP = {
     home: '/',
     homepage: '/dashboard',
-    'past-papers': '/past-papers',
+    pastpapers: '/past-papers',
     analytics: '/analytics',
     contact: '/contact',
     login: '/login',
@@ -69,7 +69,7 @@ const Navbar = ({ user, onLogout = () => {}, onNavigate }) => {
     const navLinks = [
         { page: 'home', label: 'Home' },
         ...(user ? [{ page: 'homepage', label: 'Dashboard' }] : []),
-        ...(user ? [{ page: 'past-papers', label: 'Past Papers' }] : []),
+        ...(user ? [{ page: 'pastpapers', label: 'Past Papers' }] : []),
         ...(user ? [{ page: 'analytics', label: 'Analytics' }] : []),
         { page: 'contact', label: 'Contact' },
     ];

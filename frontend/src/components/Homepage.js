@@ -1,9 +1,27 @@
 // Homepage.jsx
 import React, { useState, useEffect, useMemo } from 'react';
 
-const generatePaperFromAPI = async () => {
+const generatePaperFromAPI = async (userData = null) => {
     const API_URL = 'http://localhost:5000/generate-paper';
-    const response = await fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({}) });
+    
+    // Prepare request body - include user data if available
+    let requestBody = {};
+    if (userData && userData.token && userData.name) {
+        requestBody = {
+            token: userData.token,
+            name: userData.name
+        };
+        console.log("Sending request with user data:", { name: userData.name });
+    } else {
+        console.log("Sending request without user authentication");
+    }
+    
+    const response = await fetch(API_URL, { 
+        method: 'POST', 
+        headers: { 'Content-Type': 'application/json' }, 
+        body: JSON.stringify(requestBody) 
+    });
+    
     if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
@@ -17,10 +35,16 @@ const Header = ({ user }) => (
             {user ? `Welcome, ${user.name}!` : 'JEE Question Paper Generator'}
         </h2>
         <p className="text-md text-gray-400 mt-2">Connected to Live Flask Backend</p>
+        {user && (
+            <p className="text-sm text-green-400 mt-1">✓ Logged in - Papers will be saved to your account</p>
+        )}
+        {!user && (
+            <p className="text-sm text-yellow-400 mt-1">⚠ Not logged in - Papers won't be saved</p>
+        )}
     </div>
 );
 
-const ControlPanel = ({ onGenerate, isLoading, status }) => (
+const ControlPanel = ({ onGenerate, isLoading, status, user }) => (
     <div className="p-6 bg-gray-800/50 backdrop-blur-sm rounded-lg shadow-md border border-gray-700">
         <div className="flex flex-col items-center gap-4">
             <button
@@ -30,6 +54,13 @@ const ControlPanel = ({ onGenerate, isLoading, status }) => (
             >
                 {isLoading ? 'Generating... (This may take a minute)' : 'Generate New Paper'}
             </button>
+            
+            {!user && (
+                <p className="text-sm text-gray-400 text-center">
+                    <span className="text-yellow-400">Note:</span> Login to save papers to your account
+                </p>
+            )}
+            
             {status && (
                 <div className="mt-4 text-center w-full h-6">
                     <p className="text-sm text-gray-300 animate-pulse">{status}</p>
@@ -80,7 +111,7 @@ const QuestionCard = ({ question, index, isActive, onToggle }) => {
     );
 };
 
-const PaperDisplay = ({ paperData }) => {
+const PaperDisplay = ({ paperData, user }) => {
     const [selectedSubject, setSelectedSubject] = useState(null);
     const [activeQuestionIndex, setActiveQuestionIndex] = useState(null);
 
@@ -122,6 +153,25 @@ const PaperDisplay = ({ paperData }) => {
 
     return (
         <div className="mt-8">
+            {/* Paper Info Header */}
+            <div className="bg-gray-800/30 p-4 rounded-lg mb-6 border border-gray-700">
+                <div className="flex justify-between items-center">
+                    <div>
+                        <h3 className="text-xl font-semibold text-white">Generated Paper</h3>
+                        {paperData.paper_id && (
+                            <p className="text-sm text-gray-400">Paper ID: {paperData.paper_id}</p>
+                        )}
+                    </div>
+                    {user && paperData.paper_id && (
+                        <div className="text-right">
+                            <p className="text-sm text-green-400">✓ Saved to your account</p>
+                            <p className="text-xs text-gray-400">Created by: {paperData.created_by}</p>
+                        </div>
+                    )}
+                </div>
+            </div>
+
+            {/* Subject Tabs */}
             <div className="flex justify-center border-b border-gray-700 mb-6">
                 {subjects.map(subject => (
                     <button
@@ -136,6 +186,8 @@ const PaperDisplay = ({ paperData }) => {
                     </button>
                 ))}
             </div>
+
+            {/* Questions Grid */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {questions.map((q, index) => (
                     <QuestionCard key={q.question_number} question={q} index={index} isActive={activeQuestionIndex === index} onToggle={handleToggleSolution} />
@@ -154,12 +206,32 @@ export default function Homepage({ user, onLogout }) {
         setIsLoading(true);
         setPaperData(null);
         setStatus('Connecting to agent... This might take some time.');
+        
         try {
-            const result = await generatePaperFromAPI();
+            // Get user data if logged in
+            let userData = null;
+            if (user && user.token && user.name) {
+                userData = {
+                    token: user.token,
+                    name: user.name
+                };
+                setStatus('Generating paper with user authentication...');
+            } else {
+                setStatus('Generating paper (not logged in)...');
+            }
+            
+            const result = await generatePaperFromAPI(userData);
             setPaperData(result);
-            setStatus('Paper generated successfully!');
+            
+            if (result.paper_id && user) {
+                setStatus('Paper generated and saved to your account!');
+            } else {
+                setStatus('Paper generated successfully!');
+            }
+            
         } catch (error) {
             setStatus(`Error: ${error.message}`);
+            console.error("Error generating paper:", error);
         } finally {
             setIsLoading(false);
         }
@@ -169,8 +241,8 @@ export default function Homepage({ user, onLogout }) {
         <>
             <Header user={user} />
             <main className="mt-8">
-                <ControlPanel onGenerate={handleGenerate} isLoading={isLoading} status={status} />
-                {paperData && <PaperDisplay paperData={paperData} />}
+                <ControlPanel onGenerate={handleGenerate} isLoading={isLoading} status={status} user={user} />
+                {paperData && <PaperDisplay paperData={paperData} user={user} />}
                 {user && (
                     <div className="mt-8 text-center">
                         <button 

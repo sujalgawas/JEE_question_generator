@@ -289,10 +289,12 @@ def google_login_callback():
             firebase_id_token = f"session_{secrets.token_urlsafe(32)}"
         
         # 6. Store session information for backend validation
+        # In your Google OAuth callback, ensure session data is set
         session['user_uid'] = user_uid
         session['user_name'] = name
         session['auth_provider'] = 'google'
         session['google_id'] = google_user_id
+        session.permanent = True  # Make session persistent
         
         # 7. Redirect the user back to the frontend with the token
         success_url = f"{FRONTEND_URL}/auth/callback?idToken={firebase_id_token}&name={name}"
@@ -313,9 +315,39 @@ print("Initializing LangGraph agent...")
 langgraph_app = get_agent_graph()
 print("Agent initialized successfully.")
 
+def validate_user_token(token):
+    """
+    Validate user token and return user info
+    """
+    if token.startswith("session_"):
+        # Session-based token
+        return {
+            'uid': session.get('user_uid'),
+            'name': session.get('user_name'),
+            'provider': 'google'
+        }
+    else:
+        # Firebase ID token
+        try:
+            user_info = auth.get_account_info(token)
+            uid = user_info['users'][0]['localId']
+            # Get name from database
+            user_data = db.child("users").child(uid).get().val()
+            name = user_data.get('name', 'User') if user_data else 'User'
+            return {
+                'uid': uid,
+                'name': name,
+                'provider': 'firebase'
+            }
+        except Exception as e:
+            print(f"Firebase token validation failed: {e}")
+            return None
+
+
 # In production, you should use a database or secure session storage
 user_data_store = {}
 
+#this is useless endpoint
 @app.route('/get_user_data', methods=['POST'])
 def my_endpoint():
     data = request.json  # Access the posted data
@@ -328,33 +360,7 @@ def my_endpoint():
 
     return jsonify({"status": "success"})
 
-def save_user_paper(paper_json):
-    # Retrieve stored token & name
-    token = user_data_store.get('token')
-    name = user_data_store.get('name')
-
-    if not token or not name:
-        print("Error: Missing user data")
-        return
-
-    # Create unique ID for the paper
-    paper_id = str(uuid.uuid4())  # Example: '3f9e8d48-7f17-4a83-a93f-2d2e8341e5b6'
-
-    # Add metadata to paper JSON
-    paper_json['paper_id'] = paper_id
-    paper_json['created_by'] = name
-    paper_json['created_at'] = datetime.utcnow().isoformat()
-
-    # Save paper in a global "papers" collection
-    db.child("papers").child(paper_id).set(paper_json)
-
-    # (Optional) Save reference to this paper under the user's profile
-    db.child("users").child(token).child("papers").child(paper_id).set(True)
-
-    print(f"Paper saved with ID {paper_id} for user {name}")
-    return paper_id
-
-    
+# Fixed server.py sections
 @app.route('/generate-paper', methods=['POST'])
 def generate_paper_endpoint():
     """
@@ -364,16 +370,30 @@ def generate_paper_endpoint():
     print("\n--- Received request at /generate-paper ---")
     
     try:
-        # The initial state for the agent, using the imported paper structure.
+        data = request.get_json()
+        user_token = data.get('token')
+        user_name = data.get('name')
+        
+        # Validate user
+        user_info = validate_user_token(user_token)
+        if not user_info:
+            return jsonify({"error": "Invalid or expired token"}), 401
+        
+        # Store user data for this request
+        user_data_store['token'] = user_token
+        user_data_store['name'] = user_info['name']
+        
+        print(f"User data received: name={user_name}, token={'***' if user_token else 'None'}")
+        
+        # The initial state for the agent
         initial_state = {
             "paper_structure": concepts_for_paper,
         }
 
         print("Invoking the agent... This may take a while.")
-        # --- Invoke the Agent ---
+        # Invoke the Agent
         final_state = langgraph_app.invoke(initial_state)
         
-        # The final_paper key now holds the dictionary of lists.
         paper_data = final_state.get('final_paper')
 
         if not paper_data:
@@ -382,16 +402,290 @@ def generate_paper_endpoint():
 
         print(f"Agent finished. Total questions generated: {len(paper_data.get('question_number', []))}")
         
-        save_user_paper(paper_data)
+        # Save the paper with user data
+        paper_id = save_user_paper(paper_data, user_token, user_name)
         
-        # --- Return the successful response ---
+        # Add paper_id to response
+        paper_data['paper_id'] = paper_id
+        
         return jsonify(paper_data)
 
     except Exception as e:
-        # --- Handle any errors during the process ---
         print(f"An error occurred during agent invocation: {e}")
-        # It's helpful to return a specific error message for debugging.
         return jsonify({"error": str(e)}), 500
+    
+@app.route('/get-paper-for-test', methods=['POST'])
+def get_paper_for_test():
+    try:
+        data = request.json
+        token = data.get('token')
+        paper_id = data.get('paperId')
+
+        if not token or not paper_id:
+            return jsonify({'error': 'Missing token or paper ID'}), 400
+
+        # Get paper from database
+        paper_data = db.child('papers').child(paper_id).get()
+        
+        if paper_data.val() is None:
+            return jsonify({'error': 'Paper not found'}), 404
+            
+        return jsonify({'paper': paper_data.val()}), 200
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+@app.route('/submit-test-result', methods=['POST'])
+def submit_test_result():
+    try:
+        data = request.json
+        token = data.get('token')
+        user_name = data.get('userName')
+        test_result = data.get('testResult')
+
+        if not token or not user_name or not test_result:
+            return jsonify({'error': 'Missing required data'}), 400
+
+        # Get user UID
+        user_uid = None
+        if token.startswith("session_"):
+            user_uid = session.get('user_uid')
+        else:
+            try:
+                user_info = auth.get_account_info(token)
+                user_uid = user_info['users'][0]['localId']
+            except:
+                user_uid = session.get('user_uid')
+
+        if not user_uid:
+            return jsonify({'error': 'Could not identify user'}), 400
+
+        # Calculate score
+        paper_id = test_result['paperId']
+        user_answers = test_result['answers']
+        
+        # Get correct answers from paper
+        paper_data = db.child('papers').child(paper_id).get().val()
+        if not paper_data:
+            return jsonify({'error': 'Paper not found'}), 404
+
+        correct_answer_keys = paper_data.get('correct_answer', [])
+        options_data = paper_data.get('options', [])
+        score = 0
+        total_questions = len(correct_answer_keys)
+
+        # Helper function to get option value from key
+        def get_option_value(options_obj, key):
+            if not options_obj or not key:
+                return None
+            return options_obj.get(key)
+
+        # Calculate score by converting correct answer keys to values
+        for index, correct_key in enumerate(correct_answer_keys):
+            user_answer = user_answers.get(str(index))
+            
+            # Get the actual correct answer value from options
+            if index < len(options_data):
+                correct_value = get_option_value(options_data[index], correct_key)
+                if user_answer == correct_value:
+                    score += 1
+
+        # Create result ID
+        result_id = str(uuid.uuid4())
+
+        # Save test result
+        result_data = {
+            'result_id': result_id,
+            'user_uid': user_uid,
+            'user_name': user_name,
+            'paper_id': paper_id,
+            'answers': user_answers,
+            'score': score,
+            'total_questions': total_questions,
+            'percentage': round((score / total_questions) * 100, 2) if total_questions > 0 else 0,
+            'time_spent': test_result['timeSpent'],
+            'completed_at': test_result['completedAt'],
+            'created_at': datetime.utcnow().isoformat()
+        }
+
+        # Save to results collection
+        db.child("test_results").child(result_id).set(result_data)
+
+        # Save reference under user's profile
+        db.child("users").child(user_uid).child("test_results").child(result_id).set({
+            'paper_id': paper_id,
+            'score': score,
+            'total_questions': total_questions,
+            'percentage': result_data['percentage'],
+            'completed_at': test_result['completedAt']
+        })
+
+        return jsonify({
+            'success': True, 
+            'resultId': result_id,
+            'score': score,
+            'totalQuestions': total_questions,
+            'percentage': result_data['percentage']
+        }), 200
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/retrieve-papers', methods=['POST'])
+def retrieve_papers():
+    try:
+        data = request.json
+        token = data.get('token')
+        user_name = data.get('name')  # match your frontend naming
+
+        if not token or not user_name:
+            return jsonify({'error': 'Missing authentication data'}), 400
+        
+        # Decode Firebase ID token to get UID
+        decoded_token = auth.get_account_info(token)
+        user_uid = decoded_token['users'][0]['localId']
+
+        # Fetch all papers from 'papers' collection
+        all_papers = db.child('papers').get()
+
+        # Filter papers that match this user's UID
+        user_papers = []
+        if all_papers.each() is not None:
+            for paper_snapshot in all_papers.each():
+                paper = paper_snapshot.val()
+                if paper.get('created_by_uid') == user_uid or paper.get('created_by') == user_name:
+                    user_papers.append(paper)
+
+        return jsonify({'papers': user_papers}), 200
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/get-user-analytics', methods=['POST'])
+def get_user_analytics():
+    try:
+        data = request.json
+        token = data.get('token')
+        user_name = data.get('userName')
+
+        if not token or not user_name:
+            return jsonify({'error': 'Missing authentication data'}), 400
+
+        # Get user UID
+        user_uid = None
+        if token.startswith("session_"):
+            user_uid = session.get('user_uid')
+        else:
+            try:
+                user_info = auth.get_account_info(token)
+                user_uid = user_info['users'][0]['localId']
+            except:
+                user_uid = session.get('user_uid')
+
+        if not user_uid:
+            return jsonify({'error': 'Could not identify user'}), 400
+
+        # Fetch all test results for this user
+        all_results = db.child('test_results').get()
+        user_results = []
+        
+        if all_results.each() is not None:
+            for result_snapshot in all_results.each():
+                result = result_snapshot.val()
+                if result.get('user_uid') == user_uid:
+                    user_results.append(result)
+
+        # Fetch paper details for each result
+        detailed_results = []
+        for result in user_results:
+            paper_id = result.get('paper_id')
+            if paper_id:
+                paper_data = db.child('papers').child(paper_id).get().val()
+                if paper_data:
+                    result['paper_details'] = paper_data
+            detailed_results.append(result)
+
+        return jsonify({
+            'results': detailed_results,
+            'total_tests': len(detailed_results)
+        }), 200
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+def save_user_paper(paper_json, user_token, user_name):
+    """
+    Save paper with proper user identification
+    """
+    if not user_token or not user_name:
+        print("Error: Missing user data")
+        return None
+
+    try:
+        user_uid = None
+        
+        # Check if this is a session-based token (from Google OAuth)
+        if user_token.startswith("session_"):
+            print("Using session-based authentication")
+            # For Google OAuth users, use session data
+            user_uid = session.get('user_uid')
+            if not user_uid:
+                print("Error: No user_uid in session")
+                return None
+        else:
+            # Try to validate as Firebase ID token
+            try:
+                user_info = auth.get_account_info(user_token)
+                user_uid = user_info['users'][0]['localId']
+                print(f"Decoded user UID from Firebase token: {user_uid}")
+            except Exception as e:
+                print(f"Invalid Firebase token: {e}")
+                # Fallback to session data
+                user_uid = session.get('user_uid')
+                if not user_uid:
+                    print("Error: Could not identify user")
+                    return None
+        
+        # Create unique ID for the paper
+        paper_id = str(uuid.uuid4())
+
+        # Add metadata to paper JSON
+        paper_json['paper_id'] = paper_id
+        paper_json['created_by'] = user_name
+        paper_json['created_by_uid'] = user_uid
+        paper_json['created_at'] = datetime.utcnow().isoformat()
+
+        # Save paper in global "papers" collection
+        db.child("papers").child(paper_id).set(paper_json)
+
+        # Save reference under user's profile
+        db.child("users").child(user_uid).child("papers").child(paper_id).set({
+            'title': f"Paper {paper_id[:8]}",
+            'created_at': datetime.utcnow().isoformat(),
+            'question_count': len(paper_json.get('question_number', []))
+        })
+
+        print(f"Paper saved with ID {paper_id} for user {user_name} (UID: {user_uid})")
+        return paper_id
+        
+    except Exception as e:
+        print(f"Error saving paper: {e}")
+        # Final fallback: save without user association
+        paper_id = str(uuid.uuid4())
+        paper_json['paper_id'] = paper_id
+        paper_json['created_by'] = user_name
+        paper_json['created_at'] = datetime.utcnow().isoformat()
+        
+        db.child("papers").child(paper_id).set(paper_json)
+        print(f"Paper saved with fallback method: {paper_id}")
+        return paper_id
+
+# Remove the separate /get_user_data endpoint as it's no longer needed
+# @app.route('/get_user_data', methods=['POST'])
+# def my_endpoint():
+#     # This endpoint is no longer needed
+#     pass
 
 
 if __name__ == '__main__':

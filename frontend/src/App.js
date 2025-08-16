@@ -9,9 +9,10 @@ import Login from './components/Login';
 import SignUp from './components/SignUp';
 import AuthCallback from './components/AuthCallback';
 import Dashboard from './components/Dashboard';
+import PastPaper from './components/PastPapers';
+import MCQTest from './components/MCQTest';
+import Analytics from './components/Analytics';
 
-const PastPapers = () => <div className="p-8 text-center text-white"><h1>Past Papers Page</h1></div>;
-const Analytics = () => <div className="p-8 text-center text-white"><h1>Analytics Page</h1></div>;
 const Contact = () => <div className="p-8 text-center text-white"><h1>Contact Page</h1></div>;
 
 export default function App() {
@@ -31,19 +32,47 @@ export default function App() {
         localStorage.removeItem('userName');
     };
 
-    fetch("http://localhost:5000/get_user_data", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-            token: localStorage.getItem('idToken'), // Replace with actual token
-            name: localStorage.getItem('userName')    // Replace with actual name
-        }),
-    })
-        .then(res => res.json())
-        .then(data => console.log(data))
-        .catch(err => console.error(err));
+    const generatePaper = (paperData) => {
+        // Get user data from localStorage
+        const userToken = localStorage.getItem('idToken');
+        const userName = localStorage.getItem('userName');
+
+        if (!userToken || !userName) {
+            console.error("User not authenticated");
+            return;
+        }
+
+        // Include user data in the request payload
+        const requestData = {
+            ...paperData,
+            token: userToken,
+            name: userName
+        };
+
+        console.log("Generating paper with user data:", { name: userName });
+
+        // Single request to generate paper with user data
+        fetch("http://localhost:5000/generate-paper", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(requestData)
+        })
+            .then(res => {
+                if (!res.ok) {
+                    throw new Error(`HTTP error! status: ${res.status}`);
+                }
+                return res.json();
+            })
+            .then(data => {
+                console.log("Paper generated successfully:", data);
+                // You can add success handling here
+                // For example, redirect to a results page or show a success message
+            })
+            .catch(err => {
+                console.error("Error generating paper:", err);
+                // Add error handling here
+            });
+    };
 
 
     // Check auth state on mount and when localStorage changes
@@ -90,10 +119,11 @@ export default function App() {
                         <Route path="/signup" element={user ? <Navigate to="/dashboard" /> : <SignUp onLoginSuccess={handleLoginSuccess} />} />
                         <Route path="/auth/callback" element={<AuthCallback />} />
                         <Route path="/dashboard" element={user ? <Dashboard userName={user.name} /> : <Navigate to="/login" />} />
-                        <Route path="/past-papers" element={user ? <PastPapers /> : <Navigate to="/login" />} />
+                        <Route path="/past-papers" element={user ? <PastPaper /> : <Navigate to="/login" />} />
                         <Route path="/analytics" element={user ? <Analytics /> : <Navigate to="/login" />} />
                         <Route path="/contact" element={<Contact />} />
                         <Route path="*" element={<Navigate to="/" />} />
+                        <Route path="/mcq-test/:paperId" element={<MCQTest />} />
                     </Routes>
                 </main>
             </Router>
