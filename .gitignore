@@ -18,6 +18,7 @@ question_difficulty_concept.csv
 final_paper.json
 serviceAccountKey.json
 googleAccountKey.json
+jee_question_open.index
 
 # google config file
 /frontend/src/components/serviceAccountKey.json
