@@ -373,18 +373,24 @@ def generate_paper_endpoint():
         data = request.get_json()
         user_token = data.get('token')
         user_name = data.get('name')
-        
+
         # Validate user
         user_info = validate_user_token(user_token)
         if not user_info:
             return jsonify({"error": "Invalid or expired token"}), 401
-        
+
         # Store user data for this request
         user_data_store['token'] = user_token
         user_data_store['name'] = user_info['name']
-        
+
         print(f"User data received: name={user_name}, token={'***' if user_token else 'None'}")
+
+        # Manipulation concepts_for_paper as per users before sending to the agent
+        if user_name:
+            user_test_data = get_user_data(user_name)
         
+        print(user_test_data)
+
         # The initial state for the agent
         initial_state = {
             "paper_structure": concepts_for_paper,
@@ -434,6 +440,7 @@ def get_paper_for_test():
 
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+    
 @app.route('/submit-test-result', methods=['POST'])
 def submit_test_result():
     try:
@@ -612,7 +619,85 @@ def get_user_analytics():
 
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+    
+def get_user_data(user_name):
+    papers = db.child('papers').get()
+    test_results = db.child('test_results').get()
 
+    user_papers = []
+    user_test_results = []
+
+    # Get papers created by the user
+    if papers.each():
+        for paper in papers.each():
+            paper_data = paper.val()
+            # Fix: Use 'created_by_uid' instead of 'created_by' based on your DB structure
+            if paper_data.get('created_by') == user_name:
+                user_papers.append(paper_data)
+
+    # Get test results - need to filter by a user identifier
+    # Since there's no 'user_name' field visible, you might need to add one
+    # or use a different field to identify the user
+    if test_results.each():
+        for result in test_results.each():
+            result_data = result.val()
+            # You'll need to add a user identifier field to test_results
+            # For now, assuming you add 'user_id' or similar field
+            if result_data.get('user_name') == user_name:
+                user_test_results.append(result_data)
+    
+    final_concepts = {}
+    
+    # Process each test result
+    for test_result in user_test_results:
+        paper_id = test_result.get('paper_id')
+        answers = test_result.get('answers', {})
+        
+        # Find the corresponding paper
+        matching_paper = None
+        for paper in user_papers:
+            if paper.get('paper_id') == paper_id:
+                matching_paper = paper
+                break
+        
+        if matching_paper:
+            # Get the concept for this paper
+            concept = matching_paper.get('concept')
+            correct_answer = matching_paper.get('correct_answer')
+            
+            """
+            final_concepts[paper_id] = {
+                'concept': concept,
+                'correct_answer': correct_answer,
+                'user_answers': answers,
+                'question_text': matching_paper.get('question_text'),
+                'options': matching_paper.get('options')
+            }"""
+        
+    #analysis part
+    final_concepts_matrix = {}
+
+    for subject in ["Chemistry", "Physics", "Maths"]:
+        final_concepts_matrix.update(concepts_for_paper[subject]["concepts"])  
+
+    concept_names = list(final_concepts_matrix.keys())
+
+    # 1. initialise counters at 0
+    counts_dict = {name: 0 for name in concept_names}
+
+    # 2. tally correct answers
+    for c in concept:
+        if c in counts_dict:          # ignore any stray concepts
+            counts_dict[c] += 1
+
+    # 3. convert to a list if you need a numeric vector / matrix row
+    counts_list = [counts_dict[name] for name in concept_names]
+
+    # 4. topics the learner still struggles with
+    weak_topics = [name for name, cnt in counts_dict.items() if cnt == 0]
+
+    #return counts_dict, counts_list, weak_topics
+    return weak_topics
 
 def save_user_paper(paper_json, user_token, user_name):
     """

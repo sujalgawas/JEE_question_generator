@@ -21,10 +21,12 @@ class PaperGenerationState(TypedDict):
     paper_structure: Dict[str, Any]
     
     # State for processing
-    subjects_to_process: List[str]
+    subjects_to_process: List[str]           
     
     # Final Output - A dictionary of lists containing all question data.
     final_paper: PaperData
+    
+
     
 # --- Nodes for the Workflow ---
 def plan_paper(state: PaperGenerationState):
