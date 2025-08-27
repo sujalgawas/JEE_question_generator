@@ -1,0 +1,39 @@
+#backend files
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+
+.env
+
+# Data and index files
+jee_questions.index
+question_difficulty_concept.csv
+final_paper.json
+serviceAccountKey.json
+googleAccountKey.json
+jee_questions_open.index
+
+# google config file
+/frontend/src/components/serviceAccountKey.json
+
+#frontend section 
+/frontend/node_modules/
+/frontend/.pnp/
+/frontend/.pnp.js
+/frontend/coverage/
+/frontend/build/
+frontend/.DS_Store
+/frontend/.env.local
+/frontend/.env.development.local
+/frontend/.env.test.local
+/frontend/.env.production.local
+/frontend/npm-debug.log*
+/frontend/yarn-debug.log*
+/frontend/yarn-error.log*
