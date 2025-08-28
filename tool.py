@@ -33,7 +33,7 @@ client = openai.OpenAI(
 )
 
 # --- Global rate limit for Together free model: 0.3 QPM => 1 request per ~200s ---
-REQUEST_INTERVAL_SECONDS = 200.0  # adjust if your per-model limit changes
+REQUEST_INTERVAL_SECONDS = 10.0  # adjust if your per-model limit changes
 _last_request_time = 0.0
 _rate_lock = threading.Lock()
 
@@ -135,7 +135,7 @@ def generate_similar_question(original_question_text: str, difficulty: str, conc
         wait_for_rate_limit()
 
         response = client.chat.completions.create(
-            model="meta-llama/Llama-3.3-70B-Instruct-Turbo-Free",  # Specify model
+            model="lgai/exaone-3-5-32b-instruct",  # Specify model
             messages=[{"role": "user", "content": prompt}],
             response_format={"type": "json_object"},  # Enforce JSON output
             temperature=0.7,

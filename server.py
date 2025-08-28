@@ -394,6 +394,7 @@ def generate_paper_endpoint():
         # The initial state for the agent
         initial_state = {
             "paper_structure": concepts_for_paper,
+            "weak_concepts" : user_test_data,
         }
 
         print("Invoking the agent... This may take a while.")
@@ -708,6 +709,22 @@ def save_user_paper(paper_json, user_token, user_name):
         return None
 
     try:
+        users = db.child('users').get()
+
+        matched_user = None
+        if users.each():
+            for node in users.each():                # node.key() is the push key; node.val() is the dict
+                data = node.val()
+                if data.get("name") == user_name:
+                    matched_user = data              # keep the first match (or break after setting)
+                    break
+
+        if not matched_user:
+            raise ValueError("No user found with that name")
+
+        user_uid = matched_user.get("firebase_uid")
+
+        """
         user_uid = None
         
         # Check if this is a session-based token (from Google OAuth)
@@ -731,7 +748,7 @@ def save_user_paper(paper_json, user_token, user_name):
                 if not user_uid:
                     print("Error: Could not identify user")
                     return None
-        
+        """
         # Create unique ID for the paper
         paper_id = str(uuid.uuid4())
 

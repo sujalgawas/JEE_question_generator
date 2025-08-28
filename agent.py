@@ -3,6 +3,8 @@ from typing import TypedDict, List, Dict, Any
 from langgraph.graph import StateGraph, END
 from tool import search_questions_for_concept, generate_similar_question
 import math
+import json
+import re
 
 # This TypedDict represents the structure of the final output, but it's no longer used for single questions.
 class PaperData(TypedDict):
@@ -19,6 +21,7 @@ class PaperData(TypedDict):
 class PaperGenerationState(TypedDict):
     # Input
     paper_structure: Dict[str, Any]
+    weak_concepts : Dict[str, Any]
     
     # State for processing
     subjects_to_process: List[str]           
@@ -39,90 +42,198 @@ def plan_paper(state: PaperGenerationState):
         "question_text": [], "options": [], "difficulty": [],
         "correct_answer": [], "explanation": []
     }
-    return {"subjects_to_process": subjects, "final_paper": initial_paper_structure}
+    return {"subjects_to_process": subjects, "weak_concepts": state["weak_concepts"],"final_paper": initial_paper_structure}
 
 # The format_single_question_with_gemini function has been removed.
-def _distribute_questions(concepts: Dict[str, float], total_questions: int) -> Dict[str, int]:
-    """Distributes questions among concepts based on weightage."""
-    total_weight = sum(concepts.values())
-    if total_weight == 0: return {c: 0 for c in concepts}
-    ideal_counts = {c: (w / total_weight) * total_questions for c, w in concepts.items()}
-    final_counts = {c: int(count) for c, count in ideal_counts.items()}
-    assigned_questions = sum(final_counts.values())
-    remaining_questions = total_questions - assigned_questions
-    remainders = [(c, ideal_counts[c] - final_counts[c]) for c in concepts]
-    remainders.sort(key=lambda x: x[1], reverse=True)
-    for i in range(remaining_questions):
-        final_counts[remainders[i][0]] += 1
-    return final_counts
+def _distribute_questions(concepts: Dict[str, float],
+                          total_q: int,
+                          weak: Dict[str, Any],
+                          boost: float = 2.0) -> Dict[str, int]:
+    # ↑ extra args: weak concepts & boost factor
+    # bump weight for weak concepts
+    adj_weights = {
+        c: w * boost if c in weak else w
+        for c, w in concepts.items()
+    }
+
+    total_weight = sum(adj_weights.values())
+    if total_weight == 0:
+        return {c: 0 for c in concepts}
+
+    ideal = {c: (w / total_weight) * total_q for c, w in adj_weights.items()}
+    counts = {c: int(v) for c, v in ideal.items()}
+
+    # round-off adjustment (same code as before)
+    assigned = sum(counts.values())
+    for c, _ in sorted(ideal.items(), key=lambda kv: kv[1]-counts[kv[0]], reverse=True)[:total_q-assigned]:
+        counts[c] += 1
+    return counts
+
+def _extract_json_object(s: str) -> str:
+    """
+    Try to extract the first top-level JSON object from a string.
+    Handles code fences and extra prose. Returns the JSON substring or raises.
+    """
+    if not isinstance(s, str):
+        raise ValueError("Expected string for JSON extraction")
+
+    # Remove common Markdown code fences
+    s_clean = re.sub(r"^\s*``````\s*$", "", s.strip())
+
+    # If the whole thing is a JSON object already, try directly
+    try:
+        obj = json.loads(s_clean)
+        return s_clean
+    except Exception:
+        pass
+
+    # Otherwise, scan for a top-level {...} block
+    depth = 0
+    start = -1
+    for i, ch in enumerate(s_clean):
+        if ch == '{':
+            if depth == 0:
+                start = i
+            depth += 1
+        elif ch == '}':
+            depth -= 1
+            if depth == 0 and start != -1:
+                candidate = s_clean[start:i+1]
+                # validate
+                json.loads(candidate)
+                return candidate
+    raise ValueError("No valid top-level JSON object found")
+
+def _coerce_to_parts(raw):
+    """
+    Accepts various provider outputs and returns a dict with:
+    question_text, options, correct_answer, explanation.
+    Handles dict, list, and raw string (JSON inside).
+    """
+    # Already dict (ideal)
+    if isinstance(raw, dict):
+        return {
+            "question_text": raw.get("question_text") or raw.get("text") or "",
+            "options": raw.get("options") or {},
+            "correct_answer": raw.get("correct_answer") or raw.get("answer") or "",
+            "explanation": raw.get("explanation") or raw.get("rationale") or ""
+        }
+
+    # List cases
+    if isinstance(raw, list):
+        if raw and isinstance(raw[0], dict):
+            cand = raw[0]
+            return {
+                "question_text": cand.get("question_text") or cand.get("text") or "",
+                "options": cand.get("options") or {},
+                "correct_answer": cand.get("correct_answer") or cand.get("answer") or "",
+                "explanation": cand.get("explanation") or cand.get("rationale") or ""
+            }
+        q = raw[0] if len(raw) > 0 else ""
+        opts = raw[1] if len(raw) > 1 and isinstance(raw[1], dict) else {}
+        ans = raw[2] if len(raw) > 2 else ""
+        exp = raw[3] if len(raw) > 3 else ""
+        return {"question_text": q, "options": opts, "correct_answer": ans, "explanation": exp}
+
+    # Raw string: try to extract JSON; if not, treat as question text
+    if isinstance(raw, str):
+        try:
+            json_str = _extract_json_object(raw)
+            obj = json.loads(json_str)
+            return _coerce_to_parts(obj)
+        except Exception as e:
+            # Fallback: use the raw string as question_text
+            preview = raw[:120].replace("\n", " ")
+            print(f"Warning: could not parse JSON from model output; using raw text. Preview: {preview}")
+            return {"question_text": raw, "options": {}, "correct_answer": "", "explanation": ""}
+
+    # Unknown type
+    return {"question_text": "", "options": {}, "correct_answer": "", "explanation": ""}
 
 def process_subject(state: PaperGenerationState):
     """
     Processes a subject by generating structured question data and appending it
-    to the final_paper dictionary of lists.
+    to the final_paper dictionary of lists. Robust to bad JSON and varied shapes.
     """
     print("---PROCESSING A SUBJECT---")
-    
+
     subjects_remaining = state['subjects_to_process']
     current_subject_name = subjects_remaining[0]
     next_subjects = subjects_remaining[1:]
-    
+
     print(f"Current Subject: {current_subject_name}")
-    
+
     subject_details = state['paper_structure'][current_subject_name]
     subject_total_questions = subject_details['total_questions']
     subject_concepts = subject_details['concepts']
-    
-    # Start question numbering from where we left off
+
     question_number = len(state['final_paper']['question_number']) + 1
 
-    question_allocation = _distribute_questions(subject_concepts, subject_total_questions)
+    weak = state["weak_concepts"]
+    question_allocation = _distribute_questions(
+        subject_concepts,
+        subject_total_questions,
+        weak
+    )
     print(f"  - Calculated Question Allocation (Target): {question_allocation}")
 
     for concept, num_questions_to_generate in question_allocation.items():
-        if num_questions_to_generate == 0: continue
+        if num_questions_to_generate == 0:
+            continue
 
         print(f"  - Concept: {concept} -> Generating {num_questions_to_generate} new questions.")
-        
+
         retrieved_templates_df = search_questions_for_concept(concept, int(num_questions_to_generate))
         if retrieved_templates_df.empty:
             print(f"    No template questions retrieved for concept: {concept}. Skipping.")
             continue
-        
+
         for _, row in retrieved_templates_df.iterrows():
             try:
-                # 1. Generate the core parts of the question (text, options, answer, explanation)
-                generated_parts = generate_similar_question(
-                    original_question_text=row['question'],
-                    difficulty=row['difficulty'],
+                raw_parts = generate_similar_question(
+                    original_question_text=row.get('question', ''),
+                    difficulty=row.get('difficulty', ''),
                     concept=concept
                 )
-                
-                # 2. Combine with static data to form a complete question dictionary
+
+                # Show a short preview for debugging
+                preview = str(raw_parts)
+                preview = preview[:200].replace("\n", " ")
+                print("    Provider output preview:", preview)
+
+                # Normalize robustly (handles JSON-in-string)
+                generated_parts = _coerce_to_parts(raw_parts)
+
+                weightage = subject_concepts.get(concept, 0) if isinstance(subject_concepts, dict) else 0
+
                 full_question_data = {
                     "question_number": question_number,
                     "subject": current_subject_name,
                     "concept": concept,
-                    "weightage": subject_concepts.get(concept, 0),
-                    "difficulty": row['difficulty'],
+                    "weightage": weightage,
+                    "difficulty": row.get('difficulty', ''),
                     "question_text": generated_parts.get("question_text", "Error: Not generated"),
                     "options": generated_parts.get("options", {}),
                     "correct_answer": generated_parts.get("correct_answer", "N/A"),
                     "explanation": generated_parts.get("explanation", "N/A"),
                 }
-                
-                # 3. Append each value to the corresponding list in the state's final_paper
+
                 for key, value in full_question_data.items():
                     if key in state['final_paper']:
                         state['final_paper'][key].append(value)
-                
+
                 question_number += 1
+
+            except json.JSONDecodeError as je:
+                print(f"Skipping question due to JSON parse error: {je}")
             except Exception as e:
                 print(f"Skipping a single question generation due to error: {e}")
 
-    # Return the updated state. The graph will pass this along.
-    return {"final_paper": state['final_paper'], "subjects_to_process": next_subjects}
-
+    return {
+        "final_paper": state["final_paper"],
+        "subjects_to_process": next_subjects,
+        "weak_concepts": weak
+    }
 
 def should_continue_subjects(state: PaperGenerationState):
     """Determines if there are more subjects to process."""
