@@ -794,4 +794,5 @@ if __name__ == '__main__':
     # Run the Flask app on port 5000, accessible from any IP on your network.
     # Use debug=True for development to get auto-reloading and helpful error pages.
     # In a production environment, you would use a proper WSGI server like Gunicorn.
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    port = int(os.environ.get("PORT", 5000))  # use Render's port or fallback to 5000 locally
+    app.run(host="0.0.0.0", port=port, debug=True)
