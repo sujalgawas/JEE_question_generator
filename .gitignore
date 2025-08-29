@@ -13,12 +13,9 @@ wheels/
 .env
 
 # Data and index files
-jee_questions.index
-question_difficulty_concept.csv
 final_paper.json
 serviceAccountKey.json
 googleAccountKey.json
-jee_questions_open.index
 
 # google config file
 /frontend/src/components/serviceAccountKey.json
