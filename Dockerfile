@@ -15,4 +15,5 @@ COPY . .
 EXPOSE 8080
 
 # Run app with Gunicorn, binding to $PORT (set by Render)
-CMD ["sh", "-c", "gunicorn --bind 0.0.0.0:${PORT} --workers 2 --threads 4 server:app"]
+CMD ["gunicorn", "--bind", "0.0.0.0:8080", "--workers", "2", "--threads", "4", "server:app"]
+
