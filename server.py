@@ -297,7 +297,7 @@ def google_login_callback():
         session.permanent = True  # Make session persistent
         
         # 7. Redirect the user back to the frontend with the token
-        success_url = f"{FRONTEND_URL}/JEE_question_generator/auth/callback?idToken={firebase_id_token}&name={name}"
+        success_url = f"{FRONTEND_URL}/auth/callback?idToken={firebase_id_token}&name={name}"
         print(f"Redirecting to success URL: {success_url}")
         return redirect(success_url)
 
