@@ -61,7 +61,7 @@ export default function MCQTest() {
             return;
         }
 
-        fetch("http://localhost:5000/get-paper-for-test", {
+        fetch("https://jee-question-generator.onrender.com/get-paper-for-test", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ token, paperId })
