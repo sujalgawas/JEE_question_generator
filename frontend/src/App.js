@@ -83,7 +83,7 @@ export default function App() {
         .animate-fade-in { animation: fade-in 0.5s ease-out forwards; }
       `}</style>
 
-            <Router basename="/JEE_question_generator">
+            <Router>
                 <Navbar user={user} onLogout={handleLogout} />
 
                 <main className="flex-grow">
