@@ -36,9 +36,9 @@ app.secret_key = os.environ.get("FLASK_SECRET_KEY", os.urandom(24))
 CORS(app)
 
 SCOPES = ['openid', 'https://www.googleapis.com/auth/userinfo.email', 'https://www.googleapis.com/auth/userinfo.profile']
-REDIRECT_URI = "http://localhost:5000/login/google/callback"
+REDIRECT_URI = "https://jee-question-generator.onrender.com/JEE_question_generator/login/google/callback"
 # The URL your frontend is running on
-FRONTEND_URL = "http://localhost:3000" # If your frontend also uses HTTPS
+FRONTEND_URL = "https://sujalgawas.github.io/JEE_question_generator" # If your frontend also uses HTTPS
 
 # --- Existing Signup Endpoint (No changes needed) ---
 @app.route('/signup', methods=['POST'])
@@ -297,7 +297,7 @@ def google_login_callback():
         session.permanent = True  # Make session persistent
         
         # 7. Redirect the user back to the frontend with the token
-        success_url = f"{FRONTEND_URL}/auth/callback?idToken={firebase_id_token}&name={name}"
+        success_url = f"{FRONTEND_URL}/JEE_question_generator/auth/callback?idToken={firebase_id_token}&name={name}"
         print(f"Redirecting to success URL: {success_url}")
         return redirect(success_url)
 

@@ -138,7 +138,7 @@ export default function MCQTest() {
         };
 
         try {
-            const response = await fetch("http://localhost:5000/submit-test-result", {
+            const response = await fetch("https://jee-question-generator.onrender.com/submit-test-result", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ 

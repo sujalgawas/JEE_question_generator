@@ -58,7 +58,7 @@ export default function Analytics() {
             return;
         }
 
-        fetch("http://localhost:5000/get-user-analytics", {
+        fetch("https://jee-question-generator.onrender.com/get-user-analytics", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ token, userName })

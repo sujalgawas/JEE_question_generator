@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const generatePaperFromAPI = async (userData = null) => {
-    const API_URL = 'http://localhost:5000/generate-paper';
+    const API_URL = 'https://jee-question-generator.onrender.com/generate-paper';
 
     let requestBody = {};
     if (userData && userData.token && userData.name) {

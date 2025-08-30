@@ -53,7 +53,7 @@ export default function App() {
 
         console.log('Generating paper with user data:', { name: userName });
 
-        fetch('http://localhost:5000/generate-paper', {
+        fetch('https://jee-question-generator.onrender.com/generate-paper', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(requestData)

@@ -39,7 +39,7 @@ function SignUp() {
 
         setIsLoading(true);
         try {
-            const response = await axios.post('http://localhost:5000/signup', { name, email, password });
+            const response = await axios.post('https://jee-question-generator.onrender.com/signup', { name, email, password });
             
             setStatusMessage(response.data.message);
             setIsError(false);

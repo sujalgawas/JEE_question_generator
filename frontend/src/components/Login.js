@@ -59,7 +59,7 @@ function Login({ onLoginSuccess }) {
         setIsLoading(true);
 
         try {
-            const response = await axios.post('http://localhost:5000/login', { 
+            const response = await axios.post('https://jee-question-generator.onrender.com/login', { 
                 email, 
                 password 
             });
@@ -107,7 +107,7 @@ function Login({ onLoginSuccess }) {
     };
 
     const handleGoogleLogin = () => {
-        const backendGoogleUrl = 'http://localhost:5000/login/google';
+        const backendGoogleUrl = 'https://jee-question-generator.onrender.com/login/google';
         const width = 600, height = 700;
         const left = (window.innerWidth / 2) - (width / 2);
         const top = (window.innerHeight / 2) - (height / 2);
