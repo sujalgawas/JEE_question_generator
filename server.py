@@ -36,7 +36,7 @@ app.secret_key = os.environ.get("FLASK_SECRET_KEY", os.urandom(24))
 CORS(app)
 
 SCOPES = ['openid', 'https://www.googleapis.com/auth/userinfo.email', 'https://www.googleapis.com/auth/userinfo.profile']
-REDIRECT_URI = "https://jee-question-generator.onrender.com/JEE_question_generator/login/google/callback"
+REDIRECT_URI = "https://jee-question-generator.onrender.com/login/google/callback"
 # The URL your frontend is running on
 FRONTEND_URL = "https://sujalgawas.github.io/JEE_question_generator" # If your frontend also uses HTTPS
 
