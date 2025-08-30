@@ -38,7 +38,7 @@ CORS(app)
 SCOPES = ['openid', 'https://www.googleapis.com/auth/userinfo.email', 'https://www.googleapis.com/auth/userinfo.profile']
 REDIRECT_URI = "https://jee-question-generator.onrender.com/login/google/callback"
 # The URL your frontend is running on
-FRONTEND_URL = "https://sujalgawas.github.io/JEE_question_generator" # If your frontend also uses HTTPS
+FRONTEND_URL = "https://sujalgawas.github.io" # If your frontend also uses HTTPS
 
 # --- Existing Signup Endpoint (No changes needed) ---
 @app.route('/signup', methods=['POST'])
