@@ -656,6 +656,8 @@ def get_user_data(user_name):
 
         # Find the corresponding paper
         matching_paper = next((paper for paper in user_papers if paper.get('paper_id') == paper_id), None)
+        
+        concept = []
 
         if matching_paper:
             # Get the concept for this paper
