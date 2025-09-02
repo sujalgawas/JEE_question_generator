@@ -648,56 +648,52 @@ def get_user_data(user_name):
                 user_test_results.append(result_data)
     
     final_concepts = {}
-    
+
     # Process each test result
     for test_result in user_test_results:
         paper_id = test_result.get('paper_id')
         answers = test_result.get('answers', {})
-        
+
         # Find the corresponding paper
-        matching_paper = None
-        for paper in user_papers:
-            if paper.get('paper_id') == paper_id:
-                matching_paper = paper
-                break
-        
+        matching_paper = next((paper for paper in user_papers if paper.get('paper_id') == paper_id), None)
+
         if matching_paper:
             # Get the concept for this paper
             concept = matching_paper.get('concept')
             correct_answer = matching_paper.get('correct_answer')
             
-            """
-            final_concepts[paper_id] = {
-                'concept': concept,
-                'correct_answer': correct_answer,
-                'user_answers': answers,
-                'question_text': matching_paper.get('question_text'),
-                'options': matching_paper.get('options')
-            }"""
-        
-    #analysis part
+            if concept is None:
+                concept = []  # Initialize empty list if concept is None
+        else:
+            concept = []  # Also empty if no paper is found
+
+        # ... (other processing for final_concepts as before)
+
+    # Analysis part
     final_concepts_matrix = {}
 
     for subject in ["Chemistry", "Physics", "Maths"]:
-        final_concepts_matrix.update(concepts_for_paper[subject]["concepts"])  
+        final_concepts_matrix.update(concepts_for_paper[subject]["concepts"])
 
     concept_names = list(final_concepts_matrix.keys())
 
-    # 1. initialise counters at 0
+    # 1. initialize counters at 0
     counts_dict = {name: 0 for name in concept_names}
 
     # 2. tally correct answers
     for c in concept:
-        if c in counts_dict:          # ignore any stray concepts
+        if c in counts_dict:  # ignore stray concepts
             counts_dict[c] += 1
 
     # 3. convert to a list if you need a numeric vector / matrix row
     counts_list = [counts_dict[name] for name in concept_names]
 
     # 4. topics the learner still struggles with
-    weak_topics = [name for name, cnt in counts_dict.items() if cnt == 0]
+    if not concept:
+        weak_topics = 0  # If concept is empty, return zero
+    else:
+        weak_topics = [name for name, cnt in counts_dict.items() if cnt == 0]
 
-    #return counts_dict, counts_list, weak_topics
     return weak_topics
 
 def save_user_paper(paper_json, user_token, user_name):
