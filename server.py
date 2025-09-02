@@ -642,9 +642,8 @@ def get_user_data(user_name):
             if result_data.get('user_name') == user_name:
                 user_test_results.append(result_data)
     
-    all_concepts = []  # Aggregate concepts from all matching papers
+    all_concepts = []
 
-    # Process each test result
     for test_result in user_test_results:
         paper_id = test_result.get('paper_id')
         answers = test_result.get('answers', {})
@@ -656,13 +655,14 @@ def get_user_data(user_name):
             concept = matching_paper.get('concept')
             if concept is None:
                 concept = []
-            # flatten if concept is a list, else wrap into a list
-            if not isinstance(concept, list):
-                concept = [concept]
-        else:
-            concept = []
+            if isinstance(concept, list):
+                all_concepts.extend(concept)
+            elif isinstance(concept, str):
+                all_concepts.append(concept)
+            # If concept is any other type (int, None), ignore
+        # else: no concepts to add
 
-        all_concepts.extend(concept)
+    # Now analysis as before, using only valid strings in all_concepts
 
     # Analysis part
     final_concepts_matrix = {}
