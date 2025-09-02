@@ -678,7 +678,7 @@ def get_user_data(user_name):
     counts_list = [counts_dict[name] for name in concept_names]
 
     if not all_concepts:
-        weak_topics = 0
+        weak_topics = []
     else:
         weak_topics = [name for name, cnt in counts_dict.items() if cnt == 0]
 
