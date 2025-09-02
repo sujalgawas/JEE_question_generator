@@ -665,6 +665,11 @@ def get_user_data(user_name):
 
     concept_names = list(final_concepts_matrix.keys())
     counts_dict = {name: 0 for name in concept_names}
+    
+    if all_concepts:  # Only run loop if list is not empty
+        for c in all_concepts:
+            if c in counts_dict:
+                counts_dict[c] += 1
 
     for c in all_concepts:
         if c in counts_dict:
