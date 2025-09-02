@@ -628,14 +628,12 @@ def get_user_data(user_name):
     user_papers = []
     user_test_results = []
 
-    # Get papers created by the user
     if papers.each():
         for paper in papers.each():
             paper_data = paper.val()
             if paper_data.get('created_by') == user_name:
                 user_papers.append(paper_data)
 
-    # Get test results for the user
     if test_results.each():
         for result in test_results.each():
             result_data = result.val()
@@ -646,23 +644,19 @@ def get_user_data(user_name):
 
     for test_result in user_test_results:
         paper_id = test_result.get('paper_id')
-        answers = test_result.get('answers', {})
-
-        # Find the corresponding paper
+        # Find corresponding paper
         matching_paper = next((paper for paper in user_papers if paper.get('paper_id') == paper_id), None)
-
         if matching_paper:
             concept = matching_paper.get('concept')
             if concept is None:
-                concept = []
-            if isinstance(concept, list):
-                all_concepts.extend(concept)
+                continue
+            elif isinstance(concept, list):
+                for c in concept:
+                    if isinstance(c, str):
+                        all_concepts.append(c)
             elif isinstance(concept, str):
                 all_concepts.append(concept)
-            # If concept is any other type (int, None), ignore
-        # else: no concepts to add
-
-    # Now analysis as before, using only valid strings in all_concepts
+            # ignore everything else
 
     # Analysis part
     final_concepts_matrix = {}
@@ -670,7 +664,6 @@ def get_user_data(user_name):
         final_concepts_matrix.update(concepts_for_paper[subject]["concepts"])
 
     concept_names = list(final_concepts_matrix.keys())
-
     counts_dict = {name: 0 for name in concept_names}
 
     for c in all_concepts:
@@ -679,13 +672,13 @@ def get_user_data(user_name):
 
     counts_list = [counts_dict[name] for name in concept_names]
 
-    # topics the learner still struggles with
-    if not all_concepts:  # If no concepts encountered at all
+    if not all_concepts:
         weak_topics = 0
     else:
         weak_topics = [name for name, cnt in counts_dict.items() if cnt == 0]
 
     return weak_topics
+
 
 def save_user_paper(paper_json, user_token, user_name):
     """
