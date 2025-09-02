@@ -632,22 +632,17 @@ def get_user_data(user_name):
     if papers.each():
         for paper in papers.each():
             paper_data = paper.val()
-            # Fix: Use 'created_by_uid' instead of 'created_by' based on your DB structure
             if paper_data.get('created_by') == user_name:
                 user_papers.append(paper_data)
 
-    # Get test results - need to filter by a user identifier
-    # Since there's no 'user_name' field visible, you might need to add one
-    # or use a different field to identify the user
+    # Get test results for the user
     if test_results.each():
         for result in test_results.each():
             result_data = result.val()
-            # You'll need to add a user identifier field to test_results
-            # For now, assuming you add 'user_id' or similar field
             if result_data.get('user_name') == user_name:
                 user_test_results.append(result_data)
     
-    final_concepts = {}
+    all_concepts = []  # Aggregate concepts from all matching papers
 
     # Process each test result
     for test_result in user_test_results:
@@ -656,43 +651,37 @@ def get_user_data(user_name):
 
         # Find the corresponding paper
         matching_paper = next((paper for paper in user_papers if paper.get('paper_id') == paper_id), None)
-        
-        concept = []
 
         if matching_paper:
-            # Get the concept for this paper
             concept = matching_paper.get('concept')
-            correct_answer = matching_paper.get('correct_answer')
-            
             if concept is None:
-                concept = []  # Initialize empty list if concept is None
+                concept = []
+            # flatten if concept is a list, else wrap into a list
+            if not isinstance(concept, list):
+                concept = [concept]
         else:
-            concept = []  # Also empty if no paper is found
+            concept = []
 
-        # ... (other processing for final_concepts as before)
+        all_concepts.extend(concept)
 
     # Analysis part
     final_concepts_matrix = {}
-
     for subject in ["Chemistry", "Physics", "Maths"]:
         final_concepts_matrix.update(concepts_for_paper[subject]["concepts"])
 
     concept_names = list(final_concepts_matrix.keys())
 
-    # 1. initialize counters at 0
     counts_dict = {name: 0 for name in concept_names}
 
-    # 2. tally correct answers
-    for c in concept:
-        if c in counts_dict:  # ignore stray concepts
+    for c in all_concepts:
+        if c in counts_dict:
             counts_dict[c] += 1
 
-    # 3. convert to a list if you need a numeric vector / matrix row
     counts_list = [counts_dict[name] for name in concept_names]
 
-    # 4. topics the learner still struggles with
-    if not concept:
-        weak_topics = 0  # If concept is empty, return zero
+    # topics the learner still struggles with
+    if not all_concepts:  # If no concepts encountered at all
+        weak_topics = 0
     else:
         weak_topics = [name for name, cnt in counts_dict.items() if cnt == 0]
 
