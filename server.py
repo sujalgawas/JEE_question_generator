@@ -10,6 +10,11 @@ import requests # Make sure to install this
 import secrets
 from datetime import datetime
 import uuid
+from dotenv import load_dotenv
+
+load_dotenv(dotenv_path=".env")
+
+config_flask = os.getenv("FLASK_ENV")
 
 os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
 
@@ -32,13 +37,27 @@ pending_verifications = {}
 # Initialize Flask app
 app = Flask(__name__)
 app.secret_key = os.environ.get("FLASK_SECRET_KEY", os.urandom(24))
-# Enable CORS to allow requests from your React frontend
-CORS(app)
 
+
+# --- NEW: DYNAMIC CONFIGURATION ---
+# Check if the app is running in a 'development' environment
+if config_flask == 'development':
+    print("Running in development mode xd xd xd")
+    # Use local URLs for development
+    FRONTEND_URL = "http://localhost:3000"
+    # The Google callback should point to your local backend
+    REDIRECT_URI = "http://localhost:5000/login/google/callback" 
+else:
+    # Use production URLs when deployed
+    FRONTEND_URL = "https://sujalgawas.github.io/JEE_question_generator/#"
+    REDIRECT_URI = "https://jee-question-generator.onrender.com/login/google/callback"
+
+# --- NEW: SECURE CORS SETUP ---
+# Only allow requests from your specific frontend URL
+CORS(app, resources={r"/*": {"origins": FRONTEND_URL}})
+
+# --- Google Auth setup (uses the dynamic REDIRECT_URI) ---
 SCOPES = ['openid', 'https://www.googleapis.com/auth/userinfo.email', 'https://www.googleapis.com/auth/userinfo.profile']
-REDIRECT_URI = "https://jee-question-generator.onrender.com/login/google/callback"
-# The URL your frontend is running on
-FRONTEND_URL = "https://sujalgawas.github.io/JEE_question_generator/#" # If your frontend also uses HTTPS
 
 # --- Existing Signup Endpoint (No changes needed) ---
 @app.route('/signup', methods=['POST'])

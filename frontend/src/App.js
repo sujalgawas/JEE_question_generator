@@ -13,6 +13,7 @@ import Dashboard from './components/Dashboard';
 import PastPaper from './components/PastPapers';
 import MCQTest from './components/MCQTest';
 import Analytics from './components/Analytics';
+import API_URL from './apiConfig';
 
 const Contact = () => (
     <div className="p-8 text-center text-white">
@@ -53,7 +54,7 @@ export default function App() {
 
         console.log('Generating paper with user data:', { name: userName });
 
-        fetch('https://jee-question-generator.onrender.com/generate-paper', {
+        fetch(`${API_URL}/generate-paper`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(requestData)

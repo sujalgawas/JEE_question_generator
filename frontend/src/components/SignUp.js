@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 // 1. Import Link from react-router-dom
 import { Link } from 'react-router-dom';
+import API_URL from '../apiConfig';
 
 const StatusIcon = () => (
     <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -39,7 +40,7 @@ function SignUp() {
 
         setIsLoading(true);
         try {
-            const response = await axios.post('https://jee-question-generator.onrender.com/signup', { name, email, password });
+            const response = await axios.post(`${API_URL}/signup`, { name, email, password });
             
             setStatusMessage(response.data.message);
             setIsError(false);

@@ -1,6 +1,7 @@
 // Analytics.js
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import API_URL from '../apiConfig';
 
 // Helper function to convert options object to array (same as MCQTest)
 const convertOptionsToArray = (optionsObj) => {
@@ -58,7 +59,7 @@ export default function Analytics() {
             return;
         }
 
-        fetch("https://jee-question-generator.onrender.com/get-user-analytics", {
+        fetch(`${API_URL}/get-user-analytics`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ token, userName })

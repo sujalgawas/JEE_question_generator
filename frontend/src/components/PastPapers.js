@@ -1,6 +1,7 @@
 // PastPaper.js
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import API_URL from '../apiConfig';
 
 export default function PastPaper() {
     const [papers, setPapers] = useState([]);
@@ -18,7 +19,7 @@ export default function PastPaper() {
             return;
         }
 
-        fetch("https://jee-question-generator.onrender.com/retrieve-papers", {
+        fetch(`${API_URL}/retrieve-papers`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ token, name: userName })

@@ -1,6 +1,7 @@
 // MCQTest.js
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import API_URL from '../apiConfig';
 
 // Helper function to convert options object to array
 const convertOptionsToArray = (optionsObj) => {
@@ -61,7 +62,7 @@ export default function MCQTest() {
             return;
         }
 
-        fetch("https://jee-question-generator.onrender.com/get-paper-for-test", {
+        fetch(`${API_URL}/get-paper-for-test`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ token, paperId })
@@ -138,7 +139,7 @@ export default function MCQTest() {
         };
 
         try {
-            const response = await fetch("https://jee-question-generator.onrender.com/submit-test-result", {
+            const response = await fetch(`${API_URL}/submit-test-result`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ 

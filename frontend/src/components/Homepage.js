@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import API_URL from '../apiConfig';
 
 const generatePaperFromAPI = async (userData = null) => {
-    const API_URL = 'https://jee-question-generator.onrender.com/generate-paper';
+    const fullUrl = `${API_URL}/generate-paper`; 
 
     let requestBody = {};
     if (userData && userData.token && userData.name) {
@@ -15,7 +16,7 @@ const generatePaperFromAPI = async (userData = null) => {
         console.log("Sending request without user authentication");
     }
 
-    const response = await fetch(API_URL, {
+    const response = await fetch(fullUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(requestBody)

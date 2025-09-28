@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Link, useSearchParams, useNavigate } from 'react-router-dom';
+import API_URL from '../apiConfig';
 
 function Login({ onLoginSuccess }) {
     const [email, setEmail] = useState('');
@@ -59,7 +60,7 @@ function Login({ onLoginSuccess }) {
         setIsLoading(true);
 
         try {
-            const response = await axios.post('https://jee-question-generator.onrender.com/login', { 
+            const response = await axios.post(`${API_URL}/login`, { 
                 email, 
                 password 
             });
@@ -107,7 +108,7 @@ function Login({ onLoginSuccess }) {
     };
 
     const handleGoogleLogin = () => {
-        const backendGoogleUrl = 'https://jee-question-generator.onrender.com/login/google';
+        const backendGoogleUrl = `${API_URL}/login/google`;
         const width = 600, height = 700;
         const left = (window.innerWidth / 2) - (width / 2);
         const top = (window.innerHeight / 2) - (height / 2);

@@ -18,7 +18,7 @@ class PaperData(TypedDict):
     correct_answer: List[str]
     explanation: List[str]
 
-class PaperGenerationState(TypedDict):
+class PaperGenerationState(TypedDict): 
     # Input
     paper_structure: Dict[str, Any]
     weak_concepts : Dict[str, Any]
