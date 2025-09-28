@@ -40,21 +40,20 @@ app.secret_key = os.environ.get("FLASK_SECRET_KEY", os.urandom(24))
 
 
 # --- NEW: DYNAMIC CONFIGURATION ---
-# Check if the app is running in a 'development' environment
+# --- NEW: DYNAMIC CONFIGURATION ---
 if config_flask == 'development':
-    print("Running in development mode xd xd xd")
-    # Use local URLs for development
-    FRONTEND_URL = "http://localhost:3000"
-    # The Google callback should point to your local backend
-    REDIRECT_URI = "http://localhost:5000/login/google/callback" 
+    print("Running in development mode")
+    FRONTEND_ORIGIN = "http://localhost:3000"  # origin for CORS checks
+    FRONTEND_BASE = "http://localhost:3000"    # url used for redirects
+    REDIRECT_URI = "http://localhost:5000/login/google/callback"
 else:
-    # Use production URLs when deployed
-    FRONTEND_URL = "https://sujalgawas.github.io/JEE_question_generator/#"
+    # production
+    FRONTEND_ORIGIN = "https://sujalgawas.github.io"
+    FRONTEND_BASE = "https://sujalgawas.github.io/JEE_question_generator"  # used for client redirects
     REDIRECT_URI = "https://jee-question-generator.onrender.com/login/google/callback"
 
-# --- NEW: SECURE CORS SETUP ---
-# Only allow requests from your specific frontend URL
-CORS(app, resources={r"/*": {"origins": FRONTEND_URL}})
+# Only allow requests from your frontend origin
+CORS(app, resources={r"/*": {"origins": [FRONTEND_ORIGIN]}}, supports_credentials=True)
 
 # --- Google Auth setup (uses the dynamic REDIRECT_URI) ---
 SCOPES = ['openid', 'https://www.googleapis.com/auth/userinfo.email', 'https://www.googleapis.com/auth/userinfo.profile']
@@ -316,7 +315,7 @@ def google_login_callback():
         session.permanent = True  # Make session persistent
         
         # 7. Redirect the user back to the frontend with the token
-        success_url = f"{FRONTEND_URL}/auth/callback?idToken={firebase_id_token}&name={name}"
+        success_url = f"{FRONTEND_BASE}/#/auth/callback?idToken={firebase_id_token}&name={name}"
         print(f"Redirecting to success URL: {success_url}")
         return redirect(success_url)
 
