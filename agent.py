@@ -1,7 +1,7 @@
 # agent.py (Modified for Structured List Output)
 from typing import TypedDict, List, Dict, Any
 from langgraph.graph import StateGraph, END
-from tool import search_questions_for_concept, generate_similar_question
+from tool import search_questions_for_concept, generate_similar_question,search_content_for_concept
 import math
 import json
 import re
@@ -184,6 +184,8 @@ def process_subject(state: PaperGenerationState):
         print(f"  - Concept: {concept} -> Generating {num_questions_to_generate} new questions.")
 
         retrieved_templates_df = search_questions_for_concept(concept, int(num_questions_to_generate))
+        ncert_content = search_content_for_concept(concept,3)
+        
         if retrieved_templates_df.empty:
             print(f"    No template questions retrieved for concept: {concept}. Skipping.")
             continue
@@ -193,7 +195,8 @@ def process_subject(state: PaperGenerationState):
                 raw_parts = generate_similar_question(
                     original_question_text=row.get('question', ''),
                     difficulty=row.get('difficulty', ''),
-                    concept=concept
+                    concept=concept,
+                    ncert_content= ncert_content
                 )
 
                 # Show a short preview for debugging

@@ -11,6 +11,7 @@ import requests
 import google.generativeai as genai
 import time
 import threading
+import pickle
 
 # --- Configuration ---
 load_dotenv(dotenv_path=".env")
@@ -57,6 +58,11 @@ def apply_retry_after(headers):
     except Exception:
         pass
 
+def load_embedding(file_name):
+    with open(file_name,'rb') as f:
+        embeddings = pickle.load(f)
+    return embeddings
+
 # --- Load Data and Index ---
 df = pd.read_csv("question_difficulty_concept.csv")
 # Handle NaNs as in your original script
@@ -65,6 +71,20 @@ for col in text_columns:
     df[col] = df[col].fillna('')
 
 index = faiss.read_index("jee_questions.index")
+content_ncert = load_embedding("ncert_embeddings.pkl")
+
+if not content_ncert or 'embedding' not in content_ncert[0]:
+    raise ValueError("Loaded data is empty or does not contain embeddings.")
+
+embedding_dimension = len(content_ncert[0]['embedding'])
+
+index_content = faiss.IndexFlatL2(embedding_dimension)
+
+embeddings_list = [item['embedding'] for item in content_ncert]
+embeddings_array = np.array(embeddings_list).astype('float32')
+
+index_content.add(embeddings_array)
+
 
 # --- Core Functions (Updated for OpenAI/OpenRouter) ---
 def get_embedding(text):
@@ -91,8 +111,16 @@ def search_questions_for_concept(concept: str, num_questions: int = 3) -> pd.Dat
 
     return df.iloc[indices[0]]
 
+def search_content_for_concept(concept:str, num_chunks: int = 3):
+    query_embedding = get_embedding(concept)
+    
+    query_embedding = np.array(query_embedding).reshape(1, -1)
+    distances, indices = index_content.search(query_embedding, num_chunks)
+    # indices will contain the indices of the most similar documents
+    return indices.flatten()
+
 @retry(wait=wait_random_exponential(min=1, max=60), stop=stop_after_attempt(5))
-def generate_similar_question(original_question_text: str, difficulty: str, concept: str) -> Dict[str, Any]:
+def generate_similar_question(original_question_text: str, difficulty: str, concept: str,ncert_content: str) -> Dict[str, Any]:
     """
     Generates a similar question using Together via OpenAI client, including options, answer,
     and explanation, and returns it as a structured dictionary. Enforces ~1 request per 200s.
@@ -109,6 +137,11 @@ def generate_similar_question(original_question_text: str, difficulty: str, conc
 
     Concept: {concept}
     Difficulty: {difficulty}
+    ## Core Scientific Context (from NCERT)
+    Use these facts, formulas, and principles to create the core of the problem. The question must be answerable using this information.
+    ---
+    {ncert_content}
+    ---
 
     Your response MUST be a single, valid JSON object. Do not include any text or markdown formatting before or after the JSON.
     The JSON object must have these exact keys:
