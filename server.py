@@ -168,7 +168,7 @@ def google_login():
         print(f"Error starting Google OAuth flow: {e}")
         import traceback
         traceback.print_exc()
-        error_url = f"{FRONTEND_URL}/login?error=google_auth_failed"
+        error_url = f"{FRONTEND_BASE}/login?error=google_auth_failed"
         return redirect(error_url)
     
 # --- Step 2 of Backend Google Login (The Callback) ---
@@ -323,7 +323,7 @@ def google_login_callback():
         print(f"An ERROR occurred during Google auth callback: {e}")
         import traceback
         traceback.print_exc()
-        error_url = f"{FRONTEND_URL}/login?error=google_auth_failed"
+        error_url = f"{FRONTEND_BASE}/login?error=google_auth_failed"
         print(f"Redirecting to error URL: {error_url}")
         return redirect(error_url)
     
@@ -405,7 +405,7 @@ def generate_paper_endpoint():
 
         # Manipulation concepts_for_paper as per users before sending to the agent
         if user_name:
-            user_test_data = get_user_data(user_name)
+            user_test_data = get_weak_concepts(user_name)
         
         print(user_test_data)
 
@@ -639,69 +639,87 @@ def get_user_analytics():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
     
-def get_user_data(user_name):
-    papers = db.child('papers').get()
-    test_results = db.child('test_results').get()
+def get_weak_concepts(user_name: str) -> list:
+    """
+    Analyzes a user's test results to find the top 10 concepts they answer incorrectly most often.
 
-    user_papers = []
-    user_test_results = []
+    Args:
+        user_name: The name of the user to analyze.
 
-    if papers.each():
-        for paper in papers.each():
-            paper_data = paper.val()
-            if paper_data.get('created_by') == user_name:
-                user_papers.append(paper_data)
-
-    if test_results.each():
-        for result in test_results.each():
-            result_data = result.val()
-            if result_data.get('user_name') == user_name:
-                user_test_results.append(result_data)
+    Returns:
+        A list of up to 10 concepts the user struggles with the most, sorted by the number of mistakes.
+    """
+    print(f"\n--- 🕵️‍♂️ Starting weak concept analysis for user: '{user_name}' ---")
     
-    all_concepts = []
+    try:
+        all_papers_snapshot = db.child('papers').get()
+        all_results_snapshot = db.child('test_results').get()
+        
+        user_test_results = []
+        if all_results_snapshot.each():
+            for result in all_results_snapshot.each():
+                if result.val().get('user_name') == user_name:
+                    user_test_results.append(result.val())
 
-    for test_result in user_test_results:
-        paper_id = test_result.get('paper_id')
-        # Find corresponding paper
-        matching_paper = next((paper for paper in user_papers if paper.get('paper_id') == paper_id), None)
-        if matching_paper:
-            concept = matching_paper.get('concept')
-            if concept is None:
+        if not user_test_results:
+            print(f"   - ‼️ No test results found for user '{user_name}' after filtering.")
+            return []
+
+        all_papers = {paper.key(): paper.val() for paper in all_papers_snapshot.each()} if all_papers_snapshot.each() else {}
+        wrong_answer_counts = {}
+
+        for result in user_test_results:
+            paper_id = result.get('paper_id')
+            user_answers = result.get('answers', {})
+
+            paper_data = all_papers.get(paper_id)
+            if not paper_data:
+                print(f"   - ⚠️ WARNING: Paper ID '{paper_id}' not found for a test result. Skipping.")
                 continue
-            elif isinstance(concept, list):
-                for c in concept:
-                    if isinstance(c, str):
-                        all_concepts.append(c)
-            elif isinstance(concept, str):
-                all_concepts.append(concept)
-            # ignore everything else
 
-    # Analysis part
-    final_concepts_matrix = {}
-    for subject in ["Chemistry", "Physics", "Maths"]:
-        final_concepts_matrix.update(concepts_for_paper[subject]["concepts"])
+            correct_answer_keys = paper_data.get('correct_answer', [])
+            options_list = paper_data.get('options', [])
+            concepts_list = paper_data.get('concept', [])
+            
+            for i in range(len(correct_answer_keys)):
+                if i >= len(options_list) or i >= len(concepts_list):
+                    continue
+                
+                user_answer_value = None
+                if isinstance(user_answers, dict):
+                    user_answer_value = user_answers.get(str(i))
+                elif isinstance(user_answers, list):
+                    if i < len(user_answers): # Prevent IndexError
+                        user_answer_value = user_answers[i]
 
-    concept_names = list(final_concepts_matrix.keys())
-    counts_dict = {name: 0 for name in concept_names}
-    
-    if all_concepts:  # Only run loop if list is not empty
-        for c in all_concepts:
-            if c in counts_dict:
-                counts_dict[c] += 1
+                correct_key = correct_answer_keys[i]
+                options_for_question = options_list[i]
 
-    for c in all_concepts:
-        if c in counts_dict:
-            counts_dict[c] += 1
+                if isinstance(options_for_question, str):
+                    try:
+                        options_for_question = json.loads(options_for_question)
+                    except json.JSONDecodeError:
+                        print(f"   - ⚠️ WARNING: Could not parse options JSON for Q{i} in Paper {paper_id}.")
+                        continue
+                
+                correct_answer_value = options_for_question.get(correct_key)
 
-    counts_list = [counts_dict[name] for name in concept_names]
+                if user_answer_value != correct_answer_value:
+                    concept = concepts_list[i]
+                    if concept:
+                        wrong_answer_counts[concept] = wrong_answer_counts.get(concept, 0) + 1
+        
+        sorted_weak_concepts = sorted(wrong_answer_counts.items(), key=lambda item: item[1], reverse=True)
+        top_10_concepts = [concept for concept, count in sorted_weak_concepts[:10]]
 
-    if not all_concepts:
-        weak_topics = []
-    else:
-        weak_topics = [name for name, cnt in counts_dict.items() if cnt == 0]
+        print(f"   - ✅ Analysis complete. Top weak concepts: {top_10_concepts}")
+        return top_10_concepts
 
-    return weak_topics
-
+    except Exception as e:
+        print(f"   - 💥 An unexpected error occurred during weak concept analysis: {e}")
+        import traceback
+        traceback.print_exc()
+        return []
 
 def save_user_paper(paper_json, user_token, user_name):
     """
