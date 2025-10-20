@@ -11,27 +11,46 @@ import secrets
 from datetime import datetime
 import uuid
 from dotenv import load_dotenv
-
+import firebase_admin
+from firebase_admin import credentials, db as admin_db_sdk, auth as admin_auth_sdk
 load_dotenv(dotenv_path=".env")
 
 config_flask = os.getenv("FLASK_ENV")
 
 os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
 
-#setting up fire base for signup/login
-file_path = 'serviceAccountKey.json'
-with open(file_path, 'r') as file:
+# 'config' MUST be your new Admin SDK key
+file_path_admin = 'adminServiceKey.json' # <-- LOAD THE NEW FILE YOU JUST DOWNLOADED
+with open(file_path_admin, 'r') as file:
     config = json.load(file)
     
-file_path = 'googleAccountKey.json'
-with open(file_path, 'r') as file:
+# 'config2' is your client-side config (the one you posted)
+file_path_client = 'googleAccountKey.json' 
+with open(file_path_client, 'r') as file:
     config2 = json.load(file)
 
-firebase = pyrebase.initialize_app(config)    
-auth = firebase.auth()
+# 'config3' is your client-side config (the one you posted)
+file_path_client = 'serviceAccountKey.json' 
+with open(file_path_client, 'r') as file:
+    config3 = json.load(file)
 
-# Add this line to connect to the database
-db = firebase.database()
+
+# --- 2. Initialize firebase-admin (For Admin Database Access) ---
+# This will now work because 'config' has the correct "type": "service_account"
+cred = credentials.Certificate(config) 
+firebase_admin.initialize_app(cred, {
+    'databaseURL': config3.get('databaseURL') 
+})
+
+# --- 3. Initialize pyrebase (For User Signup/Login) ---
+# This uses 'config3', which is your main client config
+firebase_client = pyrebase.initialize_app(config3)
+
+
+# --- 4. Assign Your Variables ---
+db = admin_db_sdk.reference() # <-- This is the admin DB reference
+auth = firebase_client.auth() # <-- This is the pyrebase auth client
+admin_auth = admin_auth_sdk # <-- This is the admin auth client
 pending_verifications = {}
 
 # Initialize Flask app
@@ -39,7 +58,6 @@ app = Flask(__name__)
 app.secret_key = os.environ.get("FLASK_SECRET_KEY", os.urandom(24))
 
 
-# --- NEW: DYNAMIC CONFIGURATION ---
 # --- NEW: DYNAMIC CONFIGURATION ---
 if config_flask == 'development':
     print("Running in development mode")
@@ -70,14 +88,14 @@ def signup():
         return jsonify({"status": "error", "message": "Missing required fields"}), 400
 
     try:
-        # Step 1: Create the user in Firebase Authentication
+        # Step 1: Create the user in Firebase Authentication (Pyrebase)
         user = auth.create_user_with_email_and_password(email, password)
         user_id = user['localId']
         
-        # Step 2: Send the verification email
+        # Step 2: Send the verification email (Pyrebase)
         auth.send_email_verification(user['idToken'])
         
-        # Step 3: Save additional user data to the Realtime Database
+        # Step 3: Save additional user data to the Realtime Database (Admin DB)
         db.child("users").child(user_id).set({"name": name, "email": email})
 
         return jsonify({
@@ -99,7 +117,7 @@ def signup():
         print(f"Signup error: {message}")
         return jsonify({"status": "error", "message": message}), 400
 
-# --- Existing Login Endpoint (No changes needed) ---
+# --- Existing Login Endpoint (FIXED) ---
 @app.route('/login', methods=['POST'])
 def login():
     data = request.get_json()
@@ -118,7 +136,11 @@ def login():
             }), 403
 
         local_id = user_info['users'][0]['localId']
-        user_data = db.child("users").child(local_id).get().val()
+        
+        # --- FIX: Removed .val() ---
+        user_data = db.child("users").child(local_id).get()
+        # --- END FIX ---
+        
         name = user_data.get('name') if user_data else "User"
 
         return jsonify({
@@ -171,7 +193,7 @@ def google_login():
         error_url = f"{FRONTEND_BASE}/login?error=google_auth_failed"
         return redirect(error_url)
     
-# --- Step 2 of Backend Google Login (The Callback) ---
+# --- Step 2 of Backend Google Login (The Callback) (FIXED) ---
 @app.route('/login/google/callback')
 def google_login_callback():
     """
@@ -226,7 +248,11 @@ def google_login_callback():
         print(f"Google user info: name={name}, email={email}, id={google_user_id}")
         
         # 4. Check if user exists in our database
-        users_data = db.child("users").get().val() or {}
+        
+        # --- FIX: Removed .val() ---
+        users_data = db.child("users").get() or {}
+        # --- END FIX ---
+        
         existing_user_uid = None
         
         # Look for existing user by email
@@ -247,7 +273,11 @@ def google_login_callback():
             user_uid = existing_user_uid
             
             # Get the existing name from database
-            existing_data = db.child("users").child(existing_user_uid).get().val()
+            
+            # --- FIX: Removed .val() ---
+            existing_data = db.child("users").child(existing_user_uid).get()
+            # --- END FIX ---
+            
             name = existing_data.get('name', name)
             
         else:
@@ -264,13 +294,11 @@ def google_login_callback():
             })
         
         # 5. For compatibility with your existing frontend, we'll create a Firebase user
-        # and get an ID token. This is a workaround since we can't use the 
-        # sign_in_with_idp_access_token method.
+        # and get an ID token.
         
         try:
             # Try to create a Firebase Auth user with a temporary password
             import hashlib
-            import time
             
             # Create a deterministic but secure password based on Google user ID
             temp_password = hashlib.sha256(f"{google_user_id}_{email}_temp".encode()).hexdigest()[:16] + "Aa1!"
@@ -307,7 +335,6 @@ def google_login_callback():
             firebase_id_token = f"session_{secrets.token_urlsafe(32)}"
         
         # 6. Store session information for backend validation
-        # In your Google OAuth callback, ensure session data is set
         session['user_uid'] = user_uid
         session['user_name'] = name
         session['auth_provider'] = 'google'
@@ -333,24 +360,30 @@ print("Initializing LangGraph agent...")
 langgraph_app = get_agent_graph()
 print("Agent initialized successfully.")
 
+# --- (FIXED) ---
 def validate_user_token(token):
     """
     Validate user token and return user info
     """
     if token.startswith("session_"):
-        # Session-based token
+        # Session-based token (from Google Sign-in)
         return {
             'uid': session.get('user_uid'),
             'name': session.get('user_name'),
             'provider': 'google'
         }
     else:
-        # Firebase ID token
+        # Firebase ID token (from email/password signup)
         try:
-            user_info = auth.get_account_info(token)
-            uid = user_info['users'][0]['localId']
+            # USE ADMIN AUTH TO SECURELY VERIFY
+            user_info = admin_auth.verify_id_token(token)
+            uid = user_info['uid']
+            
             # Get name from database
-            user_data = db.child("users").child(uid).get().val()
+            # --- FIX: Removed .val() ---
+            user_data = db.child("users").child(uid).get()
+            # --- END FIX ---
+            
             name = user_data.get('name', 'User') if user_data else 'User'
             return {
                 'uid': uid,
@@ -404,10 +437,11 @@ def generate_paper_endpoint():
         print(f"User data received: name={user_name}, token={'***' if user_token else 'None'}")
 
         # Manipulation concepts_for_paper as per users before sending to the agent
+        user_test_data = [] # Default to empty list
         if user_name:
             user_test_data = get_weak_concepts(user_name)
         
-        print(user_test_data)
+        print(f"Weak concepts for user: {user_test_data}")
 
         # The initial state for the agent
         initial_state = {
@@ -437,8 +471,11 @@ def generate_paper_endpoint():
 
     except Exception as e:
         print(f"An error occurred during agent invocation: {e}")
+        import traceback
+        traceback.print_exc()
         return jsonify({"error": str(e)}), 500
     
+# --- (FIXED) ---
 @app.route('/get-paper-for-test', methods=['POST'])
 def get_paper_for_test():
     try:
@@ -450,16 +487,19 @@ def get_paper_for_test():
             return jsonify({'error': 'Missing token or paper ID'}), 400
 
         # Get paper from database
+        # --- FIX: Removed .val() ---
         paper_data = db.child('papers').child(paper_id).get()
         
-        if paper_data.val() is None:
+        if paper_data is None: # <-- FIX
             return jsonify({'error': 'Paper not found'}), 404
             
-        return jsonify({'paper': paper_data.val()}), 200
+        return jsonify({'paper': paper_data}), 200 # <-- FIX
+        # --- END FIX ---
 
     except Exception as e:
         return jsonify({'error': str(e)}), 500
     
+# --- (FIXED) ---
 @app.route('/submit-test-result', methods=['POST'])
 def submit_test_result():
     try:
@@ -477,10 +517,11 @@ def submit_test_result():
             user_uid = session.get('user_uid')
         else:
             try:
-                user_info = auth.get_account_info(token)
-                user_uid = user_info['users'][0]['localId']
+                # USE ADMIN AUTH (SECURE WAY)
+                decoded_token = admin_auth.verify_id_token(token)
+                user_uid = decoded_token['uid']
             except:
-                user_uid = session.get('user_uid')
+                user_uid = session.get('user_uid') # Fallback
 
         if not user_uid:
             return jsonify({'error': 'Could not identify user'}), 400
@@ -490,7 +531,10 @@ def submit_test_result():
         user_answers = test_result['answers']
         
         # Get correct answers from paper
-        paper_data = db.child('papers').child(paper_id).get().val()
+        # --- FIX: Removed .val() ---
+        paper_data = db.child('papers').child(paper_id).get()
+        # --- END FIX ---
+        
         if not paper_data:
             return jsonify({'error': 'Paper not found'}), 404
 
@@ -555,38 +599,101 @@ def submit_test_result():
 
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+    
+# --- (FIXED) ---
+@app.route('/delete-paper', methods=['POST'])
+def delete_paper():
+    try:
+        data = request.json
+        token = data.get('token')
+        paper_id = data.get('paper_id')
+        
+        if not token or not paper_id:
+            return jsonify({'error': 'Missing required data'}), 400
+        
+        # Decode Firebase ID token to get UID (SECURE WAY)
+        decoded_token = admin_auth.verify_id_token(token)
+        user_uid = decoded_token['uid']
+        
+        # Fetch the paper to verify it exists
+        # --- FIX: Removed .val() ---
+        paper = db.child('papers').child(paper_id).get()
+        
+        if not paper: # <-- FIX
+            return jsonify({'error': 'Paper not found'}), 404
+        
+        paper_data = paper # <-- FIX
+        # --- END FIX ---
+        
+        # Verify that the user owns this paper
+        if paper_data.get('created_by_uid') != user_uid:
+            return jsonify({'error': 'Unauthorized to delete this paper'}), 403
+        
+        # --- NEW LOGIC: Add to deleted index ---
+        db.child('deleted_paper_index').child(user_uid).child(paper_id).set(True)
+        
+        return jsonify({
+            'success': True, 
+            'message': 'Paper marked as deleted successfully',
+            'paper_id': paper_id
+        }), 200
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
-
+#
+# --- (FIXED) ---
+#
 @app.route('/retrieve-papers', methods=['POST'])
 def retrieve_papers():
     try:
         data = request.json
         token = data.get('token')
-        user_name = data.get('name')  # match your frontend naming
-
-        if not token or not user_name:
-            return jsonify({'error': 'Missing authentication data'}), 400
         
-        # Decode Firebase ID token to get UID
-        decoded_token = auth.get_account_info(token)
-        user_uid = decoded_token['users'][0]['localId']
+        if not token:
+            return jsonify({'error': 'Missing token'}), 400
+            
+        # Decode Firebase ID token to get UID (SECURE WAY)
+        decoded_token = admin_auth.verify_id_token(token)
+        user_uid = decoded_token['uid']
 
-        # Fetch all papers from 'papers' collection
-        all_papers = db.child('papers').get()
+        # 1. Fetch all papers created by this user
+        all_papers_snapshot = db.child('papers').order_by_child('created_by_uid').equal_to(user_uid).get()
+        
+        papers_list = []
+        
+        # --- FIX: Removed .val() and fixed loop ---
+        if all_papers_snapshot: # <-- FIX
+            # Convert the dictionary of papers into a list
+            for paper_id, paper_data in all_papers_snapshot.items(): # <-- FIX
+                paper_data['paper_id'] = paper_id # Ensure the ID is in the object
+                papers_list.append(paper_data)
+        # --- END FIX ---
+            
+            # Sort by creation date, newest first (optional, but good)
+            papers_list.sort(key=lambda x: x.get('created_at', ''), reverse=True)
 
-        # Filter papers that match this user's UID
-        user_papers = []
-        if all_papers.each() is not None:
-            for paper_snapshot in all_papers.each():
-                paper = paper_snapshot.val()
-                if paper.get('created_by_uid') == user_uid or paper.get('created_by') == user_name:
-                    user_papers.append(paper)
-
-        return jsonify({'papers': user_papers}), 200
+        # 2. Fetch the index of deleted papers for this user
+        deleted_index_snapshot = db.child('deleted_paper_index').child(user_uid).get()
+        
+        deleted_ids = []
+        
+        # --- FIX: Removed .val() and fixed list conversion ---
+        if deleted_index_snapshot: # <-- FIX
+            # Get all the keys (which are the paper_ids)
+            deleted_ids = list(deleted_index_snapshot.keys()) # <-- FIX
+        # --- END FIX ---
+            
+        # 3. Return BOTH lists to the frontend
+        return jsonify({
+            'papers': papers_list,
+            'deleted_ids': deleted_ids
+        }), 200
 
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+# --- (FIXED) ---
 @app.route('/get-user-analytics', methods=['POST'])
 def get_user_analytics():
     try:
@@ -603,30 +710,34 @@ def get_user_analytics():
             user_uid = session.get('user_uid')
         else:
             try:
-                user_info = auth.get_account_info(token)
-                user_uid = user_info['users'][0]['localId']
+                # USE ADMIN AUTH (SECURE WAY)
+                decoded_token = admin_auth.verify_id_token(token)
+                user_uid = decoded_token['uid']
             except:
-                user_uid = session.get('user_uid')
+                user_uid = session.get('user_uid') # Fallback
 
         if not user_uid:
             return jsonify({'error': 'Could not identify user'}), 400
 
         # Fetch all test results for this user
-        all_results = db.child('test_results').get()
+        all_results_snapshot = db.child('test_results').get() 
         user_results = []
         
-        if all_results.each() is not None:
-            for result_snapshot in all_results.each():
-                result = result_snapshot.val()
+        # --- FIX: Removed .val() and fixed loop ---
+        if all_results_snapshot is not None:
+            for result_key, result in all_results_snapshot.items(): # <-- FIX
                 if result.get('user_uid') == user_uid:
                     user_results.append(result)
+        # --- END FIX ---
 
         # Fetch paper details for each result
         detailed_results = []
         for result in user_results:
             paper_id = result.get('paper_id')
             if paper_id:
-                paper_data = db.child('papers').child(paper_id).get().val()
+                # --- FIX: Removed .val() ---
+                paper_data = db.child('papers').child(paper_id).get()
+                # --- END FIX ---
                 if paper_data:
                     result['paper_details'] = paper_data
             detailed_results.append(result)
@@ -639,15 +750,11 @@ def get_user_analytics():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
     
+# --- (FIXED) ---
 def get_weak_concepts(user_name: str) -> list:
     """
     Analyzes a user's test results to find the top 10 concepts they answer incorrectly most often.
-
-    Args:
-        user_name: The name of the user to analyze.
-
-    Returns:
-        A list of up to 10 concepts the user struggles with the most, sorted by the number of mistakes.
+    ...
     """
     print(f"\n--- 🕵️‍♂️ Starting weak concept analysis for user: '{user_name}' ---")
     
@@ -656,16 +763,21 @@ def get_weak_concepts(user_name: str) -> list:
         all_results_snapshot = db.child('test_results').get()
         
         user_test_results = []
-        if all_results_snapshot.each():
-            for result in all_results_snapshot.each():
-                if result.val().get('user_name') == user_name:
-                    user_test_results.append(result.val())
+        # --- FIX: Removed .val() and fixed loop ---
+        if all_results_snapshot: # <-- FIX
+            for result_key, result_val in all_results_snapshot.items(): # <-- FIX
+                if result_val.get('user_name') == user_name:
+                    user_test_results.append(result_val)
+        # --- END FIX ---
 
         if not user_test_results:
             print(f"   - ‼️ No test results found for user '{user_name}' after filtering.")
             return []
 
-        all_papers = {paper.key(): paper.val() for paper in all_papers_snapshot.each()} if all_papers_snapshot.each() else {}
+        # --- FIX: Removed .val() ---
+        all_papers = all_papers_snapshot if all_papers_snapshot else {} # <-- FIX
+        # --- END FIX ---
+        
         wrong_answer_counts = {}
 
         for result in user_test_results:
@@ -677,6 +789,7 @@ def get_weak_concepts(user_name: str) -> list:
                 print(f"   - ⚠️ WARNING: Paper ID '{paper_id}' not found for a test result. Skipping.")
                 continue
 
+            # ... (rest of the function logic is correct) ...
             correct_answer_keys = paper_data.get('correct_answer', [])
             options_list = paper_data.get('options', [])
             concepts_list = paper_data.get('concept', [])
@@ -702,6 +815,10 @@ def get_weak_concepts(user_name: str) -> list:
                         print(f"   - ⚠️ WARNING: Could not parse options JSON for Q{i} in Paper {paper_id}.")
                         continue
                 
+                if not isinstance(options_for_question, dict):
+                     print(f"   - ⚠️ WARNING: Options for Q{i} in Paper {paper_id} is not a dict. Skipping.")
+                     continue
+                     
                 correct_answer_value = options_for_question.get(correct_key)
 
                 if user_answer_value != correct_answer_value:
@@ -721,6 +838,7 @@ def get_weak_concepts(user_name: str) -> list:
         traceback.print_exc()
         return []
 
+# --- (FIXED) ---
 def save_user_paper(paper_json, user_token, user_name):
     """
     Save paper with proper user identification
@@ -730,46 +848,34 @@ def save_user_paper(paper_json, user_token, user_name):
         return None
 
     try:
-        users = db.child('users').get()
+        users_snapshot = db.child('users').get() 
 
         matched_user = None
-        if users.each():
-            for node in users.each():                # node.key() is the push key; node.val() is the dict
-                data = node.val()
+        user_uid = None # <-- Initialize user_uid
+
+        # --- FIX: Removed .val() and fixed loop ---
+        if users_snapshot: # <-- FIX
+            for node_key, data in users_snapshot.items(): # <-- FIX
                 if data.get("name") == user_name:
-                    matched_user = data              # keep the first match (or break after setting)
+                    matched_user = data
+                    user_uid = node_key # <-- Get the user's actual UID (the key)
                     break
-
-        if not matched_user:
-            raise ValueError("No user found with that name")
-
-        user_uid = matched_user.get("firebase_uid")
-
-        """
-        user_uid = None
+        # --- END FIX ---
         
-        # Check if this is a session-based token (from Google OAuth)
-        if user_token.startswith("session_"):
-            print("Using session-based authentication")
-            # For Google OAuth users, use session data
-            user_uid = session.get('user_uid')
-            if not user_uid:
-                print("Error: No user_uid in session")
-                return None
-        else:
-            # Try to validate as Firebase ID token
-            try:
-                user_info = auth.get_account_info(user_token)
-                user_uid = user_info['users'][0]['localId']
-                print(f"Decoded user UID from Firebase token: {user_uid}")
-            except Exception as e:
-                print(f"Invalid Firebase token: {e}")
-                # Fallback to session data
-                user_uid = session.get('user_uid')
-                if not user_uid:
-                    print("Error: Could not identify user")
-                    return None
-        """
+        if not matched_user:
+            # Fallback check using validate_user_token
+            user_info = validate_user_token(user_token)
+            if user_info:
+                 user_uid = user_info.get('uid')
+                 print(f"Could not find user by name, using token UID: {user_uid}")
+            else:
+                 raise ValueError("No user found with that name and token is invalid.")
+        
+        if not user_uid:
+             raise ValueError("User UID could not be determined.")
+
+        # ... (Your commented-out block is no longer needed) ...
+        
         # Create unique ID for the paper
         paper_id = str(uuid.uuid4())
 
@@ -794,7 +900,10 @@ def save_user_paper(paper_json, user_token, user_name):
         
     except Exception as e:
         print(f"Error saving paper: {e}")
-        # Final fallback: save without user association
+        import traceback
+        traceback.print_exc()
+        
+        # ... (rest of your fallback logic is fine) ...
         paper_id = str(uuid.uuid4())
         paper_json['paper_id'] = paper_id
         paper_json['created_by'] = user_name
