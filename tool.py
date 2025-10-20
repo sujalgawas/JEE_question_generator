@@ -27,6 +27,7 @@ genai.configure(api_key=api_key)
 openrouter_api_key = os.getenv("OPENROUTER_API_KEY_2")
 togeter_api_key = os.getenv("together_api_key")
 
+"""
 # --- NEW: Cloudflare Configuration ---
 cloudflare_api_key = os.getenv("CLOUDFLARE_API_KEY")
 cloudflare_account_id = os.getenv("CLOUDFLARE_ACCOUNT_ID")
@@ -41,7 +42,7 @@ if not cloudflare_api_key:
 if not cloudflare_account_id:
     raise ValueError("CLOUDFLARE_ACCOUNT_ID not found in .env file")
 # --- End NEW ---
-
+"""
 
 # --- CHANGED: Client points to Cloudflare ---
 # Old Together AI client (commented out)
