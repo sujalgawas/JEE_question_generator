@@ -1,223 +1,401 @@
+// src/components/Login.js
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Link, useSearchParams, useNavigate } from 'react-router-dom';
+import { 
+  Mail, 
+  Lock, 
+  Eye, 
+  EyeOff,
+  CheckCircle,
+  XCircle,
+  AlertCircle,
+  Sparkles,
+  ArrowRight,
+  Shield,
+  Zap,
+  TrendingUp,
+  Chrome
+} from 'lucide-react';
 import API_URL from '../apiConfig';
 
+// Input Field Component
+const InputField = ({ 
+  icon: Icon, 
+  label, 
+  type = "text", 
+  value, 
+  onChange, 
+  placeholder, 
+  required = false,
+  showPassword,
+  onTogglePassword,
+  disabled = false
+}) => (
+  <div className="space-y-2">
+    <label className="text-sm font-semibold text-gray-300 flex items-center gap-2">
+      <Icon className="w-4 h-4 text-blue-400" />
+      {label}
+      {required && <span className="text-red-400">*</span>}
+    </label>
+    <div className="relative">
+      <input
+        type={type}
+        value={value}
+        onChange={onChange}
+        placeholder={placeholder}
+        required={required}
+        disabled={disabled}
+        className="w-full px-4 py-3 bg-gray-800/60 backdrop-blur-xl border border-gray-700/50 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/20 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+      />
+      {onTogglePassword && (
+        <button
+          type="button"
+          onClick={onTogglePassword}
+          className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white transition-colors duration-200"
+        >
+          {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+        </button>
+      )}
+    </div>
+  </div>
+);
+
+// Feature Card Component
+const FeatureCard = ({ icon: Icon, title, description, delay }) => (
+  <div 
+    className="flex items-start gap-3 animate-in slide-in-from-bottom"
+    style={{ animationDelay: `${delay}ms`, animationDuration: '500ms' }}
+  >
+    <div className="p-2 bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-lg border border-blue-500/30">
+      <Icon className="w-5 h-5 text-blue-400" />
+    </div>
+    <div>
+      <h4 className="text-white font-semibold text-sm mb-1">{title}</h4>
+      <p className="text-gray-400 text-xs">{description}</p>
+    </div>
+  </div>
+);
+
+// Main Login Component
 function Login({ onLoginSuccess }) {
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [statusMessage, setStatusMessage] = useState('');
-    const [isError, setIsError] = useState(false);
-    const [isLoading, setIsLoading] = useState(false);
-    
-    const [searchParams] = useSearchParams();
-    const navigate = useNavigate();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [statusMessage, setStatusMessage] = useState('');
+  const [isError, setIsError] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
 
-    useEffect(() => {
-        const error = searchParams.get('error');
-        if (error) {
-            setIsError(true);
-            setStatusMessage('An error occurred. Please try again.');
-        }
-    }, [searchParams]);
+  useEffect(() => {
+    const error = searchParams.get('error');
+    if (error) {
+      setIsError(true);
+      setStatusMessage('An error occurred. Please try again.');
+    }
+  }, [searchParams]);
 
-    useEffect(() => {
-        const handleAuthMessage = (event) => {
-            if (event.origin !== window.location.origin) {
-                console.warn(`Ignored message from unexpected origin: ${event.origin}`);
-                return;
-            }
+  useEffect(() => {
+    const handleAuthMessage = (event) => {
+      if (event.origin !== window.location.origin) {
+        console.warn(`Ignored message from unexpected origin: ${event.origin}`);
+        return;
+      }
 
-            const { type, token, name, error } = event.data;
+      const { type, token, name, error } = event.data;
 
-            if (type === 'auth-success') {
-                console.log('Login component received auth success message.');
-                // Store in localStorage immediately
-                localStorage.setItem('idToken', token);
-                localStorage.setItem('userName', name);
-                // Call the parent function
-                onLoginSuccess(name, token);
-                // Navigate to dashboard
-                navigate('/dashboard');
-            } else if (type === 'auth-error') {
-                console.error('Login component received auth error message:', error);
-                setIsError(true);
-                setStatusMessage(`Google authentication failed: ${error}`);
-            }
-        };
-
-        window.addEventListener('message', handleAuthMessage);
-
-        return () => {
-            window.removeEventListener('message', handleAuthMessage);
-        };
-    }, [onLoginSuccess, navigate]);
-
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        setStatusMessage('');
-        setIsError(false);
-        setIsLoading(true);
-
-        try {
-            const response = await axios.post(`${API_URL}/login`, { 
-                email, 
-                password 
-            });
-            
-            if (response.data.status === "success") {
-                const { name, idToken } = response.data;
-                
-                console.log('Manual login successful:', { name, idToken });
-                
-                // Store in localStorage first
-                localStorage.setItem('idToken', idToken);
-                localStorage.setItem('userName', name);
-                
-                // Trigger a custom event to notify App component
-                window.dispatchEvent(new CustomEvent('authStateChanged'));
-                
-                // Call the parent function
-                onLoginSuccess(name, idToken);
-                
-                setStatusMessage("Login successful!");
-                setEmail('');
-                setPassword('');
-                
-                // Navigate to dashboard after a short delay
-                setTimeout(() => {
-                    navigate('/dashboard');
-                }, 500);
-                
-            } else {
-                setIsError(true);
-                setStatusMessage(response.data.message || "Login failed");
-            }
-        } catch (err) {
-            console.error("Login failed:", err);
-            setIsError(true);
-            
-            if (err.response && err.response.data && err.response.data.message) {
-                setStatusMessage(err.response.data.message);
-            } else {
-                setStatusMessage("An unexpected error occurred. Please try again.");
-            }
-        } finally {
-            setIsLoading(false);
-        }
+      if (type === 'auth-success') {
+        console.log('Login component received auth success message.');
+        localStorage.setItem('idToken', token);
+        localStorage.setItem('userName', name);
+        onLoginSuccess(name, token);
+        navigate('/dashboard');
+      } else if (type === 'auth-error') {
+        console.error('Login component received auth error message:', error);
+        setIsError(true);
+        setStatusMessage(`Google authentication failed: ${error}`);
+      }
     };
 
-    const handleGoogleLogin = () => {
-        const backendGoogleUrl = `${API_URL}/login/google`;
-        const width = 600, height = 700;
-        const left = (window.innerWidth / 2) - (width / 2);
-        const top = (window.innerHeight / 2) - (height / 2);
+    window.addEventListener('message', handleAuthMessage);
+
+    return () => {
+      window.removeEventListener('message', handleAuthMessage);
+    };
+  }, [onLoginSuccess, navigate]);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setStatusMessage('');
+    setIsError(false);
+    setIsLoading(true);
+
+    try {
+      const response = await axios.post(`${API_URL}/login`, { 
+        email, 
+        password 
+      });
+      
+      if (response.data.status === "success") {
+        const { name, idToken } = response.data;
         
-        window.open(
-            backendGoogleUrl, 
-            'googleAuthPopup', 
-            `width=${width},height=${height},top=${top},left=${left}`
-        );
-    };
+        console.log('Manual login successful:', { name, idToken });
+        
+        localStorage.setItem('idToken', idToken);
+        localStorage.setItem('userName', name);
+        
+        window.dispatchEvent(new CustomEvent('authStateChanged'));
+        
+        onLoginSuccess(name, idToken);
+        
+        setStatusMessage("Login successful!");
+        setEmail('');
+        setPassword('');
+        
+        setTimeout(() => {
+          navigate('/dashboard');
+        }, 500);
+        
+      } else {
+        setIsError(true);
+        setStatusMessage(response.data.message || "Login failed");
+      }
+    } catch (err) {
+      console.error("Login failed:", err);
+      setIsError(true);
+      
+      if (err.response && err.response.data && err.response.data.message) {
+        setStatusMessage(err.response.data.message);
+      } else {
+        setStatusMessage("An unexpected error occurred. Please try again.");
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-    return (
-        <div className="flex items-center justify-center min-h-screen bg-gray-900 px-4">
-            <div className="w-full max-w-md p-8 space-y-6 bg-gray-800 rounded-lg shadow-2xl text-gray-200 animate-fade-in">
-                <h2 className="text-3xl font-extrabold text-center text-white">
-                    Sign in to your account
+  const handleGoogleLogin = () => {
+    const backendGoogleUrl = `${API_URL}/login/google`;
+    const width = 600, height = 700;
+    const left = (window.innerWidth / 2) - (width / 2);
+    const top = (window.innerHeight / 2) - (height / 2);
+    
+    window.open(
+      backendGoogleUrl, 
+      'googleAuthPopup', 
+      `width=${width},height=${height},top=${top},left=${left}`
+    );
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-slate-900 to-gray-900 text-white flex items-center justify-center p-6 relative overflow-hidden">
+      {/* Background Effects */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
+      </div>
+
+      <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:50px_50px] [mask-image:radial-gradient(ellipse_at_center,black_20%,transparent_80%)]"></div>
+
+      <div className="w-full max-w-6xl relative z-10">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+          {/* Left Side - Branding & Features */}
+          <div className="hidden lg:block space-y-8 animate-in slide-in-from-left" style={{ animationDuration: '700ms' }}>
+            <div>
+              <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-500/10 to-purple-500/10 border border-blue-500/30 rounded-full mb-6 backdrop-blur-sm">
+                <Sparkles className="w-4 h-4 text-yellow-400" />
+                <span className="text-sm text-blue-300 font-medium">Welcome Back</span>
+              </div>
+              <h1 className="text-5xl font-black mb-4">
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500">
+                  Continue Your Journey
+                </span>
+              </h1>
+              <p className="text-gray-400 text-lg leading-relaxed">
+                Sign in to access your personalized JEE preparation dashboard and track your progress.
+              </p>
+            </div>
+
+            <div className="space-y-4">
+              <FeatureCard 
+                icon={TrendingUp}
+                title="Track Your Progress"
+                description="Monitor your performance with detailed analytics and insights"
+                delay={100}
+              />
+              <FeatureCard 
+                icon={Zap}
+                title="Instant Access"
+                description="Jump right back into your practice sessions and tests"
+                delay={200}
+              />
+              <FeatureCard 
+                icon={Shield}
+                title="Secure Authentication"
+                description="Your data is protected with enterprise-grade security"
+                delay={300}
+              />
+            </div>
+
+            {/* Testimonial */}
+            <div className="bg-gradient-to-br from-gray-800/60 to-gray-900/60 backdrop-blur-xl p-6 rounded-2xl border border-gray-700/50">
+              <div className="flex items-start gap-4">
+                <div className="flex-shrink-0">
+                  <div className="w-12 h-12 bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-full flex items-center justify-center border border-blue-500/30">
+                    <Sparkles className="w-6 h-6 text-blue-400" />
+                  </div>
+                </div>
+                <div>
+                  <p className="text-gray-300 text-sm italic mb-2">
+                    "JEE Genius helped me improve my scores by 40%. The analytics feature is incredible!"
+                  </p>
+                  <div className="flex items-center gap-2">
+                    <p className="text-white font-semibold text-sm">Priya Sharma</p>
+                    <span className="text-gray-500 text-xs">•</span>
+                    <p className="text-gray-500 text-xs">JEE 2024 Qualifier</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Right Side - Login Form */}
+          <div className="animate-in slide-in-from-right" style={{ animationDuration: '700ms' }}>
+            <div className="bg-gradient-to-br from-gray-800/60 to-gray-900/60 backdrop-blur-xl p-8 rounded-3xl border border-gray-700/50 shadow-2xl">
+              {/* Mobile Header */}
+              <div className="lg:hidden text-center mb-6">
+                <h2 className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500 mb-2">
+                  Welcome Back
                 </h2>
+                <p className="text-gray-400 text-sm">Sign in to continue</p>
+              </div>
+
+              {/* Desktop Header */}
+              <div className="hidden lg:block mb-8">
+                <h2 className="text-3xl font-black text-white mb-2">Sign In</h2>
+                <p className="text-gray-400">Welcome back! Please enter your details</p>
+              </div>
+
+              {/* Google Sign In Button */}
+              <button
+                type="button"
+                onClick={handleGoogleLogin}
+                disabled={isLoading}
+                className="group relative w-full flex items-center justify-center gap-3 px-6 py-3.5 bg-white hover:bg-gray-50 text-gray-800 font-semibold rounded-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed hover:scale-[1.02] shadow-lg mb-6"
+              >
+                <Chrome className="w-5 h-5 text-blue-600" />
+                <span>Continue with Google</span>
+              </button>
+
+              {/* Divider */}
+              <div className="relative flex py-4 items-center">
+                <div className="flex-grow border-t border-gray-700/50"></div>
+                <span className="flex-shrink mx-4 text-gray-500 text-sm font-medium">Or continue with email</span>
+                <div className="flex-grow border-t border-gray-700/50"></div>
+              </div>
+
+              {/* Login Form */}
+              <form className="space-y-5" onSubmit={handleSubmit}>
+                <InputField
+                  icon={Mail}
+                  label="Email Address"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="you@example.com"
+                  required
+                  disabled={isLoading}
+                />
 
                 <div>
-                    <button
-                        type="button"
-                        onClick={handleGoogleLogin}
-                        disabled={isLoading}
-                        className="w-full inline-flex justify-center py-3 px-4 border border-gray-600 rounded-md shadow-sm bg-gray-700 text-sm font-medium text-gray-200 hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-indigo-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                        <svg className="w-5 h-5 mr-3" role="img" aria-hidden="true" focusable="false" viewBox="0 0 24 24">
-                            <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"></path>
-                            <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"></path>
-                            <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"></path>
-                            <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"></path>
-                        </svg>
-                        Sign in with Google
-                    </button>
-                </div>
-                
-                <div className="relative flex py-2 items-center">
-                    <div className="flex-grow border-t border-gray-600"></div>
-                    <span className="flex-shrink mx-4 text-gray-400 text-sm">Or continue with</span>
-                    <div className="flex-grow border-t border-gray-600"></div>
+                  <InputField
+                    icon={Lock}
+                    label="Password"
+                    type={showPassword ? "text" : "password"}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="••••••••"
+                    required
+                    showPassword={showPassword}
+                    onTogglePassword={() => setShowPassword(!showPassword)}
+                    disabled={isLoading}
+                  />
+                  <div className="mt-2 flex justify-end">
+                    <a href="#" className="text-sm text-blue-400 hover:text-blue-300 transition-colors duration-200">
+                      Forgot password?
+                    </a>
+                  </div>
                 </div>
 
-                <form className="space-y-6" onSubmit={handleSubmit}>
-                    <div>
-                        <label htmlFor="email" className="block text-sm font-medium text-gray-300">Email address</label>
-                        <input 
-                            id="email" 
-                            name="email" 
-                            type="email" 
-                            autoComplete="email" 
-                            required 
-                            value={email} 
-                            onChange={(e) => setEmail(e.target.value)}
-                            disabled={isLoading}
-                            className="mt-1 block w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md shadow-sm placeholder-gray-400 text-white focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm disabled:opacity-50" 
-                            placeholder="you@example.com" 
-                        />
-                    </div>
-                    <div>
-                        <label htmlFor="password" className="block text-sm font-medium text-gray-300">Password</label>
-                        <input 
-                            id="password" 
-                            name="password" 
-                            type="password" 
-                            autoComplete="current-password" 
-                            required 
-                            value={password} 
-                            onChange={(e) => setPassword(e.target.value)}
-                            disabled={isLoading}
-                            className="mt-1 block w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md shadow-sm placeholder-gray-400 text-white focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm disabled:opacity-50" 
-                            placeholder="••••••••" 
-                        />
-                    </div>
-                    
-                    {statusMessage && (
-                        <p className={`text-center text-sm ${isError ? 'text-red-400' : 'text-green-400'}`}>
-                            {statusMessage}
-                        </p>
+                {statusMessage && (
+                  <div className={`flex items-center gap-3 p-4 rounded-xl border ${
+                    isError 
+                      ? 'bg-red-500/10 border-red-500/30 text-red-400' 
+                      : 'bg-green-500/10 border-green-500/30 text-green-400'
+                  }`}>
+                    {isError ? (
+                      <XCircle className="w-5 h-5 flex-shrink-0" />
+                    ) : (
+                      <CheckCircle className="w-5 h-5 flex-shrink-0" />
                     )}
-                    
-                    <div>
-                        <button 
-                            type="submit" 
-                            disabled={isLoading}
-                            className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                            {isLoading ? (
-                                <>
-                                    <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                    </svg>
-                                    Signing in...
-                                </>
-                            ) : (
-                                'Sign in'
-                            )}
-                        </button>
-                    </div>
-                </form>
-                
-                <p className="text-sm text-center text-gray-400">
-                    Don't have an account?{' '}
-                    <Link to="/signup" className="font-medium text-indigo-400 hover:text-indigo-300 focus:outline-none focus:underline transition ease-in-out duration-150">
-                        Sign up
-                    </Link>
+                    <p className="text-sm font-medium">{statusMessage}</p>
+                  </div>
+                )}
+
+                <button
+                  type="submit"
+                  disabled={isLoading}
+                  className="group relative w-full flex items-center justify-center gap-2 px-6 py-4 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-bold rounded-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed hover:scale-[1.02] shadow-lg shadow-blue-500/30"
+                >
+                  <div className="absolute inset-0 bg-gradient-to-r from-blue-500/0 to-purple-500/0 group-hover:from-blue-500/20 group-hover:to-purple-500/20 rounded-xl blur-xl transition-all duration-300"></div>
+                  {isLoading ? (
+                    <>
+                      <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                      <span className="relative z-10">Signing in...</span>
+                    </>
+                  ) : (
+                    <>
+                      <span className="relative z-10">Sign In</span>
+                      <ArrowRight className="w-5 h-5 relative z-10 group-hover:translate-x-1 transition-transform duration-300" />
+                    </>
+                  )}
+                </button>
+              </form>
+
+              {/* Sign Up Link */}
+              <div className="mt-6 pt-6 border-t border-gray-700/50 text-center">
+                <p className="text-gray-400 text-sm">
+                  Don't have an account?{' '}
+                  <Link 
+                    to="/signup" 
+                    className="font-semibold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500 hover:from-blue-300 hover:to-purple-400 transition-all duration-300"
+                  >
+                    Sign up for free
+                  </Link>
                 </p>
+              </div>
+
+              {/* Demo Credentials (Optional - Remove in production) */}
+              <div className="mt-4 p-3 bg-yellow-500/10 border border-yellow-500/30 rounded-xl">
+                <div className="flex items-start gap-2">
+                  <AlertCircle className="w-4 h-4 text-yellow-400 flex-shrink-0 mt-0.5" />
+                  <div>
+                    <p className="text-yellow-400 text-xs font-semibold mb-1">Demo Account</p>
+                    <p className="text-gray-400 text-xs">
+                      Email: demo@jeegenius.com<br />
+                      Password: demo123
+                    </p>
+                  </div>
+                </div>
+              </div>
             </div>
+          </div>
         </div>
-    );
+      </div>
+    </div>
+  );
 }
 
 export default Login;

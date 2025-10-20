@@ -13,13 +13,9 @@ import Dashboard from './components/Dashboard';
 import PastPaper from './components/PastPapers';
 import MCQTest from './components/MCQTest';
 import Analytics from './components/Analytics';
+import Contact from './components/Contact';
 import API_URL from './apiConfig';
 
-const Contact = () => (
-    <div className="p-8 text-center text-white">
-        <h1>Contact Page</h1>
-    </div>
-);
 
 export default function App() {
     const [user, setUser] = useState(null);

@@ -104,8 +104,8 @@ export default function PastPaper() {
 
     const handleTakeTest = (paperId) => {
         // Navigate to test page
-        alert(`Navigating to test: ${paperId}`);
-        // window.location.href = `/mcq-test/${paperId}`;
+        //alert(`Navigating to test: ${paperId}`);
+        window.location.href = `#/mcq-test/${paperId}`;
     };
 
     // --- NEW: Filter papers before rendering ---
