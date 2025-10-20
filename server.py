@@ -13,6 +13,11 @@ import uuid
 from dotenv import load_dotenv
 import firebase_admin
 from firebase_admin import credentials, db as admin_db_sdk, auth as admin_auth_sdk
+from flask import Response, stream_with_context
+import time
+import threading
+
+
 load_dotenv(dotenv_path=".env")
 
 config_flask = os.getenv("FLASK_ENV")
@@ -411,7 +416,293 @@ def my_endpoint():
 
     return jsonify({"status": "success"})
 
-# Fixed server.py sections
+# Job storage (in production, use Redis or a database)
+paper_generation_jobs = {}
+
+class PaperGenerationJob:
+    def __init__(self, job_id, user_token, user_name):
+        self.job_id = job_id
+        self.user_token = user_token
+        self.user_name = user_name
+        self.status = 'pending'  # pending, running, completed, failed
+        self.progress = 0
+        self.stage = 'initializing'
+        self.message = 'Job created'
+        self.questions_generated = 0
+        self.total_questions = 0
+        self.paper_id = None
+        self.error = None
+        self.created_at = datetime.now()
+        self.updated_at = datetime.now()
+
+    def update(self, **kwargs):
+        for key, value in kwargs.items():
+            setattr(self, key, value)
+        self.updated_at = datetime.now()
+
+    def to_dict(self):
+        return {
+            'job_id': self.job_id,
+            'status': self.status,
+            'progress': self.progress,
+            'stage': self.stage,
+            'message': self.message,
+            'questions_generated': self.questions_generated,
+            'total_questions': self.total_questions,
+            'paper_id': self.paper_id,
+            'error': self.error,
+            'created_at': self.created_at.isoformat(),
+            'updated_at': self.updated_at.isoformat()
+        }
+
+
+def generate_paper_background(job_id, user_token, user_name):
+    """
+    Background function that generates the paper and updates job status
+    """
+    job = paper_generation_jobs.get(job_id)
+    if not job:
+        return
+
+    try:
+        job.update(status='running', stage='analyzing', progress=5, 
+                   message='Analyzing your profile and weak areas...')
+
+        # Get weak concepts
+        user_test_data = []
+        if user_name:
+            user_test_data = get_weak_concepts(user_name)
+        
+        job.update(progress=10, message='Weak concepts identified')
+
+        # Calculate total questions for progress
+        total_questions_target = sum(
+            subject_data.get('total_questions', 0) 
+            for subject_data in concepts_for_paper.values()
+        )
+        job.update(total_questions=total_questions_target)
+
+        # Initial state
+        initial_state = {
+            "paper_structure": concepts_for_paper,
+            "weak_concepts_input": user_test_data,
+        }
+
+        job.update(stage='planning', progress=15, 
+                   message='Planning paper structure...')
+
+        # Stream through the agent
+        questions_generated = 0
+        current_subject = None
+        
+        for event in langgraph_app.stream(initial_state):
+            for node_name, node_output in event.items():
+                
+                if node_name == "plan_paper":
+                    job.update(stage='planning', progress=20, 
+                              message='Paper structure planned. Starting question generation...')
+                
+                elif node_name == "process_subject":
+                    # Get current progress
+                    if 'final_paper' in node_output:
+                        questions_generated = len(node_output['final_paper'].get('question_number', []))
+                        
+                        # Calculate progress (20% to 70% for question generation)
+                        if total_questions_target > 0:
+                            gen_progress = int(20 + (questions_generated / total_questions_target) * 50)
+                        else:
+                            gen_progress = 20
+                        
+                        # Get current subject being processed
+                        if node_output.get('subjects_to_process'):
+                            subjects_remaining = len(node_output['subjects_to_process'])
+                            current_subject = list(concepts_for_paper.keys())[len(concepts_for_paper) - subjects_remaining - 1]
+                        else:
+                            current_subject = "Final subject"
+                        
+                        job.update(
+                            stage='generating',
+                            progress=gen_progress,
+                            message=f'Generating questions for {current_subject}... ({questions_generated}/{total_questions_target})',
+                            questions_generated=questions_generated
+                        )
+                
+                elif node_name == "process_distractor":
+                    job.update(stage='distractors', progress=75, 
+                              message='Adding answer options and distractors...')
+
+        # Get final state
+        job.update(stage='finalizing', progress=90, 
+                   message='Finalizing paper...')
+        
+        final_state = langgraph_app.invoke(initial_state)
+        paper_data = final_state.get('final_paper')
+
+        if not paper_data:
+            job.update(status='failed', error='Agent failed to produce paper data')
+            return
+
+        # Save the paper
+        job.update(stage='saving', progress=95, 
+                   message='Saving to your account...')
+        
+        paper_id = save_user_paper(paper_data, user_token, user_name)
+        
+        # Send completion
+        job.update(
+            status='completed',
+            stage='complete',
+            progress=100,
+            message='Paper generated successfully!',
+            paper_id=paper_id
+        )
+
+        print(f"✅ Job {job_id} completed successfully. Paper ID: {paper_id}")
+
+    except Exception as e:
+        print(f"❌ Error in job {job_id}: {e}")
+        import traceback
+        traceback.print_exc()
+        job.update(status='failed', error=str(e))
+
+
+@app.route('/start-paper-generation', methods=['POST'])
+def start_paper_generation():
+    """
+    Start a background paper generation job
+    """
+    try:
+        data = request.get_json()
+        user_token = data.get('token')
+        user_name = data.get('name')
+
+        # Validate user
+        user_info = validate_user_token(user_token)
+        if not user_info:
+            return jsonify({"error": "Invalid or expired token"}), 401
+
+        # Check if user already has a running job
+        for job_id, job in paper_generation_jobs.items():
+            if job.user_name == user_name and job.status in ['pending', 'running']:
+                return jsonify({
+                    "message": "Job already running",
+                    "job_id": job_id,
+                    "job": job.to_dict()
+                }), 200
+
+        # Create a new job
+        job_id = str(uuid.uuid4())
+        job = PaperGenerationJob(job_id, user_token, user_name)
+        paper_generation_jobs[job_id] = job
+
+        # Start background thread
+        thread = threading.Thread(
+            target=generate_paper_background,
+            args=(job_id, user_token, user_name),
+            daemon=True
+        )
+        thread.start()
+
+        print(f"🚀 Started job {job_id} for user {user_name}")
+
+        return jsonify({
+            "message": "Paper generation started",
+            "job_id": job_id,
+            "job": job.to_dict()
+        }), 200
+
+    except Exception as e:
+        print(f"Error starting paper generation: {e}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route('/paper-generation-status/<job_id>', methods=['GET'])
+def get_paper_generation_status(job_id):
+    """
+    Get the status of a paper generation job
+    """
+    job = paper_generation_jobs.get(job_id)
+    
+    if not job:
+        return jsonify({"error": "Job not found"}), 404
+    
+    return jsonify(job.to_dict()), 200
+
+
+@app.route('/user-active-jobs', methods=['POST'])
+def get_user_active_jobs():
+    """
+    Get all active jobs for a user
+    """
+    try:
+        data = request.get_json()
+        user_token = data.get('token')
+        user_name = data.get('name')
+
+        # Validate user
+        user_info = validate_user_token(user_token)
+        if not user_info:
+            return jsonify({"error": "Invalid or expired token"}), 401
+
+        # Find user's jobs
+        user_jobs = []
+        for job_id, job in paper_generation_jobs.items():
+            if job.user_name == user_name:
+                user_jobs.append(job.to_dict())
+
+        # Sort by created_at descending
+        user_jobs.sort(key=lambda x: x['created_at'], reverse=True)
+
+        return jsonify({"jobs": user_jobs}), 200
+
+    except Exception as e:
+        print(f"Error getting user jobs: {e}")
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route('/cancel-paper-generation/<job_id>', methods=['POST'])
+def cancel_paper_generation(job_id):
+    """
+    Cancel a running paper generation job
+    """
+    job = paper_generation_jobs.get(job_id)
+    
+    if not job:
+        return jsonify({"error": "Job not found"}), 404
+    
+    if job.status in ['completed', 'failed']:
+        return jsonify({"error": "Job already finished"}), 400
+    
+    job.update(status='cancelled', message='Job cancelled by user')
+    
+    return jsonify({"message": "Job cancelled", "job": job.to_dict()}), 200
+
+
+# Cleanup old jobs (run this periodically or as a cron job)
+@app.route('/cleanup-old-jobs', methods=['POST'])
+def cleanup_old_jobs():
+    """
+    Remove jobs older than 24 hours
+    """
+    from datetime import timedelta
+    
+    cutoff_time = datetime.now() - timedelta(hours=24)
+    jobs_to_remove = []
+    
+    for job_id, job in paper_generation_jobs.items():
+        if job.created_at < cutoff_time:
+            jobs_to_remove.append(job_id)
+    
+    for job_id in jobs_to_remove:
+        del paper_generation_jobs[job_id]
+    
+    return jsonify({
+        "message": f"Cleaned up {len(jobs_to_remove)} old jobs"
+    }), 200
+
+# old generate-paper endpoint kept for api calls that do not use streaming
 @app.route('/generate-paper', methods=['POST'])
 def generate_paper_endpoint():
     """
