@@ -1,9 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { TrendingUp, Award, Clock, Brain, Target, Zap, ChevronRight, X, CheckCircle, XCircle, BookOpen, Activity } from 'lucide-react';
 import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar } from 'recharts';
-
-// Mock API URL
-const API_URL = 'http://localhost:5000';
+import API_URL from '../apiConfig';
 
 // Helper functions
 const convertOptionsToArray = (optionsObj) => {
