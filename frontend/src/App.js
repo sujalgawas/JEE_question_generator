@@ -16,7 +16,6 @@ import Analytics from './components/Analytics';
 import Contact from './components/Contact';
 import API_URL from './apiConfig';
 
-
 export default function App() {
     const [user, setUser] = useState(null);
 
