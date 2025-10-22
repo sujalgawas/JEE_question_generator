@@ -1,15 +1,15 @@
 {
   "files": {
     "main.css": "/JEE_question_generator/static/css/main.e6c13ad2.css",
-    "main.js": "/JEE_question_generator/static/js/main.95df2318.js",
+    "main.js": "/JEE_question_generator/static/js/main.35918229.js",
     "static/js/453.54292a4b.chunk.js": "/JEE_question_generator/static/js/453.54292a4b.chunk.js",
     "index.html": "/JEE_question_generator/index.html",
     "main.e6c13ad2.css.map": "/JEE_question_generator/static/css/main.e6c13ad2.css.map",
-    "main.95df2318.js.map": "/JEE_question_generator/static/js/main.95df2318.js.map",
+    "main.35918229.js.map": "/JEE_question_generator/static/js/main.35918229.js.map",
     "453.54292a4b.chunk.js.map": "/JEE_question_generator/static/js/453.54292a4b.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.e6c13ad2.css",
-    "static/js/main.95df2318.js"
+    "static/js/main.35918229.js"
   ]
 }
