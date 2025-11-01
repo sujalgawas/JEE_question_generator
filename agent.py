@@ -83,12 +83,22 @@ def plan_paper(state: PaperGenerationState):
     print("---PLANNING THE PAPER BY SUBJECT---")
     subjects = list(state['paper_structure'].keys())
     
-    # --- Sanitize weak_concepts ---
-    sanitized_weak_concepts: Dict[str, HashableWeakConceptValue] = {}
-    errors_encountered = state.get("errors", []) # Get existing errors or start fresh
+    # --- DEFENSIVE: Ensure errors_encountered is always a list ---
+    # Use the correct key name that matches server.py: "errorsencountered"
+    errors_encountered = state.get("errorsencountered")
+    if errors_encountered is None:
+        errors_encountered = []
+        print("   WARNING: errors_encountered was None, initialized to empty list")
+    elif not isinstance(errors_encountered, list):
+        print(f"   WARNING: errors_encountered was {type(errors_encountered)}, converting to list")
+        errors_encountered = []
+    # --- END DEFENSIVE CHECK ---
     
     # Use weak_concepts_input which holds the original input
     original_weak_concepts = state.get("weak_concepts_input", {}) 
+    
+    # --- Sanitize weak_concepts ---
+    sanitized_weak_concepts: Dict[str, HashableWeakConceptValue] = {}
     
     if isinstance(original_weak_concepts, dict):
         for key, value in original_weak_concepts.items():
@@ -126,8 +136,9 @@ def plan_paper(state: PaperGenerationState):
         "subjects_to_process": subjects, 
         "weak_concepts": sanitized_weak_concepts, # Use the sanitized version
         "final_paper": initial_paper_structure,
-        "errors": errors_encountered # Pass errors along
+        "errorsencountered": errors_encountered # Use correct key name consistently
     }
+
 
 
 def _distribute_questions(concepts: Dict[str, float],
