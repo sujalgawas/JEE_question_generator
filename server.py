@@ -480,7 +480,8 @@ def generate_paper_background(job_id):
 
         initial_state = {
             "paper_structure": concepts_for_paper,
-            "weak_concepts_input": user_test_data,
+            "weak_concepts": user_test_data,
+            "errors_encountered": []  # <-- ADD THIS LINE
         }
 
         job.update(stage='planning', progress=15, 
@@ -729,6 +730,7 @@ def generate_paper_endpoint():
         initial_state = {
             "paper_structure": concepts_for_paper,
             "weak_concepts" : user_test_data,
+            "errors_encountered": []  # <-- ADD THIS LINE
         }
 
         print("Invoking the agent... This may take a while.")
