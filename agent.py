@@ -550,33 +550,33 @@ def merge_options_with_distractors(
     #             print(f"   WARNING: No generated distractor available for option {k}. Falling back to original/empty ('{fallback_text[:30]}...').")
 
     return final_options
-
-
 def process_distractor(state: PaperGenerationState):
     """
     Adds distractors for each generated question. Now more robust.
     """
     print("---PROCESSING DISTRACTORS---")
     final_paper_state = state["final_paper"]
-    errors_encountered = state.get("errors", [])
+
+    # Defensive: always use the consistent error key and check type
+    errors_encountered = state.get("errorsencountered")
+    if errors_encountered is None:
+        errors_encountered = []
+        print("   WARNING: errors_encountered was None, initialized to empty list")
+    elif not isinstance(errors_encountered, list):
+        print(f"   WARNING: errors_encountered was {type(errors_encountered)}, resetting to []")
+        errors_encountered = []
+
     num_questions = len(final_paper_state.get("question_text", []))
 
-    # Ensure 'options' list exists and matches length, pad if needed
-    if "options" not in final_paper_state:
-        final_paper_state["options"] = [{} for _ in range(num_questions)]
-    elif len(final_paper_state["options"]) < num_questions:
-         final_paper_state["options"].extend([{} for _ in range(num_questions - len(final_paper_state["options"]))])
-         
-    # Ensure 'distractor_rationales' list exists and matches length, pad if needed
-    if "distractor_rationales" not in final_paper_state:
-        final_paper_state["distractor_rationales"] = [{} for _ in range(num_questions)]
-    elif len(final_paper_state["distractor_rationales"]) < num_questions:
-        final_paper_state["distractor_rationales"].extend([{} for _ in range(num_questions - len(final_paper_state["distractor_rationales"]))])
-
+    # Ensure 'options' and 'distractor_rationales' lists exist and are padded
+    for key in ["options", "distractor_rationales"]:
+        if key not in final_paper_state:
+            final_paper_state[key] = [{} for _ in range(num_questions)]
+        elif len(final_paper_state[key]) < num_questions:
+            final_paper_state[key].extend([{} for _ in range(num_questions - len(final_paper_state[key]))])
 
     for i in range(num_questions):
         try:
-            # Safely get data for the current question index i
             q_text = final_paper_state.get("question_text", [])[i] if i < len(final_paper_state.get("question_text", [])) else None
             options = final_paper_state.get("options", [])[i] if i < len(final_paper_state.get("options", [])) else {}
             correct_key = final_paper_state.get("correct_answer", [])[i] if i < len(final_paper_state.get("correct_answer", [])) else ""
@@ -589,49 +589,52 @@ def process_distractor(state: PaperGenerationState):
 
             # Ensure options is a dictionary before proceeding
             if not isinstance(options, dict):
-                 print(f"   Warning: Options for Q{i+1} is not a dict ({type(options)}). Using empty dict.")
-                 options = {}
+                print(f"   Warning: Options for Q{i+1} is not a dict ({type(options)}). Using empty dict.")
+                options = {}
 
-            correct_text = options.get(correct_key) # Will be None if key invalid or options empty
+            # --- SAFETY: only get correct_text if it's guaranteed to be a string ---
+            correct_text = options.get(correct_key)
+            if isinstance(correct_text, dict):
+                print(f"   Warning: correct_text for Q{i+1} is a dict, defaulting to empty string")
+                correct_text = ""
+
+            if not isinstance(correct_text, str):
+                correct_text = str(correct_text) if correct_text is not None else "N/A"
 
             # Generate distractors
             distractors_obj = generate_distractors(
                 question_text=q_text,
-                correct_answer_text=correct_text or "N/A", # Pass "N/A" if text is None/empty
+                correct_answer_text=correct_text or "N/A",
                 concept=concept,
                 difficulty=difficulty
             )
 
             # Merge options + distractors
             merged_options = merge_options_with_distractors(
-                options=options, # Pass potentially empty dict
+                options=options,
                 distractor_obj=distractors_obj,
-                correct_key=correct_key # Pass potentially invalid key
+                correct_key=correct_key
             )
 
-            # Update in state SAFELY
+            # Update options in state SAFELY
             if i < len(final_paper_state["options"]):
-                 final_paper_state["options"][i] = merged_options
+                final_paper_state["options"][i] = merged_options
             else:
-                 # This case should ideally not happen due to padding above, but safety first
-                 print(f"   ERROR: Index {i} out of bounds for options list during update.")
-                 errors_encountered.append(f"Q{i+1} ({concept}): Index out of bounds updating options.")
+                print(f"   ERROR: Index {i} out of bounds for options list during update.")
+                errors_encountered.append(f"Q{i+1} ({concept}): Index out of bounds updating options.")
 
-
-            # Store rationales (if provided by generate_distractors)
+            # Store rationales if provided
             rationales = {}
-            if distractors_obj and "distractors" in distractors_obj and isinstance(distractors_obj["distractors"], list):
-                for d in distractors_obj["distractors"]:
-                     if isinstance(d, dict) and d.get("label") and d.get("rationale"):
-                          rationales[d["label"]] = d["rationale"]
-                          
+            distractor_list = distractors_obj.get("distractors") if distractors_obj else None
+            if distractor_list and isinstance(distractor_list, list):
+                for d in distractor_list:
+                    if isinstance(d, dict) and d.get("label") and d.get("rationale"):
+                        rationales[d["label"]] = d["rationale"]
             if i < len(final_paper_state["distractor_rationales"]):
-                 final_paper_state["distractor_rationales"][i] = rationales
+                final_paper_state["distractor_rationales"][i] = rationales
             else:
-                # Safety for index bounds
-                 print(f"   ERROR: Index {i} out of bounds for rationales list during update.")
-                 errors_encountered.append(f"Q{i+1} ({concept}): Index out of bounds updating rationales.")
-
+                print(f"   ERROR: Index {i} out of bounds for rationales list during update.")
+                errors_encountered.append(f"Q{i+1} ({concept}): Index out of bounds updating rationales.")
 
             print(f"   ✅ Processed distractors for Q{i+1}: {concept}")
 
@@ -639,20 +642,18 @@ def process_distractor(state: PaperGenerationState):
             error_msg = f"Skipping distractor processing for Q{i+1} ({concept}) due to error: {e!r}\n{traceback.format_exc()}"
             print(f"   ⚠️ WARNING: {error_msg}")
             errors_encountered.append(error_msg)
-            # Ensure options for this index remain a dict, even if empty, to avoid downstream errors
+            # Ensure options for this index remain a dict, even if empty
             if i < len(final_paper_state.get("options", [])) and not isinstance(final_paper_state["options"][i], dict):
-                 final_paper_state["options"][i] = {}
-            elif i >= len(final_paper_state.get("options", [])):
-                 # If error happened before list was long enough, pad it maybe? Risky.
-                 pass # Or handle padding more carefully
+                final_paper_state["options"][i] = {}
 
-    # Return the updated state, including any new errors
+    # Return updated state
     return {
         "final_paper": final_paper_state,
-        "subjects_to_process": state["subjects_to_process"],
-        "weak_concepts": state["weak_concepts"], # Pass sanitized version along
-        "errors": errors_encountered 
+        "subjects_to_process": state.get("subjects_to_process", []),
+        "weak_concepts": state.get("weak_concepts", {}),
+        "errorsencountered": errors_encountered
     }
+
     
 
 def should_continue_subjects(state: PaperGenerationState):
