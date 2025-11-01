@@ -37,7 +37,7 @@ class PaperGenerationState(TypedDict):
     # Input
     paper_structure: Dict[str, Any]
     # Input weak_concepts - allow lists initially
-    weak_concepts_input: Dict[str, Any] 
+    weak_concepts: Dict[str, Any] 
     
     # State for processing
     subjects_to_process: List[str]          
@@ -95,7 +95,7 @@ def plan_paper(state: PaperGenerationState):
     # --- END DEFENSIVE CHECK ---
     
     # Use weak_concepts_input which holds the original input
-    original_weak_concepts = state.get("weak_concepts_input", {}) 
+    original_weak_concepts = state.get("weak_concepts", {}) 
     
     # --- Sanitize weak_concepts ---
     sanitized_weak_concepts: Dict[str, HashableWeakConceptValue] = {}
@@ -690,7 +690,7 @@ if __name__ == '__main__':
 
     initial_state = {
         "paper_structure": example_paper_structure,
-        "weak_concepts_input": example_weak_concepts # Use the input key
+        "weak_concepts": example_weak_concepts # Use the input key
         # Other state fields (subjects_to_process, final_paper, errors) 
         # will be initialized by plan_paper
     }
