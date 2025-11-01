@@ -81,10 +81,27 @@ def make_value_hashable(value: Any) -> HashableWeakConceptValue:
 def plan_paper(state: PaperGenerationState):
     """Initializes the plan, sanitizes weak_concepts, and sets up output structure."""
     print("---PLANNING THE PAPER BY SUBJECT---")
-    subjects = list(state['paper_structure'].keys())
+    
+    # --- DEFENSIVE: Ensure paper_structure exists and is valid ---
+    paper_structure = state.get('paper_structure')
+    if paper_structure is None or not isinstance(paper_structure, dict):
+        print("   ERROR: paper_structure is missing or invalid")
+        return {
+            "subjects_to_process": [],
+            "weak_concepts": {},
+            "final_paper": {
+                "question_number": [], "subject": [], "concept": [], "weightage": [],
+                "question_text": [], "options": [], "difficulty": [],
+                "correct_answer": [], "explanation": [],
+                "distractor_rationales": []
+            },
+            "errorsencountered": ["paper_structure is missing or invalid in initial state"]
+        }
+    
+    subjects = list(paper_structure.keys())
+    print(f"   Subjects to process: {subjects}")
     
     # --- DEFENSIVE: Ensure errors_encountered is always a list ---
-    # Use the correct key name that matches server.py: "errorsencountered"
     errors_encountered = state.get("errorsencountered")
     if errors_encountered is None:
         errors_encountered = []
@@ -94,8 +111,11 @@ def plan_paper(state: PaperGenerationState):
         errors_encountered = []
     # --- END DEFENSIVE CHECK ---
     
-    # Use weak_concepts_input which holds the original input
-    original_weak_concepts = state.get("weak_concepts", {}) 
+    # --- DEFENSIVE: Get weak_concepts safely ---
+    original_weak_concepts = state.get("weak_concepts")
+    if original_weak_concepts is None:
+        original_weak_concepts = {}
+        print("   WARNING: weak_concepts was None, initialized to empty dict")
     
     # --- Sanitize weak_concepts ---
     sanitized_weak_concepts: Dict[str, HashableWeakConceptValue] = {}
@@ -105,19 +125,22 @@ def plan_paper(state: PaperGenerationState):
             try:
                 # Ensure keys are strings (should be if input is valid JSON/dict)
                 if not isinstance(key, str):
-                     raise TypeError(f"Weak concept key '{key}' is not a string.")
+                    raise TypeError(f"Weak concept key '{key}' is not a string.")
+                
                 sanitized_value = make_value_hashable(value)
+                
                 # Quick check if the result is actually hashable
-                hash(sanitized_value) 
+                hash(sanitized_value)
+                
                 sanitized_weak_concepts[key] = sanitized_value
+                
             except Exception as e:
                 error_msg = f"Error making weak concept value hashable for key '{key}'. Value: {str(value)[:100]}. Error: {e!r}. Skipping this key."
                 print(f"   WARNING: {error_msg}")
                 errors_encountered.append(error_msg)
-                # Optionally keep the original unhashable value if needed downstream, 
-                # but it might still cause issues. Here, we skip adding it.
+                # Skip adding this unhashable value to avoid downstream issues
     else:
-        error_msg = f"Input 'weak_concepts_input' is not a dictionary. Type: {type(original_weak_concepts)}. Proceeding without weak concepts."
+        error_msg = f"Input 'weak_concepts' is not a dictionary. Type: {type(original_weak_concepts)}. Proceeding without weak concepts."
         print(f"   ERROR: {error_msg}")
         errors_encountered.append(error_msg)
 
@@ -126,17 +149,25 @@ def plan_paper(state: PaperGenerationState):
 
     # Initialize final_paper with empty lists for each key
     initial_paper_structure: PaperData = {
-        "question_number": [], "subject": [], "concept": [], "weightage": [],
-        "question_text": [], "options": [], "difficulty": [],
-        "correct_answer": [], "explanation": [],
-        "distractor_rationales": [] # Initialize this too
+        "question_number": [],
+        "subject": [],
+        "concept": [],
+        "weightage": [],
+        "question_text": [],
+        "options": [],
+        "difficulty": [],
+        "correct_answer": [],
+        "explanation": [],
+        "distractor_rationales": []
     }
     
+    print(f"   Planning complete. Ready to process {len(subjects)} subjects.")
+    
     return {
-        "subjects_to_process": subjects, 
-        "weak_concepts": sanitized_weak_concepts, # Use the sanitized version
+        "subjects_to_process": subjects,
+        "weak_concepts": sanitized_weak_concepts,
         "final_paper": initial_paper_structure,
-        "errorsencountered": errors_encountered # Use correct key name consistently
+        "errorsencountered": errors_encountered
     }
 
 
