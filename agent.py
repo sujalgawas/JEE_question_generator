@@ -296,50 +296,58 @@ def process_subject(state: PaperGenerationState):
     Uses search_content_for_concept which now returns chunks directly.
     """
     print("---PROCESSING A SUBJECT---")
-    # ... (initial setup: errors_encountered, subjects_remaining, current_subject_name, etc. - same) ...
-    errors_encountered = state.get("errors", [])
-    subjects_remaining = state['subjects_to_process']
+    
+    # --- DEFENSIVE: Always ensure errors_encountered is a list and use the consistent key ---
+    errors_encountered = state.get("errorsencountered")
+    if errors_encountered is None:
+        errors_encountered = []
+        print("   WARNING: errors_encountered was None in process_subject, initialized to empty list")
+    elif not isinstance(errors_encountered, list):
+        print(f"   WARNING: errors_encountered was {type(errors_encountered)}, resetting to []")
+        errors_encountered = []
+        
+    subjects_remaining = state.get('subjects_to_process', [])
     
     if not subjects_remaining:
-         print("   No subjects left to process.")
-         return {
-             "final_paper": state["final_paper"],
-             "subjects_to_process": [],
-             "weak_concepts": state["weak_concepts"],
-             "errors": errors_encountered
-         }
-
+        print("   No subjects left to process.")
+        return {
+            "final_paper": state.get("final_paper", {}),
+            "subjects_to_process": [],
+            "weak_concepts": state.get("weak_concepts", {}),
+            "errorsencountered": errors_encountered
+        }
+    
     current_subject_name = subjects_remaining[0]
     next_subjects = subjects_remaining[1:]
 
     print(f"Current Subject: {current_subject_name}")
 
-    subject_details = state['paper_structure'].get(current_subject_name, {})
+    subject_details = state.get('paper_structure', {}).get(current_subject_name, {})
     subject_total_questions = subject_details.get('total_questions', 0)
     subject_concepts = subject_details.get('concepts', {})
 
     if not isinstance(subject_concepts, dict):
-         print(f"   Warning: Concepts for subject '{current_subject_name}' is not a dictionary. Skipping concept distribution.")
-         question_allocation = {} 
+        print(f"   Warning: Concepts for subject '{current_subject_name}' is not a dictionary. Skipping concept distribution.")
+        question_allocation = {}
     elif subject_total_questions <= 0:
-         print(f"   Warning: Total questions for subject '{current_subject_name}' is zero or invalid. Skipping subject.")
-         question_allocation = {}
+        print(f"   Warning: Total questions for subject '{current_subject_name}' is zero or invalid. Skipping subject.")
+        question_allocation = {}
     else:
-        weak = state["weak_concepts"] 
+        weak = state.get("weak_concepts", {})
         try:
             question_allocation = _distribute_questions(
                 subject_concepts,
                 subject_total_questions,
-                weak 
+                weak
             )
             print(f"   - Calculated Question Allocation (Target): {question_allocation}")
         except Exception as e:
             error_msg = f"Error distributing questions for subject '{current_subject_name}': {e!r}"
             print(f"   ERROR: {error_msg}")
             errors_encountered.append(error_msg)
-            question_allocation = {} 
+            question_allocation = {}
 
-    current_question_number = len(state['final_paper']['question_number']) + 1
+    current_question_number = len(state.get('final_paper', {}).get('question_number', [])) + 1
 
     for concept, num_questions_to_generate in question_allocation.items():
         if num_questions_to_generate <= 0:
@@ -349,96 +357,79 @@ def process_subject(state: PaperGenerationState):
 
         try:
             retrieved_templates_df = search_questions_for_concept(concept, int(num_questions_to_generate))
-            
-            # --- MODIFIED: Get NCERT content chunks directly ---
-            # Now returns a list of strings
-            ncert_context_chunks = search_content_for_concept(concept, 3) 
+            ncert_context_chunks = search_content_for_concept(concept, 3)
             if ncert_context_chunks:
-                # Join the returned chunks
-                ncert_context = "\n\n---\n\n".join(ncert_context_chunks) 
+                ncert_context = "\n\n---\n\n".join(ncert_context_chunks)
             else:
-                 # Message already printed by search_content_for_concept if no chunks found
-                 ncert_context = "" # Default to empty string
-            # --- End MODIFICATION ---
+                ncert_context = ""
 
-            if retrieved_templates_df.empty:
+            if getattr(retrieved_templates_df, 'empty', True):
                 print(f"     No template questions retrieved for concept: {concept}. Skipping generation for this concept.")
                 continue
 
             generated_count = 0
-            # Ensure using .iterrows() if it's a DataFrame
             if isinstance(retrieved_templates_df, pd.DataFrame):
                 iterator = retrieved_templates_df.iterrows()
             else:
-                # Handle cases where search_questions_for_concept might return something else
                 print(f"   Warning: retrieved_templates_df is not a DataFrame for concept '{concept}'. Type: {type(retrieved_templates_df)}. Skipping rows.")
-                iterator = iter([]) # Empty iterator
+                iterator = iter([])
 
-            for _, row in iterator: # Use the determined iterator
+            for _, row in iterator:
                 if generated_count >= num_questions_to_generate:
-                     break 
+                    break
 
                 try:
-                    # Safely get difficulty, provide default if missing
                     difficulty_val = row.get('difficulty', 'Medium') if isinstance(row, pd.Series) else 'Medium'
                     
                     raw_parts = generate_similar_question(
                         original_question_text=row.get('question', '') if isinstance(row, pd.Series) else '',
-                        difficulty=difficulty_val, 
+                        difficulty=difficulty_val,
                         concept=concept,
-                        ncert_content=ncert_context 
+                        ncert_content=ncert_context
                     )
                     
-                    # ... (rest of the loop: preview, coerce, validate, append - same as before) ...
                     preview = str(raw_parts)[:200].replace("\n", " ")
                     print(f"     Provider output preview (Q{current_question_number}): {preview}")
 
                     generated_parts = _coerce_to_parts(raw_parts)
 
-                    # --- START VALIDATION ---
                     q_text = generated_parts.get("question_text")
                     options = generated_parts.get("options", {})
                     correct_ans_key = generated_parts.get("correct_answer")
 
-                    # Check 1: Was question text generated?
+                    # -- VALIDATION --
                     if not q_text:
                         print(f"     WARNING: Failed to generate question text for Q{current_question_number} ({concept}). Skipping.")
                         errors_encountered.append(f"Q{current_question_number} ({concept}): Failed to generate question text.")
-                        continue # Skip this iteration
+                        continue
 
-                    # Check 2: Is the correct answer key valid?
                     if correct_ans_key not in ["A", "B", "C", "D"]:
                         print(f"     WARNING: Invalid or missing correct_answer key ('{correct_ans_key}') received from LLM for Q{current_question_number} ({concept}). Skipping.")
                         errors_encountered.append(f"Q{current_question_number} ({concept}): Invalid correct_answer key ('{correct_ans_key}') from LLM.")
-                        continue # Skip this iteration
-                        
-                    # Check 3: Does the correct answer key actually exist in the options?
+                        continue
+
                     if correct_ans_key not in options:
                         print(f"     WARNING: Correct answer key '{correct_ans_key}' not found in generated options {list(options.keys())} for Q{current_question_number} ({concept}). Skipping.")
                         errors_encountered.append(f"Q{current_question_number} ({concept}): Correct answer key '{correct_ans_key}' missing from options.")
-                        continue # Skip this iteration
-                        
-                    # Check 4: Are there roughly 4 options? (Less critical, but good to check)
-                    if len(options) < 3 or len(options) > 4: # Allow 3 just in case, aim for 4
+                        continue
+
+                    if len(options) < 3 or len(options) > 4:
                         print(f"     NOTE: Generated options count is {len(options)} for Q{current_question_number} ({concept}). Proceeding, but expected 4.")
-                        # Don't skip, but log it. Distractor step might fix it.
-                        
-                    # --- END VALIDATION ---
+                    # -- END VALIDATION --
 
-
-                    weightage = subject_concepts.get(concept, 0.0) 
+                    weightage = subject_concepts.get(concept, 0.0)
 
                     full_question_data = {
                         "question_number": current_question_number,
                         "subject": current_subject_name,
                         "concept": concept,
-                        "weightage": float(weightage), 
-                        "difficulty": difficulty_val, 
-                        "question_text": q_text, # Use validated q_text
-                        "options": options, # Use validated options
-                        "correct_answer": correct_ans_key, # Use validated correct_ans_key
+                        "weightage": float(weightage),
+                        "difficulty": difficulty_val,
+                        "question_text": q_text,
+                        "options": options,
+                        "correct_answer": correct_ans_key,
                         "explanation": generated_parts.get("explanation", ""),
-                        "distractor_rationales": {} 
+                        "distractor_rationales": {}
                     }
 
                     current_final_paper = state["final_paper"]
@@ -446,8 +437,8 @@ def process_subject(state: PaperGenerationState):
                         if key in current_final_paper:
                             current_final_paper[key].append(value)
                         elif key == "distractor_rationales" and key not in current_final_paper:
-                             current_final_paper[key] = [value] 
-                             
+                            current_final_paper[key] = [value]
+
                     current_question_number += 1
                     generated_count += 1
 
@@ -459,18 +450,19 @@ def process_subject(state: PaperGenerationState):
                     error_msg = f"Skipping question Q{current_question_number} ({concept}) due to error in generation loop: {e!r}\n{traceback.format_exc()}"
                     print(f"     ERROR: {error_msg}")
                     errors_encountered.append(error_msg)
-        
+
         except Exception as e:
-             error_msg = f"Major error processing concept '{concept}' in subject '{current_subject_name}': {e!r}\n{traceback.format_exc()}"
-             print(f"   ERROR: {error_msg}")
-             errors_encountered.append(error_msg)
+            error_msg = f"Major error processing concept '{concept}' in subject '{current_subject_name}': {e!r}\n{traceback.format_exc()}"
+            print(f"   ERROR: {error_msg}")
+            errors_encountered.append(error_msg)
 
     return {
-        "final_paper": state["final_paper"],
+        "final_paper": state.get("final_paper", {}),
         "subjects_to_process": next_subjects,
-        "weak_concepts": state["weak_concepts"], 
-        "errors": errors_encountered 
+        "weak_concepts": state.get("weak_concepts", {}),
+        "errorsencountered": errors_encountered
     }
+
 
 
 def merge_options_with_distractors(
