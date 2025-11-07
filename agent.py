@@ -76,10 +76,39 @@ def make_value_hashable(value: Any) -> HashableWeakConceptValue:
     # Assume other types (int, str, float, bool, None, tuple) are hashable
     return value
 
-# --- Nodes for the Workflow ---
+def plan_paper(state:PaperGenerationState):
+    paper_structure = state.get("paper_structure")
+    
+    subjects = list(paper_structure.keys())
 
+    weak_concepts = state.get("weak_concepts")
+    
+    if weak_concepts == None:
+        weak_concepts = {}
+        
+    intial_paper : PaperData = {
+                    "question_number": [],
+                    "subject": [],
+                    "concept": [],
+                    "weightage": [],
+                    "question_text": [],
+                    "options": [],
+                    "difficulty": [],
+                    "correct_answer": [],
+                    "explanation": [],
+                    "distractor_rationales": []
+                }
+
+    return {
+        "subjects_to_process" : subjects,
+        "weak_concepts" : weak_concepts,
+        "final_paper" : intial_paper
+    }
+    
+    """
+# --- Nodes for the Workflow ---
 def plan_paper(state: PaperGenerationState):
-    """Initializes the plan, sanitizes weak_concepts, and sets up output structure."""
+    #Initializes the plan, sanitizes weak_concepts, and sets up output structure.
     print("---PLANNING THE PAPER BY SUBJECT---")
     
     # --- DEFENSIVE: Ensure paper_structure exists and is valid ---
@@ -169,7 +198,7 @@ def plan_paper(state: PaperGenerationState):
         "final_paper": initial_paper_structure,
         "errorsencountered": errors_encountered
     }
-
+"""
 
 
 def _distribute_questions(concepts: Dict[str, float],
@@ -550,6 +579,7 @@ def merge_options_with_distractors(
     #             print(f"   WARNING: No generated distractor available for option {k}. Falling back to original/empty ('{fallback_text[:30]}...').")
 
     return final_options
+
 def process_distractor(state: PaperGenerationState):
     """
     Adds distractors for each generated question. Now more robust.
@@ -699,6 +729,7 @@ def get_agent_graph():
 
 # Main execution block (if needed for testing, ensure input state matches new definition)
 if __name__ == '__main__':
+
     # Example usage requires defining paper_structure and weak_concepts_input
     example_paper_structure = {
         "Physics": {
