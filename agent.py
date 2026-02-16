@@ -80,6 +80,7 @@ def plan_paper(state:PaperGenerationState):
     paper_structure = state.get("paper_structure")
     
     subjects = list(paper_structure.keys())
+    #subjects = reversed(subjects)
 
     weak_concepts = state.get("weak_concepts")
     
@@ -257,7 +258,7 @@ def _distribute_questions(concepts: Dict[str, float],
                  # If still not matching after simple adjustment (e.g., all counts became 0)
                  # A more complex redistribution might be needed, but log error for now.
                  print(f"   ERROR: Could not fully correct distribution. Final count: {sum(counts.values())}. Target: {total_q}")
-
+    print("   Final Question Distribution:", counts)
     return counts
 
 
