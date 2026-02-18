@@ -2,10 +2,11 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Link, useSearchParams, useNavigate } from 'react-router-dom';
-import { 
-  Mail, 
-  Lock, 
-  Eye, 
+import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+import {
+  Mail,
+  Lock,
+  Eye,
   EyeOff,
   CheckCircle,
   XCircle,
@@ -18,15 +19,17 @@ import {
   Chrome
 } from 'lucide-react';
 import API_URL from '../apiConfig';
+import Cookies from 'js-cookie';
+import { auth } from '../firebaseConfig';
 
 // Input Field Component
-const InputField = ({ 
-  icon: Icon, 
-  label, 
-  type = "text", 
-  value, 
-  onChange, 
-  placeholder, 
+const InputField = ({
+  icon: Icon,
+  label,
+  type = "text",
+  value,
+  onChange,
+  placeholder,
   required = false,
   showPassword,
   onTogglePassword,
@@ -63,7 +66,7 @@ const InputField = ({
 
 // Feature Card Component
 const FeatureCard = ({ icon: Icon, title, description, delay }) => (
-  <div 
+  <div
     className="flex items-start gap-3 animate-in slide-in-from-bottom"
     style={{ animationDelay: `${delay}ms`, animationDuration: '500ms' }}
   >
@@ -85,7 +88,7 @@ function Login({ onLoginSuccess }) {
   const [statusMessage, setStatusMessage] = useState('');
   const [isError, setIsError] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  
+
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
 
@@ -97,35 +100,6 @@ function Login({ onLoginSuccess }) {
     }
   }, [searchParams]);
 
-  useEffect(() => {
-    const handleAuthMessage = (event) => {
-      if (event.origin !== window.location.origin) {
-        console.warn(`Ignored message from unexpected origin: ${event.origin}`);
-        return;
-      }
-
-      const { type, token, name, error } = event.data;
-
-      if (type === 'auth-success') {
-        console.log('Login component received auth success message.');
-        localStorage.setItem('idToken', token);
-        localStorage.setItem('userName', name);
-        onLoginSuccess(name, token);
-        navigate('/dashboard');
-      } else if (type === 'auth-error') {
-        console.error('Login component received auth error message:', error);
-        setIsError(true);
-        setStatusMessage(`Google authentication failed: ${error}`);
-      }
-    };
-
-    window.addEventListener('message', handleAuthMessage);
-
-    return () => {
-      window.removeEventListener('message', handleAuthMessage);
-    };
-  }, [onLoginSuccess, navigate]);
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setStatusMessage('');
@@ -133,31 +107,31 @@ function Login({ onLoginSuccess }) {
     setIsLoading(true);
 
     try {
-      const response = await axios.post(`${API_URL}/login`, { 
-        email, 
-        password 
+      const response = await axios.post(`${API_URL}/login`, {
+        email,
+        password
       });
-      
+
       if (response.data.status === "success") {
         const { name, idToken } = response.data;
-        
+
         console.log('Manual login successful:', { name, idToken });
-        
+
         localStorage.setItem('idToken', idToken);
         localStorage.setItem('userName', name);
-        
+
         window.dispatchEvent(new CustomEvent('authStateChanged'));
-        
+
         onLoginSuccess(name, idToken);
-        
+
         setStatusMessage("Login successful!");
         setEmail('');
         setPassword('');
-        
+
         setTimeout(() => {
           navigate('/dashboard');
         }, 500);
-        
+
       } else {
         setIsError(true);
         setStatusMessage(response.data.message || "Login failed");
@@ -165,7 +139,7 @@ function Login({ onLoginSuccess }) {
     } catch (err) {
       console.error("Login failed:", err);
       setIsError(true);
-      
+
       if (err.response && err.response.data && err.response.data.message) {
         setStatusMessage(err.response.data.message);
       } else {
@@ -176,17 +150,45 @@ function Login({ onLoginSuccess }) {
     }
   };
 
-  const handleGoogleLogin = () => {
-    const backendGoogleUrl = `${API_URL}/login/google`;
-    const width = 600, height = 700;
-    const left = (window.innerWidth / 2) - (width / 2);
-    const top = (window.innerHeight / 2) - (height / 2);
-    
-    window.open(
-      backendGoogleUrl, 
-      'googleAuthPopup', 
-      `width=${width},height=${height},top=${top},left=${left}`
-    );
+  const handleGoogleLogin = async () => {
+    setIsLoading(true);
+    setStatusMessage('');
+    setIsError(false);
+
+    try {
+      const provider = new GoogleAuthProvider();
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user;
+
+      console.log('Google login successful:', user.displayName);
+
+      const idToken = await user.getIdToken();
+
+      localStorage.setItem('idToken', idToken);
+      localStorage.setItem('userName', user.displayName);
+      Cookies.set('idToken', idToken, { expires: 7, secure: true, sameSite: 'strict' });
+      Cookies.set('userName', user.displayName, { expires: 7, secure: true, sameSite: 'strict' });
+
+      onLoginSuccess(user.displayName, idToken);
+      navigate('/dashboard');
+    } catch (error) {
+      console.error('Google login error:', error);
+      setIsError(true);
+
+      // Provide user-friendly error messages
+      if (error.code === 'auth/popup-closed-by-user') {
+        setStatusMessage('Sign-in popup was closed. Please try again.');
+      } else if (error.code === 'auth/popup-blocked') {
+        setStatusMessage('Popup was blocked by the browser. Please allow popups and try again.');
+      } else if (error.code === 'auth/cancelled-popup-request') {
+        // User clicked the button again while popup was open, ignore
+        return;
+      } else {
+        setStatusMessage(`Google authentication failed: ${error.message}`);
+      }
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -219,19 +221,19 @@ function Login({ onLoginSuccess }) {
             </div>
 
             <div className="space-y-4">
-              <FeatureCard 
+              <FeatureCard
                 icon={TrendingUp}
                 title="Track Your Progress"
                 description="Monitor your performance with detailed analytics and insights"
                 delay={100}
               />
-              <FeatureCard 
+              <FeatureCard
                 icon={Zap}
                 title="Instant Access"
                 description="Jump right back into your practice sessions and tests"
                 delay={200}
               />
-              <FeatureCard 
+              <FeatureCard
                 icon={Shield}
                 title="Secure Authentication"
                 description="Your data is protected with enterprise-grade security"
@@ -330,11 +332,10 @@ function Login({ onLoginSuccess }) {
                 </div>
 
                 {statusMessage && (
-                  <div className={`flex items-center gap-3 p-4 rounded-xl border ${
-                    isError 
-                      ? 'bg-red-500/10 border-red-500/30 text-red-400' 
-                      : 'bg-green-500/10 border-green-500/30 text-green-400'
-                  }`}>
+                  <div className={`flex items-center gap-3 p-4 rounded-xl border ${isError
+                    ? 'bg-red-500/10 border-red-500/30 text-red-400'
+                    : 'bg-green-500/10 border-green-500/30 text-green-400'
+                    }`}>
                     {isError ? (
                       <XCircle className="w-5 h-5 flex-shrink-0" />
                     ) : (
@@ -368,8 +369,8 @@ function Login({ onLoginSuccess }) {
               <div className="mt-6 pt-6 border-t border-gray-700/50 text-center">
                 <p className="text-gray-400 text-sm">
                   Don't have an account?{' '}
-                  <Link 
-                    to="/signup" 
+                  <Link
+                    to="/signup"
                     className="font-semibold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500 hover:from-blue-300 hover:to-purple-400 transition-all duration-300"
                   >
                     Sign up for free

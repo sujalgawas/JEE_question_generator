@@ -1,7 +1,7 @@
 // App.jsx
 import React, { useState, useEffect } from 'react';
 import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import Cookies from 'js-cookie';                              // ← NEW
+import Cookies from 'js-cookie';
 
 // Components
 import Navbar from './components/Navbar';

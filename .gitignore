@@ -19,7 +19,7 @@ googleAccountKey.json
 adminServiceKey.json
 
 # google config file
-/frontend/src/components/serviceAccountKey.json
+/frontend/src/serviceAccountKey.json
 
 #frontend section 
 /frontend/node_modules/
