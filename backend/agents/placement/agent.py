@@ -5,6 +5,7 @@ from langgraph.graph import END,START,StateGraph
 import random
 
 from .concepts import concepts_for_placement
+from .tools import generate_mcq,option_checker
 
 class PaperData(TypedDict):
     question_number : List[int]
@@ -12,13 +13,16 @@ class PaperData(TypedDict):
     option : List[str]
     correct_answer : List[str]
     explanation : List[str]
-    subject : List[str]
+    topic : List[str]
 
 class PaperGenerationState(TypedDict):
     question_total : int
     target_topic : List[str]
-    final_topics : List[str]
+    option_checking : bool
+    
     weak_concepts : List[str]
+    
+    final_topics : List[str]
     final_paper : PaperData
 
 def create_final_topics(question_total:int, weak_concept:list ,target_topic:None):
@@ -53,10 +57,6 @@ def create_final_topics(question_total:int, weak_concept:list ,target_topic:None
             final_topics.append(temp_general_concepts)
             current_general_concept += 1
             
-    print("final_topics_len",len(final_topics))
-    print("question_total",question_total)
-    
-    print("final_topics",final_topics)
     return final_topics
 
 
@@ -81,15 +81,62 @@ def plan_paper(state : PaperGenerationState):
         "final_topics" : final_topics
     }
 
-def should_continue_subject(state: PaperGenerationState):
-    pass
-
 def question_generation(state: PaperGenerationState):
-    pass
+    
+    final_topics = state.get("final_topics")
+    
+    final_paper : PaperData = {
+        "question_number" : [],
+        "question_text" : [],
+        "option" : [],
+        "correct_answer" : [],
+        "explanation" : [],
+        "topic" : []    
+    }
+    
+    for topics in final_topics:
+        question_data = generate_mcq(topics)
+        
+        final_paper["question_number"].append(question_data["question_number"])
+        final_paper["question_text"].append(question_data["question_text"])
+        final_paper["option"].append(question_data["option"])
+        final_paper["correct_answer"].append(question_data["correct_answer"])
+        final_paper["explanation"].append(question_data["explanation"])
+        final_paper["topic"].append(question_data["topic"])    
+    
+    return {"final_paper" : final_paper}
 
 def option_checker(state: PaperGenerationState):
-    pass
+    final_paper = state.get("final_paper")
+    
+    for question_number in final_paper["question_number"]:
+        correct,question_changed = option_checker(question_text=final_paper["question_text"][question_number-1],
+                                          option=final_paper["option"][question_number-1],
+                                          correct_answer= final_paper["correct_answer"][question_number-1],
+                                          explanation = final_paper["explanation"][question_number-1])
+        
+        if correct:
+            final_paper["option"][question_number-1] = question_changed["option"]
+            final_paper["correct_answer"][question_number-1] = question_changed["correct_answer"]
+            final_paper["explanation"][question_number-1] = question_changed["explanation"]
+
+    return{"final_paper" : final_paper}
 
 def get_agent_graph():
     """build and compile of placement service Langraph workflow"""
-    pass
+    graph = StateGraph(PaperGenerationState)
+    
+    graph.add(weak_concept_priority)
+    graph.add(plan_paper)
+    graph.add(question_generation)
+    graph.add(option_checker)
+    
+    graph.add_edge(START,"weak_concept_priority")
+    graph.add_edge("weak_concept_priority","plan_paper")
+    graph.add_edge("plan_paper","question_generation")
+    graph.add_edge("question_generation",END)
+    
+    app = graph.compile()
+    
+    return app
+    
