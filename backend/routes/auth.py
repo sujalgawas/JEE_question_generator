@@ -74,4 +74,3 @@ def login():
     except Exception as e:
         print(f"Login error: {e}")
         return jsonify({"status": "error", "message": "Invalid email or password"}), 401
-    

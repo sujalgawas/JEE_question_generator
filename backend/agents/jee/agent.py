@@ -16,7 +16,6 @@ import traceback
 import pandas as pd
 
 # --- Type Definitions ---
-
 HashableWeakConceptValue = Union[str, int, float, bool, None, Tuple[Any, ...]]
 
 class PaperData(TypedDict):
