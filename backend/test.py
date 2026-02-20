@@ -1,4 +1,4 @@
-from agents.placement.agent import create_final_topics
+from agents.placement.tools import generate_mcq
 
-weak_concept = []
-create_final_topics(question_total=10,weak_concept=weak_concept,target_topic=None)
+text = generate_mcq("Profit and Loss") 
+print(text)

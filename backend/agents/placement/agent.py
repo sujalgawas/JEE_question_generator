@@ -139,4 +139,3 @@ def get_agent_graph():
     app = graph.compile()
     
     return app
-    

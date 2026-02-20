@@ -1,0 +1,482 @@
+[
+  {
+    "topic": "Divisibility",
+    "question_text": "If the 7-digit number 517x324 is completely divisible by 3, which of the following could be the smallest whole number value of x?",
+    "options": [
+      "0",
+      "1",
+      "2",
+      "3"
+    ],
+    "correct_answer": "2",
+    "explanation": "For a number to be divisible by 3, the sum of its digits must be divisible by 3. The sum is 5+1+7+x+3+2+4 = 22+x. The smallest number greater than 22 that is divisible by 3 is 24. Therefore, x = 2."
+  },
+  {
+    "topic": "HCF and LCM",
+    "question_text": "Find the greatest number that will divide 43, 91, and 183 so as to leave the same remainder in each case.",
+    "options": [
+      "4",
+      "7",
+      "9",
+      "13"
+    ],
+    "correct_answer": "4",
+    "explanation": "To find the greatest number leaving the same remainder, find the HCF of the differences between the numbers: |91-43| = 48, |183-91| = 92, |183-43| = 140. The HCF of 48, 92, and 140 is 4."
+  },
+  {
+    "topic": "Power and Divisibility",
+    "question_text": "What is the remainder when $2^{256}$ is divided by 17?",
+    "options": [
+      "1",
+      "2",
+      "15",
+      "16"
+    ],
+    "correct_answer": "1",
+    "explanation": "By Fermat's Little Theorem, a^(p-1) mod p = 1 if p is prime and 'a' is not divisible by p. Here, p=17. So, 2^16 mod 17 = 1. Since 256 is a multiple of 16 (16 * 16), the remainder is 1."
+  },
+  {
+    "topic": "Profit and Loss",
+    "question_text": "A shopkeeper sells two articles at Rs. 4000 each. On one he gains 20% and on the other, he loses 20%. What is his overall gain or loss percentage?",
+    "options": [
+      "No profit no loss",
+      "4% loss",
+      "4% gain",
+      "8% loss"
+    ],
+    "correct_answer": "4% loss",
+    "explanation": "When two items are sold at the same price, one at a profit of x% and the other at a loss of x%, there is always an overall loss given by (x^2)/100 %. Here, (20^2)/100 = 400/100 = 4% loss."
+  },
+  {
+    "topic": "Time, Speed, and Distance",
+    "question_text": "A train 120 meters long is running with a speed of 60 km/hr. In what time will it pass a boy who is running at 6 km/hr in the direction opposite to that in which the train is going?",
+    "options": [
+      "6.54 seconds",
+      "8.12 seconds",
+      "9.00 seconds",
+      "10.20 seconds"
+    ],
+    "correct_answer": "6.54 seconds",
+    "explanation": "Relative speed = 60 + 6 = 66 km/hr (since they are in opposite directions). Convert to m/s: 66 * (5/18) = 55/3 m/s. Time = Distance / Speed = 120 / (55/3) = 360 / 55 = 6.54 seconds."
+  },
+  {
+    "topic": "Averages",
+    "question_text": "The average age of a class of 30 students is 15 years. If the teacher's age is included, the average increases by 1 year. What is the teacher's age?",
+    "options": [
+      "31 years",
+      "45 years",
+      "46 years",
+      "50 years"
+    ],
+    "correct_answer": "46 years",
+    "explanation": "Total age of 30 students = 30 * 15 = 450. Total age with teacher (31 people) = 31 * 16 = 496. Teacher's age = 496 - 450 = 46 years."
+  },
+  {
+    "topic": "Time and Work",
+    "question_text": "A can do a piece of work in 15 days and B alone can do it in 10 days. B works at it for 5 days and then leaves. A alone can finish the remaining work in how many days?",
+    "options": [
+      "5 days",
+      "7.5 days",
+      "8 days",
+      "10 days"
+    ],
+    "correct_answer": "7.5 days",
+    "explanation": "B's 1 day work = 1/10. Work done by B in 5 days = 5/10 = 1/2. Remaining work = 1 - 1/2 = 1/2. A can do full work in 15 days, so A will do 1/2 work in 15 * (1/2) = 7.5 days."
+  },
+  {
+    "topic": "Logarithms",
+    "question_text": "Evaluate $\\log_2(64) + \\log_3(27)$.",
+    "options": [
+      "7",
+      "8",
+      "9",
+      "10"
+    ],
+    "correct_answer": "9",
+    "explanation": "Since $2^6 = 64$, $\\log_2(64) = 6$. Since $3^3 = 27$, $\\log_3(27) = 3$. Therefore, $6 + 3 = 9$."
+  },
+  {
+    "topic": "Permutation and Combinations",
+    "question_text": "In how many ways can a committee of 4 people be chosen out of 8 people?",
+    "options": [
+      "32",
+      "70",
+      "120",
+      "1680"
+    ],
+    "correct_answer": "70",
+    "explanation": "This is a combination problem since order does not matter. C(8,4) = 8! / (4! * (8-4)!) = (8 * 7 * 6 * 5) / (4 * 3 * 2 * 1) = 70."
+  },
+  {
+    "topic": "Percentages",
+    "question_text": "If the price of petrol is increased by 25%, by what percentage must a car owner reduce his consumption to maintain the same budget?",
+    "options": [
+      "20%",
+      "25%",
+      "30%",
+      "33.33%"
+    ],
+    "correct_answer": "20%",
+    "explanation": "Reduction % = [R / (100 + R)] * 100. Here R = 25. So, [25 / 125] * 100 = 20%."
+  },
+  {
+    "topic": "Equations",
+    "question_text": "If $3x + 2y = 12$ and $xy = 6$, what is the value of $9x^2 + 4y^2$?",
+    "options": [
+      "72",
+      "144",
+      "108",
+      "60"
+    ],
+    "correct_answer": "72",
+    "explanation": "Squaring the first equation: $(3x + 2y)^2 = 12^2 \\rightarrow 9x^2 + 12xy + 4y^2 = 144$. Substitute $xy = 6$: $9x^2 + 12(6) + 4y^2 = 144 \\rightarrow 9x^2 + 72 + 4y^2 = 144 \\rightarrow 9x^2 + 4y^2 = 72$."
+  },
+  {
+    "topic": "Ratio and Proportion",
+    "question_text": "The ratio of boys to girls in a class is 5:3. If 10 boys leave and 10 girls join the class, the ratio becomes 1:1. How many students were originally in the class?",
+    "options": [
+      "60",
+      "80",
+      "100",
+      "120"
+    ],
+    "correct_answer": "80",
+    "explanation": "Let original boys = 5x and girls = 3x. (5x - 10) / (3x + 10) = 1/1. So, 5x - 10 = 3x + 10 -> 2x = 20 -> x = 10. Total original students = 5x + 3x = 8x = 8 * 10 = 80."
+  },
+  {
+    "topic": "Logical Sequence",
+    "question_text": "Arrange the following words in a meaningful sequence: 1. Police 2. Punishment 3. Crime 4. Judge 5. Judgment",
+    "options": [
+      "3, 1, 4, 5, 2",
+      "1, 2, 4, 3, 5",
+      "5, 4, 3, 2, 1",
+      "3, 1, 2, 4, 5"
+    ],
+    "correct_answer": "3, 1, 4, 5, 2",
+    "explanation": "The logical sequence of events is: First a Crime (3) is committed, then the Police (1) arrest the suspect, they are presented before a Judge (4), who gives a Judgment (5), resulting in Punishment (2)."
+  },
+  {
+    "topic": "Directional Sense",
+    "question_text": "Ravi walks 10 km towards the North. From there he walks 6 km towards the South. Then, he walks 3 km towards the East. How far and in which direction is he with reference to his starting point?",
+    "options": [
+      "5 km West",
+      "7 km East",
+      "5 km North-East",
+      "7 km North-West"
+    ],
+    "correct_answer": "5 km North-East",
+    "explanation": "He goes 10 km North, then 6 km South, meaning he is 4 km North of the start. Then he goes 3 km East. His distance from the start forms a right-angled triangle with sides 3 and 4. Hypotenuse = sqrt(3^2 + 4^2) = 5 km. The direction is North-East."
+  },
+  {
+    "topic": "Data Sufficiency",
+    "question_text": "What is the two-digit number? \nStatement I: The sum of the digits is 8.\nStatement II: The difference between the digits is 2.",
+    "options": [
+      "Statement I alone is sufficient.",
+      "Statement II alone is sufficient.",
+      "Both statements together are sufficient.",
+      "Both statements together are not sufficient."
+    ],
+    "correct_answer": "Both statements together are not sufficient.",
+    "explanation": "From I: x+y=8. Possible pairs: (1,7), (2,6), (3,5), (4,4), (5,3), (6,2), (7,1), (8,0). From II: |x-y|=2. Using both, the pairs could be (5,3) or (3,5). So the number could be 53 or 35. Since we don't have a unique answer, they are not sufficient."
+  },
+  {
+    "topic": "Coding deductive Logic",
+    "question_text": "If 'WATER' is coded as 'YCVGT', how is 'HKTG' coded?",
+    "options": [
+      "FIRE",
+      "JMVJ",
+      "GIQF",
+      "JMVH"
+    ],
+    "correct_answer": "FIRE",
+    "explanation": "The pattern is moving 2 letters forward in the alphabet (W+2=Y, A+2=C, etc.). Wait, the question asks how HKTG is coded. This means HKTG is the encoded word. We must decode it by moving 2 letters backward: H-2=F, K-2=I, T-2=R, G-2=E. The word is FIRE."
+  },
+  {
+    "topic": "Objective Reasoning",
+    "question_text": "Fact 1: All dogs bark. Fact 2: Max barks. Conclusion: Max is a dog. If Fact 1 and 2 are true, the conclusion is:",
+    "options": [
+      "True",
+      "False",
+      "Uncertain",
+      "None of the above"
+    ],
+    "correct_answer": "Uncertain",
+    "explanation": "Just because all dogs bark and Max barks, it doesn't mean Max is a dog. Max could be a seal or a machine that barks. The conclusion is a logical fallacy (affirming the consequent), hence uncertain."
+  },
+  {
+    "topic": "Blood Relation",
+    "question_text": "Pointing to a photograph, a man said, 'I have no brother or sister but that man's father is my father's son.' Whose photograph was it?",
+    "options": [
+      "His own",
+      "His son's",
+      "His father's",
+      "His nephew's"
+    ],
+    "correct_answer": "His son's",
+    "explanation": "Since the speaker has no siblings, 'my father's son' is the speaker himself. The statement becomes: 'that man's father is ME.' Therefore, the man in the photograph is his son."
+  },
+  {
+    "topic": "Odd One Out",
+    "question_text": "Choose the odd one out from the following options:",
+    "options": [
+      "Copper",
+      "Zinc",
+      "Brass",
+      "Aluminum"
+    ],
+    "correct_answer": "Brass",
+    "explanation": "Copper, Zinc, and Aluminum are pure chemical elements (metals). Brass is an alloy (a mixture of copper and zinc)."
+  },
+  {
+    "topic": "Inferred Meaning",
+    "question_text": "Statement: 'Despite a heavy rain, the football match was not canceled.' What can be inferred from this statement?",
+    "options": [
+      "Football is always played in the rain.",
+      "Heavy rain usually causes matches to be canceled.",
+      "The players enjoy playing in the rain.",
+      "The match was delayed."
+    ],
+    "correct_answer": "Heavy rain usually causes matches to be canceled.",
+    "explanation": "The use of the word 'Despite' implies an expectation that heavy rain would normally lead to the cancellation of the match."
+  },
+  {
+    "topic": "Pattern Recognition",
+    "question_text": "What is the next number in the series: 2, 6, 12, 20, 30, ...?",
+    "options": [
+      "40",
+      "42",
+      "44",
+      "48"
+    ],
+    "correct_answer": "42",
+    "explanation": "The differences between consecutive terms are 4, 6, 8, 10. The next difference should be 12. So, 30 + 12 = 42. Alternatively, the pattern is 1x2, 2x3, 3x4, 4x5, 5x6. Next is 6x7 = 42."
+  },
+  {
+    "topic": "Puzzles",
+    "question_text": "Three friends (A, B, C) are sitting in a row. A is not at either end. B is to the right of C. Who is sitting in the middle?",
+    "options": [
+      "A",
+      "B",
+      "C",
+      "Cannot be determined"
+    ],
+    "correct_answer": "A",
+    "explanation": "Since A is not at either end, A must be in the middle position."
+  },
+  {
+    "topic": "Selection Decision Tables",
+    "question_text": "A candidate needs >60% in written, >70% in interview, and a Bachelor's degree to be hired. John has a Bachelor's degree, scored 65% in written, and 75% in the interview. Will John be hired?",
+    "options": [
+      "Yes",
+      "No",
+      "Data Inadequate",
+      "Waitlisted"
+    ],
+    "correct_answer": "Yes",
+    "explanation": "John meets all three criteria: >60% written (he has 65%), >70% interview (he has 75%), and holds a Bachelor's degree."
+  },
+  {
+    "topic": "Letter Series",
+    "question_text": "Find the next set of letters in the series: AZ, CX, EV, GT, ...",
+    "options": [
+      "IR",
+      "IV",
+      "HS",
+      "JQ"
+    ],
+    "correct_answer": "IR",
+    "explanation": "The first letters skip one forward: A, C, E, G... next is I. The second letters skip one backward: Z, X, V, T... next is R. Result is IR."
+  },
+  {
+    "topic": "Synonyms and Antonyms",
+    "question_text": "Choose the word most SIMILAR in meaning to 'OBFUSCATE'.",
+    "options": [
+      "Clarify",
+      "Confuse",
+      "Illuminate",
+      "Assist"
+    ],
+    "correct_answer": "Confuse",
+    "explanation": "'Obfuscate' means to render obscure, unclear, or unintelligible. 'Confuse' is its closest synonym."
+  },
+  {
+    "topic": "Contextual Vocabulary",
+    "question_text": "The manager's ______ attitude made it difficult for the team to reach a consensus, as he rejected every proposal without explanation.",
+    "options": [
+      "compliant",
+      "intransigent",
+      "benevolent",
+      "innovative"
+    ],
+    "correct_answer": "intransigent",
+    "explanation": "'Intransigent' means unwilling or refusing to change one's views or to agree about something, which fits the context of rejecting proposals and hindering consensus."
+  },
+  {
+    "topic": "Reading comprehension",
+    "question_text": "Read the sentence: 'The proliferation of smartphones has undeniably altered social dynamics, reducing face-to-face interactions while expanding digital connectivity.' What is the primary focus of the sentence?",
+    "options": [
+      "The invention of smartphones.",
+      "The negative impacts of face-to-face interactions.",
+      "How smartphones have changed the way people socialize.",
+      "Why digital connectivity is superior."
+    ],
+    "correct_answer": "How smartphones have changed the way people socialize.",
+    "explanation": "The sentence explains the dual effect of smartphones (reducing physical interaction, increasing digital) which summarizes as altering social dynamics/how people socialize."
+  },
+  {
+    "topic": "Error Identification",
+    "question_text": "Identify the part of the sentence containing a grammatical error: 'Neither of the boys (A) / have returned (B) / the books to the library (C) / on time (D).'",
+    "options": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "correct_answer": "B",
+    "explanation": "The pronoun 'neither' is singular and requires a singular verb. 'have returned' should be 'has returned'."
+  },
+  {
+    "topic": "Sentence Improvement and Construction",
+    "question_text": "Improve the bracketed part: The chef cooked the meal, [plated it beautifully, and serves] it to the guests.",
+    "options": [
+      "plated it beautifully, and served",
+      "plating it beautifully, and serves",
+      "plated it beautifully, and serve",
+      "No improvement needed"
+    ],
+    "correct_answer": "plated it beautifully, and served",
+    "explanation": "To maintain parallel structure and consistent past tense ('cooked'), the verbs must be 'plated' and 'served'."
+  },
+  {
+    "topic": "Sentence Correction",
+    "question_text": "Choose the grammatically correct sentence.",
+    "options": [
+      "She is one of the girls who is playing outside.",
+      "She is one of the girls who are playing outside.",
+      "She is one of the girl who are playing outside.",
+      "She is one of the girl who is playing outside."
+    ],
+    "correct_answer": "She is one of the girls who are playing outside.",
+    "explanation": "The phrase 'one of the [plural noun]' is followed by a relative pronoun ('who') that refers back to the plural noun ('girls'). Therefore, the verb following 'who' should be plural ('are')."
+  },
+  {
+    "topic": "Prepositions and Conjunctions",
+    "question_text": "He has been suffering ______ malaria ______ the past three days.",
+    "options": [
+      "from, since",
+      "with, for",
+      "from, for",
+      "of, since"
+    ],
+    "correct_answer": "from, for",
+    "explanation": "We say 'suffering from' a disease. We use 'for' with a duration of time ('the past three days') and 'since' with a specific point in time."
+  },
+  {
+    "topic": "Fill in the Blanks",
+    "question_text": "Despite his extensive preparations, the candidate was completely ______ by the interviewer's final question.",
+    "options": [
+      "elated",
+      "flummoxed",
+      "prepared",
+      "vindicated"
+    ],
+    "correct_answer": "flummoxed",
+    "explanation": "The word 'Despite' indicates a contrast. Since he prepared extensively, he should have known the answer, but instead, he was confused or bewildered ('flummoxed')."
+  },
+  {
+    "topic": "Neuroticism",
+    "question_text": "When faced with an unexpected, tight deadline at work, what is your most likely internal reaction?",
+    "options": [
+      "I panic and feel overwhelmed, convinced I will fail.",
+      "I feel a surge of anxiety but try to push through it.",
+      "I feel momentarily stressed but quickly focus on adjusting my schedule.",
+      "I remain completely calm and methodically plan out the required tasks."
+    ],
+    "correct_answer": "I remain completely calm and methodically plan out the required tasks.",
+    "explanation": "Note: In a real AMPI assessment, there are no 'correct' answers. For the sake of this format, this option demonstrates LOW Neuroticism (high emotional stability), which is generally the highly sought-after professional trait."
+  },
+  {
+    "topic": "Openness to Experience",
+    "question_text": "Your company introduces a completely new software system that changes how you do your daily tasks. How do you respond?",
+    "options": [
+      "I resist the change and stick to the old methods as long as possible.",
+      "I complain about it but slowly learn the basics.",
+      "I learn it because I have to, but I don't explore its extra features.",
+      "I eagerly explore the new software to see how it can make my work more efficient."
+    ],
+    "correct_answer": "I eagerly explore the new software to see how it can make my work more efficient.",
+    "explanation": "This option represents HIGH Openness to Experience, indicating intellectual curiosity and adaptability to novel situations."
+  },
+  {
+    "topic": "Extraversion",
+    "question_text": "You are attending a large industry networking event where you don't know anyone. What is your typical behavior?",
+    "options": [
+      "I stay near the exit and leave as soon as it's polite to do so.",
+      "I stick to myself and only speak if someone approaches me first.",
+      "I mingle a bit but stick to small, quiet groups.",
+      "I actively approach new people, introduce myself, and enjoy the conversations."
+    ],
+    "correct_answer": "I actively approach new people, introduce myself, and enjoy the conversations.",
+    "explanation": "This option reflects HIGH Extraversion, characterized by sociability, assertiveness, and energy in social settings."
+  },
+  {
+    "topic": "Agreeableness",
+    "question_text": "A coworker takes credit for a minor idea that you contributed during a brainstorming session. How do you handle it?",
+    "options": [
+      "I aggressively confront them in front of the whole team.",
+      "I hold a grudge and refuse to help them in the future.",
+      "I ignore it but feel quietly resentful.",
+      "I approach them privately to calmly discuss the misunderstanding and ensure future clarity."
+    ],
+    "correct_answer": "I approach them privately to calmly discuss the misunderstanding and ensure future clarity.",
+    "explanation": "This option shows HIGH Agreeableness (and emotional maturity), emphasizing cooperation, tact, and constructive conflict resolution over hostility."
+  },
+  {
+    "topic": "Conscientiousness",
+    "question_text": "You notice a minor error in a report you just submitted, but you know your boss rarely checks this specific section. What do you do?",
+    "options": [
+      "I ignore it; it's not worth the hassle if it won't be noticed.",
+      "I hope nobody catches it and prepare an excuse just in case.",
+      "I wait to see if anyone points it out before admitting it.",
+      "I immediately notify my boss of the error and provide a corrected version."
+    ],
+    "correct_answer": "I immediately notify my boss of the error and provide a corrected version.",
+    "explanation": "This option demonstrates HIGH Conscientiousness, reflecting high reliability, ethical responsibility, and attention to detail."
+  },
+  {
+    "topic": "Data Interpretation",
+    "question_text": "A pie chart shows a company's expenses: 40% on Salaries, 30% on Operations, 20% on Marketing, and 10% on R&D. If the total budget is $500,000, how much more is spent on Salaries than on Marketing?",
+    "options": [
+      "$50,000",
+      "$100,000",
+      "$150,000",
+      "$200,000"
+    ],
+    "correct_answer": "$100,000",
+    "explanation": "Salaries = 40% of 500k = $200k. Marketing = 20% of 500k = $100k. Difference = 200k - 100k = $100,000. Alternatively, 40% - 20% = 20%. 20% of $500,000 is $100,000."
+  },
+  {
+    "topic": "Information Ordering",
+    "question_text": "Rank the following data units in order of increasing size: 1. Gigabyte, 2. Kilobyte, 3. Megabyte, 4. Terabyte, 5. Byte.",
+    "options": [
+      "5, 2, 3, 1, 4",
+      "5, 3, 2, 1, 4",
+      "2, 5, 3, 1, 4",
+      "5, 2, 1, 3, 4"
+    ],
+    "correct_answer": "5, 2, 3, 1, 4",
+    "explanation": "The standard sequence for digital data size from smallest to largest is: Byte (5), Kilobyte (2), Megabyte (3), Gigabyte (1), Terabyte (4)."
+  },
+  {
+    "topic": "Information Processing",
+    "question_text": "A sorting machine processes files by separating them into two bins: Bin A for files > 5MB, and Bin B for files <= 5MB. If a batch of files measuring 3MB, 7MB, 5MB, 1MB, and 8MB is inserted, how many files will end up in Bin B?",
+    "options": [
+      "2",
+      "3",
+      "4",
+      "5"
+    ],
+    "correct_answer": "3",
+    "explanation": "Bin B holds files <= 5MB. The files that fit this logic are 3MB, 5MB, and 1MB. That makes a total of 3 files."
+  }
+]
