@@ -1,97 +1,80 @@
-// MCQTest.js
+// MCQTest.js — Clean, exam-focused test interface
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { 
-  Clock, 
-  ChevronLeft, 
-  ChevronRight, 
-  CheckCircle, 
+import {
+  Clock,
+  ChevronLeft,
+  ChevronRight,
+  CheckCircle,
   Circle,
   AlertCircle,
   BookOpen,
-  Grid3x3,
   X,
   Flag,
   Send,
   Timer,
-  Target
+  Target,
+  LayoutGrid,
+  ArrowRight,
 } from 'lucide-react';
 import API_URL from '../apiConfig';
 
-// Helper function to convert options object to array
+/* ────  helpers  ──── */
 const convertOptionsToArray = (optionsObj) => {
   if (!optionsObj || typeof optionsObj !== 'object') return [];
-  return Object.keys(optionsObj)
-    .sort()
-    .map(key => optionsObj[key]);
+  return Object.keys(optionsObj).sort().map((key) => optionsObj[key]);
 };
 
-// Question Palette Modal Component
+const formatTime = (seconds) => {
+  const h = Math.floor(seconds / 3600);
+  const m = Math.floor((seconds % 3600) / 60);
+  const s = seconds % 60;
+  return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+};
+
+/* ───────────────────────────────────────
+   Question Palette Modal
+   ─────────────────────────────────────── */
 const QuestionPalette = ({ questions, answers, currentIndex, onSelect, onClose, flagged }) => (
-  <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-in fade-in">
-    <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-3xl max-w-2xl w-full max-h-[80vh] overflow-hidden border border-gray-700/50 shadow-2xl">
-      <div className="sticky top-0 bg-gradient-to-r from-gray-800/95 to-gray-900/95 backdrop-blur-xl p-6 border-b border-gray-700/50 z-10">
-        <div className="flex justify-between items-center">
-          <h3 className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500">
-            Question Palette
-          </h3>
-          <button
-            onClick={onClose}
-            className="p-2 hover:bg-gray-700/50 rounded-xl transition-colors duration-200"
-          >
-            <X className="w-6 h-6 text-gray-400 hover:text-white" />
-          </button>
-        </div>
-        
-        {/* Legend */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-4">
-          <div className="flex items-center gap-2 text-xs">
-            <div className="w-6 h-6 bg-green-500/20 border-2 border-green-500 rounded-lg"></div>
-            <span className="text-gray-400">Answered</span>
-          </div>
-          <div className="flex items-center gap-2 text-xs">
-            <div className="w-6 h-6 bg-blue-500/20 border-2 border-blue-500 rounded-lg"></div>
-            <span className="text-gray-400">Current</span>
-          </div>
-          <div className="flex items-center gap-2 text-xs">
-            <div className="w-6 h-6 bg-orange-500/20 border-2 border-orange-500 rounded-lg"></div>
-            <span className="text-gray-400">Flagged</span>
-          </div>
-          <div className="flex items-center gap-2 text-xs">
-            <div className="w-6 h-6 bg-gray-700/50 border-2 border-gray-600 rounded-lg"></div>
-            <span className="text-gray-400">Not Visited</span>
-          </div>
-        </div>
+  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fade-in">
+    <div className="w-full max-w-xl bg-surface-800 rounded-2xl border border-surface-700 shadow-2xl overflow-hidden">
+      {/* header */}
+      <div className="flex items-center justify-between px-6 py-4 border-b border-surface-700">
+        <h3 className="text-lg font-bold text-white">Question Navigator</h3>
+        <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-surface-700 transition-colors">
+          <X className="w-5 h-5 text-surface-400" />
+        </button>
       </div>
-      
-      <div className="p-6 overflow-y-auto max-h-[calc(80vh-180px)]">
-        <div className="grid grid-cols-5 sm:grid-cols-8 md:grid-cols-10 gap-2">
-          {questions.map((_, index) => {
-            const isAnswered = answers[index] !== undefined;
-            const isCurrent = index === currentIndex;
-            const isFlagged = flagged[index];
-            
+
+      {/* legend */}
+      <div className="flex flex-wrap gap-4 px-6 py-3 border-b border-surface-700/50 text-xs text-surface-400">
+        <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded bg-success-500" /> Answered</span>
+        <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded bg-accent-500" /> Current</span>
+        <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded bg-warning-500" /> Flagged</span>
+        <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded bg-surface-600" /> Unanswered</span>
+      </div>
+
+      {/* grid */}
+      <div className="p-6 max-h-[50vh] overflow-y-auto">
+        <div className="grid grid-cols-6 sm:grid-cols-8 md:grid-cols-10 gap-2">
+          {questions.map((_, i) => {
+            const answered = answers[i] !== undefined;
+            const current = i === currentIndex;
+            const marked = flagged[i];
+
+            let cls = 'bg-surface-700/60 text-surface-400 hover:bg-surface-600';
+            if (current) cls = 'bg-accent-500/20 text-accent-400 ring-2 ring-accent-500';
+            else if (answered) cls = 'bg-success-500/15 text-success-400 ring-1 ring-success-500/40';
+            else if (marked) cls = 'bg-warning-500/15 text-warning-400 ring-1 ring-warning-500/40';
+
             return (
               <button
-                key={index}
-                onClick={() => {
-                  onSelect(index);
-                  onClose();
-                }}
-                className={`relative aspect-square rounded-xl font-bold text-sm transition-all duration-300 hover:scale-110 ${
-                  isCurrent
-                    ? 'bg-blue-500/20 border-2 border-blue-500 text-blue-400 shadow-lg shadow-blue-500/30'
-                    : isAnswered
-                    ? 'bg-green-500/20 border-2 border-green-500 text-green-400'
-                    : isFlagged
-                    ? 'bg-orange-500/20 border-2 border-orange-500 text-orange-400'
-                    : 'bg-gray-700/50 border-2 border-gray-600 text-gray-400 hover:border-gray-500'
-                }`}
+                key={i}
+                onClick={() => { onSelect(i); onClose(); }}
+                className={`relative aspect-square rounded-lg text-sm font-semibold transition-all duration-150 ${cls}`}
               >
-                {index + 1}
-                {isFlagged && (
-                  <Flag className="absolute -top-1 -right-1 w-3 h-3 text-orange-400 fill-orange-400" />
-                )}
+                {i + 1}
+                {marked && <Flag className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 text-warning-500 fill-warning-500" />}
               </button>
             );
           })}
@@ -101,92 +84,113 @@ const QuestionPalette = ({ questions, answers, currentIndex, onSelect, onClose, 
   </div>
 );
 
-// Instructions Modal Component
+/* ───────────────────────────────────────
+   Instructions Modal
+   ─────────────────────────────────────── */
 const InstructionsModal = ({ questions, onStart }) => (
-  <div className="fixed inset-0 bg-gradient-to-br from-gray-900 via-slate-900 to-gray-900 flex items-center justify-center p-4 z-50">
-    <div className="absolute inset-0 overflow-hidden pointer-events-none">
-      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl animate-pulse"></div>
-      <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
-    </div>
+  <div className="fixed inset-0 z-50 flex items-center justify-center bg-surface-950 p-4">
+    <div className="w-full max-w-lg bg-surface-800 rounded-2xl border border-surface-700 shadow-2xl animate-slide-up overflow-hidden">
+      {/* top accent */}
+      <div className="h-1 bg-gradient-to-r from-accent-500 to-accent-400" />
 
-    <div className="relative bg-gradient-to-br from-gray-800/60 to-gray-900/60 backdrop-blur-xl rounded-3xl max-w-2xl w-full p-8 border border-gray-700/50 shadow-2xl animate-in zoom-in">
-      <div className="text-center mb-8">
-        <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-2xl border border-blue-500/30 mb-4">
-          <BookOpen className="w-10 h-10 text-blue-400" />
+      <div className="p-8">
+        {/* icon + title */}
+        <div className="text-center mb-8">
+          <div className="inline-flex items-center justify-center w-14 h-14 rounded-xl bg-accent-500/10 border border-accent-500/20 mb-4">
+            <BookOpen className="w-7 h-7 text-accent-400" />
+          </div>
+          <h2 className="text-2xl font-bold text-white mb-1">Test Instructions</h2>
+          <p className="text-surface-400 text-sm">Read before you begin</p>
         </div>
-        <h2 className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500 mb-2">
-          Test Instructions
-        </h2>
-        <p className="text-gray-400">Please read carefully before starting</p>
+
+        {/* info items */}
+        <div className="space-y-3 mb-8">
+          {[
+            { icon: Target, color: 'text-accent-400', label: 'Total Questions', desc: `${questions.length} multiple choice questions` },
+            { icon: Timer, color: 'text-accent-400', label: 'Time Limit', desc: '90 minutes — auto-submits when done' },
+            { icon: CheckCircle, color: 'text-success-400', label: 'Navigation', desc: 'Move freely — answers are auto-saved' },
+            { icon: Flag, color: 'text-warning-400', label: 'Mark for Review', desc: 'Flag questions to revisit later' },
+          ].map(({ icon: Icon, color, label, desc }) => (
+            <div key={label} className="flex items-start gap-3 p-3 rounded-xl bg-surface-700/40">
+              <Icon className={`w-5 h-5 mt-0.5 ${color} shrink-0`} />
+              <div>
+                <p className="text-white text-sm font-medium">{label}</p>
+                <p className="text-surface-400 text-xs">{desc}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* warning */}
+        <div className="flex items-center gap-2 p-3 mb-6 rounded-lg bg-warning-500/10 border border-warning-500/20 text-warning-400 text-xs">
+          <AlertCircle className="w-4 h-4 shrink-0" />
+          <span>Ensure you have a stable internet connection throughout the test.</span>
+        </div>
+
+        {/* start button */}
+        <button
+          onClick={onStart}
+          className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl bg-accent-600 hover:bg-accent-500 text-white font-semibold transition-colors duration-200"
+        >
+          Start Test
+          <ArrowRight className="w-4 h-4" />
+        </button>
       </div>
-
-      <div className="space-y-4 mb-8">
-        <div className="flex items-start gap-4 p-4 bg-gray-800/40 rounded-xl border border-gray-700/50">
-          <div className="p-2 bg-blue-500/20 rounded-lg">
-            <Target className="w-5 h-5 text-blue-400" />
-          </div>
-          <div>
-            <h4 className="text-white font-semibold mb-1">Total Questions</h4>
-            <p className="text-gray-400 text-sm">{questions.length} multiple choice questions</p>
-          </div>
-        </div>
-
-        <div className="flex items-start gap-4 p-4 bg-gray-800/40 rounded-xl border border-gray-700/50">
-          <div className="p-2 bg-purple-500/20 rounded-lg">
-            <Timer className="w-5 h-5 text-purple-400" />
-          </div>
-          <div>
-            <h4 className="text-white font-semibold mb-1">Time Limit</h4>
-            <p className="text-gray-400 text-sm">90 minutes - Test will auto-submit when time runs out</p>
-          </div>
-        </div>
-
-        <div className="flex items-start gap-4 p-4 bg-gray-800/40 rounded-xl border border-gray-700/50">
-          <div className="p-2 bg-green-500/20 rounded-lg">
-            <CheckCircle className="w-5 h-5 text-green-400" />
-          </div>
-          <div>
-            <h4 className="text-white font-semibold mb-1">Navigation</h4>
-            <p className="text-gray-400 text-sm">Navigate freely between questions - your answers are auto-saved</p>
-          </div>
-        </div>
-
-        <div className="flex items-start gap-4 p-4 bg-gray-800/40 rounded-xl border border-gray-700/50">
-          <div className="p-2 bg-orange-500/20 rounded-lg">
-            <Flag className="w-5 h-5 text-orange-400" />
-          </div>
-          <div>
-            <h4 className="text-white font-semibold mb-1">Mark for Review</h4>
-            <p className="text-gray-400 text-sm">Flag questions you want to revisit later</p>
-          </div>
-        </div>
-
-        <div className="flex items-start gap-4 p-4 bg-yellow-500/10 rounded-xl border border-yellow-500/30">
-          <AlertCircle className="w-5 h-5 text-yellow-400 flex-shrink-0 mt-0.5" />
-          <div>
-            <p className="text-yellow-400 text-sm">
-              Ensure you have a stable internet connection throughout the test
-            </p>
-          </div>
-        </div>
-      </div>
-
-      <button 
-        onClick={onStart}
-        className="group relative w-full flex items-center justify-center gap-2 px-6 py-4 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-bold rounded-xl transition-all duration-300 hover:scale-[1.02] shadow-lg shadow-blue-500/30"
-      >
-        <div className="absolute inset-0 bg-gradient-to-r from-blue-500/0 to-purple-500/0 group-hover:from-blue-500/20 group-hover:to-purple-500/20 rounded-xl blur-xl transition-all duration-300"></div>
-        <span className="relative z-10">Start Test</span>
-        <ChevronRight className="w-5 h-5 relative z-10 group-hover:translate-x-1 transition-transform duration-300" />
-      </button>
     </div>
   </div>
 );
 
+/* ───────────────────────────────────────
+   Submit Confirmation Modal
+   ─────────────────────────────────────── */
+const SubmitConfirmation = ({ questions, answers, timeLeft, onSubmit, onCancel }) => {
+  const answered = Object.keys(answers).length;
+  const unanswered = questions.length - answered;
+  const timeSpent = formatTime((90 * 60) - timeLeft);
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fade-in">
+      <div className="w-full max-w-sm bg-surface-800 rounded-2xl border border-surface-700 shadow-2xl animate-scale-in overflow-hidden">
+        <div className="h-1 bg-gradient-to-r from-warning-500 to-warning-400" />
+
+        <div className="p-6">
+          <div className="text-center mb-5">
+            <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-warning-500/10 border border-warning-500/20 mb-3">
+              <AlertCircle className="w-6 h-6 text-warning-400" />
+            </div>
+            <h3 className="text-xl font-bold text-white">Submit Test?</h3>
+            <p className="text-surface-400 text-sm mt-1">This action cannot be undone</p>
+          </div>
+
+          {/* stats */}
+          <div className="space-y-2 p-4 rounded-xl bg-surface-700/40 mb-5 text-sm">
+            <div className="flex justify-between"><span className="text-surface-400">Total</span><span className="text-white font-medium">{questions.length}</span></div>
+            <div className="flex justify-between"><span className="text-surface-400">Answered</span><span className="text-success-400 font-medium">{answered}</span></div>
+            <div className="flex justify-between"><span className="text-surface-400">Unanswered</span><span className="text-danger-400 font-medium">{unanswered}</span></div>
+            <div className="flex justify-between"><span className="text-surface-400">Time Spent</span><span className="text-white font-medium">{timeSpent}</span></div>
+          </div>
+
+          <div className="flex gap-3">
+            <button onClick={onCancel} className="flex-1 py-2.5 rounded-xl bg-surface-700 hover:bg-surface-600 text-surface-300 font-medium transition-colors">
+              Cancel
+            </button>
+            <button onClick={onSubmit} className="flex-1 py-2.5 rounded-xl bg-success-600 hover:bg-success-500 text-white font-semibold transition-colors">
+              Submit
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+/* ═══════════════════════════════════════
+   Main MCQTest Component
+   ═══════════════════════════════════════ */
 export default function MCQTest() {
   const { paperId } = useParams();
   const navigate = useNavigate();
-  
+
   const [paper, setPaper] = useState(null);
   const [questions, setQuestions] = useState([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -200,155 +204,93 @@ export default function MCQTest() {
   const [showPalette, setShowPalette] = useState(false);
   const [showSubmitConfirm, setShowSubmitConfirm] = useState(false);
 
-  // Timer effect
+  /* ── timer ── */
   useEffect(() => {
     if (testStarted && timeLeft > 0 && !testSubmitted) {
       const timer = setInterval(() => {
-        setTimeLeft(prev => {
-          if (prev <= 1) {
-            handleSubmitTest();
-            return 0;
-          }
+        setTimeLeft((prev) => {
+          if (prev <= 1) { handleSubmitTest(); return 0; }
           return prev - 1;
         });
       }, 1000);
-
       return () => clearInterval(timer);
     }
   }, [testStarted, timeLeft, testSubmitted]);
 
-  // Fetch paper data
+  /* ── fetch paper ── */
   useEffect(() => {
     const token = localStorage.getItem('idToken');
     const userName = localStorage.getItem('userName');
 
-    if (!token || !userName) {
-      setError('User not authenticated');
-      setLoading(false);
-      return;
-    }
-
-    if (!paperId) {
-      setError('No paper ID provided');
-      setLoading(false);
-      return;
-    }
+    if (!token || !userName) { setError('User not authenticated'); setLoading(false); return; }
+    if (!paperId) { setError('No paper ID provided'); setLoading(false); return; }
 
     fetch(`${API_URL}/get-paper-for-test`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ token, paperId })
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token, paperId }),
     })
-    .then(res => res.json())
-    .then(data => {
-      if (data.paper) {
-        setPaper(data.paper);
-        const questionsArray = data.paper.question_number?.map((qNum, index) => ({
-          questionNumber: qNum,
-          questionText: data.paper.question_text?.[index] || '',
-          options: convertOptionsToArray(data.paper.options?.[index]),
-          correctAnswer: data.paper.correct_answer?.[index] || '',
-          concept: data.paper.concept?.[index] || '',
-          difficulty: data.paper.difficulty?.[index] || '',
-          explanation: data.paper.explanation?.[index] || '',
-          subject: data.paper.subject?.[index] || '',
-          weightage: data.paper.weightage?.[index] || 1
-        })) || [];
-        
-        setQuestions(questionsArray);
-      } else {
-        setError(data.error || 'Paper not found');
-      }
-      setLoading(false);
-    })
-    .catch(err => {
-      setError('Failed to fetch paper');
-      setLoading(false);
-    });
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.paper) {
+          setPaper(data.paper);
+          const arr = data.paper.question_number?.map((qNum, idx) => ({
+            questionNumber: qNum,
+            questionText: data.paper.question_text?.[idx] || '',
+            options: convertOptionsToArray(data.paper.options?.[idx]),
+            correctAnswer: data.paper.correct_answer?.[idx] || '',
+            concept: data.paper.concept?.[idx] || '',
+            difficulty: data.paper.difficulty?.[idx] || '',
+            explanation: data.paper.explanation?.[idx] || '',
+            subject: data.paper.subject?.[idx] || '',
+            weightage: data.paper.weightage?.[idx] || 1,
+          })) || [];
+          setQuestions(arr);
+        } else {
+          setError(data.error || 'Paper not found');
+        }
+        setLoading(false);
+      })
+      .catch(() => { setError('Failed to fetch paper'); setLoading(false); });
   }, [paperId]);
 
-  const formatTime = (seconds) => {
-    const hours = Math.floor(seconds / 3600);
-    const minutes = Math.floor((seconds % 3600) / 60);
-    const secs = seconds % 60;
-    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-  };
-
-  const handleAnswerSelect = (answer) => {
-    setAnswers(prev => ({
-      ...prev,
-      [currentQuestionIndex]: answer
-    }));
-  };
-
-  const handleToggleFlag = () => {
-    setFlagged(prev => ({
-      ...prev,
-      [currentQuestionIndex]: !prev[currentQuestionIndex]
-    }));
-  };
-
-  const handleNextQuestion = () => {
-    if (currentQuestionIndex < questions.length - 1) {
-      setCurrentQuestionIndex(prev => prev + 1);
-    }
-  };
-
-  const handlePreviousQuestion = () => {
-    if (currentQuestionIndex > 0) {
-      setCurrentQuestionIndex(prev => prev - 1);
-    }
-  };
-
-  const handleQuestionNavigation = (index) => {
-    setCurrentQuestionIndex(index);
-  };
+  /* ── handlers ── */
+  const handleAnswerSelect = (answer) => setAnswers((p) => ({ ...p, [currentQuestionIndex]: answer }));
+  const handleToggleFlag = () => setFlagged((p) => ({ ...p, [currentQuestionIndex]: !p[currentQuestionIndex] }));
+  const handleNext = () => { if (currentQuestionIndex < questions.length - 1) setCurrentQuestionIndex((i) => i + 1); };
+  const handlePrev = () => { if (currentQuestionIndex > 0) setCurrentQuestionIndex((i) => i - 1); };
 
   const handleSubmitTest = async () => {
     const token = localStorage.getItem('idToken');
     const userName = localStorage.getItem('userName');
 
-    const testResult = {
-      paperId,
-      answers,
-      timeSpent: (90 * 60) - timeLeft,
-      completedAt: new Date().toISOString(),
-      totalQuestions: questions.length
-    };
-
     try {
       const response = await fetch(`${API_URL}/submit-test-result`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ 
-          token, 
-          userName, 
-          testResult 
-        })
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          token, userName,
+          testResult: {
+            paperId, answers,
+            timeSpent: (90 * 60) - timeLeft,
+            completedAt: new Date().toISOString(),
+            totalQuestions: questions.length,
+          },
+        }),
       });
-
       const data = await response.json();
-      if (data.success) {
-        setTestSubmitted(true);
-        navigate('/analytics');
-      } else {
-        alert('Error submitting test: ' + data.error);
-      }
-    } catch (err) {
-      alert('Failed to submit test');
-    }
+      if (data.success) { setTestSubmitted(true); navigate('/analytics'); }
+      else alert('Error submitting test: ' + data.error);
+    } catch { alert('Failed to submit test'); }
   };
 
-  const startTest = () => {
-    setTestStarted(true);
-  };
-
+  /* ── loading / error / empty states ── */
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-slate-900 to-gray-900 flex items-center justify-center">
+      <div className="min-h-screen bg-surface-900 flex items-center justify-center">
         <div className="text-center">
-          <div className="w-16 h-16 border-4 border-blue-500/30 border-t-blue-500 rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-400 text-lg">Loading test...</p>
+          <div className="w-10 h-10 border-3 border-accent-500/30 border-t-accent-500 rounded-full animate-spin mx-auto mb-3" />
+          <p className="text-surface-400">Loading test…</p>
         </div>
       </div>
     );
@@ -356,273 +298,231 @@ export default function MCQTest() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-slate-900 to-gray-900 flex items-center justify-center p-6">
+      <div className="min-h-screen bg-surface-900 flex items-center justify-center px-6">
         <div className="text-center">
-          <div className="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
-            <AlertCircle className="w-8 h-8 text-red-400" />
-          </div>
-          <p className="text-red-400 text-lg">{error}</p>
+          <AlertCircle className="w-10 h-10 text-danger-400 mx-auto mb-3" />
+          <p className="text-danger-400">{error}</p>
         </div>
       </div>
     );
   }
 
-  if (!testStarted) {
-    return <InstructionsModal questions={questions} onStart={startTest} />;
-  }
+  if (!testStarted) return <InstructionsModal questions={questions} onStart={() => setTestStarted(true)} />;
 
   if (questions.length === 0) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-slate-900 to-gray-900 flex items-center justify-center">
-        <p className="text-gray-400 text-lg">No questions found in this paper.</p>
+      <div className="min-h-screen bg-surface-900 flex items-center justify-center">
+        <p className="text-surface-400">No questions found in this paper.</p>
       </div>
     );
   }
 
   const currentQuestion = questions[currentQuestionIndex];
   const answeredCount = Object.keys(answers).length;
-  const flaggedCount = Object.keys(flagged).filter(key => flagged[key]).length;
+  const flaggedCount = Object.keys(flagged).filter((k) => flagged[k]).length;
+  const progress = Math.round((answeredCount / questions.length) * 100);
+  const isLowTime = timeLeft < 600;
 
+  /* ═════════  RENDER  ═════════ */
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-slate-900 to-gray-900 text-white">
-      {/* Background Effects */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-500/5 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-500/5 rounded-full blur-3xl"></div>
-      </div>
-
-      {/* Sticky Header */}
-      <div className="sticky top-0 z-40 bg-gradient-to-r from-gray-900/95 to-slate-900/95 backdrop-blur-xl border-b border-gray-700/50 shadow-lg">
-        <div className="max-w-7xl mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            {/* Question Info */}
-            <div className="flex items-center gap-4">
-              <div className="hidden sm:block">
-                <h3 className="text-lg font-bold text-white">Question {currentQuestionIndex + 1}</h3>
-                <p className="text-xs text-gray-400">of {questions.length}</p>
-              </div>
-              <div className="sm:hidden">
-                <p className="text-sm font-bold text-white">{currentQuestionIndex + 1} / {questions.length}</p>
-              </div>
+    <div className="min-h-screen bg-surface-900 text-white flex flex-col">
+      {/* ── STICKY HEADER ── */}
+      <header className="sticky top-0 z-40 bg-surface-800/95 backdrop-blur-md border-b border-surface-700/60">
+        <div className="max-w-5xl mx-auto px-4 py-3">
+          {/* row 1: question counter + timer */}
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-3">
+              <span className="text-sm font-semibold text-white">
+                Question {currentQuestionIndex + 1}
+                <span className="text-surface-500 font-normal"> / {questions.length}</span>
+              </span>
             </div>
 
-            {/* Timer */}
-            <div className="flex items-center gap-2 px-4 py-2 bg-gradient-to-br from-gray-800/60 to-gray-900/60 rounded-xl border border-gray-700/50">
-              <Clock className={`w-5 h-5 ${timeLeft < 600 ? 'text-red-400' : 'text-green-400'}`} />
-              <span className={`font-mono font-bold ${timeLeft < 600 ? 'text-red-400' : 'text-green-400'}`}>
-                {formatTime(timeLeft)}
+            {/* timer */}
+            <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-mono font-semibold ${isLowTime ? 'bg-danger-500/10 text-danger-400' : 'bg-surface-700/60 text-surface-300'
+              }`}>
+              <Clock className="w-4 h-4" />
+              {formatTime(timeLeft)}
+            </div>
+          </div>
+
+          {/* row 2: progress bar + counters */}
+          <div className="flex items-center gap-3">
+            {/* progress bar */}
+            <div className="flex-1 h-1.5 bg-surface-700 rounded-full overflow-hidden">
+              <div
+                className="h-full bg-accent-500 rounded-full transition-all duration-500"
+                style={{ width: `${progress}%` }}
+              />
+            </div>
+
+            {/* mini stats */}
+            <div className="flex items-center gap-3 text-xs text-surface-400 shrink-0">
+              <span className="flex items-center gap-1">
+                <CheckCircle className="w-3.5 h-3.5 text-success-400" />
+                {answeredCount}
+              </span>
+              <span className="flex items-center gap-1">
+                <Flag className="w-3.5 h-3.5 text-warning-400" />
+                {flaggedCount}
+              </span>
+              <span className="flex items-center gap-1">
+                <Circle className="w-3.5 h-3.5 text-surface-500" />
+                {questions.length - answeredCount}
               </span>
             </div>
           </div>
-
-          {/* Progress Stats */}
-          <div className="mt-3 flex items-center gap-4 text-xs">
-            <div className="flex items-center gap-1.5">
-              <CheckCircle className="w-4 h-4 text-green-400" />
-              <span className="text-gray-400">{answeredCount} Answered</span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <Flag className="w-4 h-4 text-orange-400" />
-              <span className="text-gray-400">{flaggedCount} Flagged</span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <Circle className="w-4 h-4 text-gray-400" />
-              <span className="text-gray-400">{questions.length - answeredCount} Remaining</span>
-            </div>
-          </div>
         </div>
-      </div>
+      </header>
 
-      {/* Main Content */}
-      <div className="max-w-4xl mx-auto px-4 py-6 pb-32 relative z-10">
-        {/* Question Card */}
-        <div className="bg-gradient-to-br from-gray-800/60 to-gray-900/60 backdrop-blur-xl rounded-2xl border border-gray-700/50 p-6 mb-6 shadow-xl">
-          {/* Question Header */}
-          <div className="flex items-start justify-between mb-6">
+      {/* ── MAIN CONTENT ── */}
+      <div className="flex-1 max-w-3xl w-full mx-auto px-4 py-6 pb-28">
+        {/* question card */}
+        <div className="bg-surface-800 rounded-xl border border-surface-700 p-6 animate-fade-in" key={currentQuestionIndex}>
+          {/* meta row */}
+          <div className="flex items-start justify-between mb-5">
             <div className="flex-1">
+              {/* tags */}
               <div className="flex items-center gap-2 mb-3 flex-wrap">
-                <span className="px-3 py-1 bg-blue-500/20 border border-blue-500/30 rounded-lg text-xs font-bold text-blue-300">
+                <span className="px-2.5 py-1 rounded-md bg-accent-500/10 text-accent-400 text-xs font-semibold">
                   Q{currentQuestion.questionNumber}
                 </span>
                 {currentQuestion.subject && (
-                  <span className="px-3 py-1 bg-purple-500/20 border border-purple-500/30 rounded-lg text-xs text-purple-300">
+                  <span className="px-2.5 py-1 rounded-md bg-surface-700 text-surface-300 text-xs">
                     {currentQuestion.subject}
                   </span>
                 )}
                 {currentQuestion.difficulty && (
-                  <span className={`px-3 py-1 rounded-lg text-xs ${
-                    currentQuestion.difficulty === 'easy' 
-                      ? 'bg-green-500/20 border border-green-500/30 text-green-300'
+                  <span className={`px-2.5 py-1 rounded-md text-xs font-medium ${currentQuestion.difficulty === 'easy'
+                      ? 'bg-success-500/10 text-success-400'
                       : currentQuestion.difficulty === 'medium'
-                      ? 'bg-yellow-500/20 border border-yellow-500/30 text-yellow-300'
-                      : 'bg-red-500/20 border border-red-500/30 text-red-300'
-                  }`}>
+                        ? 'bg-warning-500/10 text-warning-400'
+                        : 'bg-danger-500/10 text-danger-400'
+                    }`}>
                     {currentQuestion.difficulty}
                   </span>
                 )}
               </div>
-              <h2 className="text-xl font-semibold text-white leading-relaxed">
+
+              {/* question text */}
+              <h2 className="text-lg font-medium text-white leading-relaxed">
                 {currentQuestion.questionText}
               </h2>
             </div>
+
+            {/* flag button */}
             <button
               onClick={handleToggleFlag}
-              className={`p-3 rounded-xl transition-all duration-300 ${
-                flagged[currentQuestionIndex]
-                  ? 'bg-orange-500/20 border-2 border-orange-500'
-                  : 'bg-gray-700/50 border-2 border-gray-600 hover:border-orange-500/50'
-              }`}
+              className={`ml-4 p-2.5 rounded-lg transition-colors duration-150 shrink-0 ${flagged[currentQuestionIndex]
+                  ? 'bg-warning-500/15 text-warning-400'
+                  : 'bg-surface-700/50 text-surface-500 hover:text-warning-400 hover:bg-warning-500/10'
+                }`}
+              title={flagged[currentQuestionIndex] ? 'Remove flag' : 'Flag for review'}
             >
-              <Flag className={`w-5 h-5 ${flagged[currentQuestionIndex] ? 'text-orange-400 fill-orange-400' : 'text-gray-400'}`} />
+              <Flag className={`w-4 h-4 ${flagged[currentQuestionIndex] ? 'fill-warning-400' : ''}`} />
             </button>
           </div>
 
-          {/* Options */}
-          <div className="space-y-3">
-            {currentQuestion.options && currentQuestion.options.length > 0 ? (
-              currentQuestion.options.map((option, index) => {
-                const optionLabel = String.fromCharCode(65 + index);
-                const isSelected = answers[currentQuestionIndex] === option;
-                
+          {/* options */}
+          <div className="space-y-2.5">
+            {currentQuestion.options?.length > 0 ? (
+              currentQuestion.options.map((option, idx) => {
+                const label = String.fromCharCode(65 + idx);
+                const selected = answers[currentQuestionIndex] === option;
+
                 return (
                   <button
-                    key={index}
+                    key={idx}
                     onClick={() => handleAnswerSelect(option)}
-                    className={`group w-full text-left p-4 rounded-xl border-2 transition-all duration-300 ${
-                      isSelected
-                        ? 'border-blue-500 bg-blue-500/20 shadow-lg shadow-blue-500/20'
-                        : 'border-gray-700/50 bg-gray-800/40 hover:border-blue-500/50 hover:bg-gray-800/60'
-                    }`}
+                    className={`group w-full text-left flex items-center gap-3 p-4 rounded-xl border transition-all duration-150 ${selected
+                        ? 'border-accent-500 bg-accent-500/10'
+                        : 'border-surface-700 bg-surface-700/30 hover:border-surface-600 hover:bg-surface-700/50'
+                      }`}
                   >
-                    <div className="flex items-center gap-3">
-                      <div className={`flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center font-bold text-sm transition-all duration-300 ${
-                        isSelected
-                          ? 'bg-blue-500 text-white'
-                          : 'bg-gray-700/50 text-gray-400 group-hover:bg-blue-500/20 group-hover:text-blue-400'
+                    {/* option label circle */}
+                    <div className={`shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold transition-colors duration-150 ${selected
+                        ? 'bg-accent-500 text-white'
+                        : 'bg-surface-700 text-surface-400 group-hover:bg-surface-600'
                       }`}>
-                        {optionLabel}
-                      </div>
-                      <span className={`text-base ${isSelected ? 'text-white font-medium' : 'text-gray-300'}`}>
-                        {option}
-                      </span>
+                      {label}
                     </div>
+                    <span className={`text-sm leading-relaxed ${selected ? 'text-white' : 'text-surface-300'}`}>
+                      {option}
+                    </span>
                   </button>
                 );
               })
             ) : (
-              <div className="text-red-400 text-center py-8">No options available for this question</div>
+              <div className="text-center py-8 text-danger-400 text-sm">No options available</div>
             )}
           </div>
         </div>
       </div>
 
-      {/* Sticky Bottom Navigation */}
-      <div className="fixed bottom-0 left-0 right-0 z-40 bg-gradient-to-r from-gray-900/95 to-slate-900/95 backdrop-blur-xl border-t border-gray-700/50 shadow-2xl">
-        <div className="max-w-4xl mx-auto px-4 py-4">
-          <div className="flex items-center justify-between gap-4">
-            {/* Previous Button */}
+      {/* ── BOTTOM NAVIGATION BAR ── */}
+      <div className="fixed bottom-0 left-0 right-0 z-40 bg-surface-800/95 backdrop-blur-md border-t border-surface-700/60">
+        <div className="max-w-3xl mx-auto px-4 py-3 flex items-center justify-between gap-3">
+          {/* prev */}
+          <button
+            onClick={handlePrev}
+            disabled={currentQuestionIndex === 0}
+            className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-surface-700 hover:bg-surface-600 disabled:opacity-40 disabled:cursor-not-allowed text-sm font-medium text-surface-300 transition-colors"
+          >
+            <ChevronLeft className="w-4 h-4" />
+            <span className="hidden sm:inline">Previous</span>
+          </button>
+
+          {/* center actions */}
+          <div className="flex items-center gap-2">
             <button
-              onClick={handlePreviousQuestion}
-              disabled={currentQuestionIndex === 0}
-              className="flex items-center gap-2 px-4 py-2.5 bg-gray-800/60 hover:bg-gray-700/60 disabled:opacity-50 disabled:cursor-not-allowed rounded-xl transition-all duration-300 border border-gray-700/50"
+              onClick={() => setShowPalette(true)}
+              className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-surface-700 hover:bg-surface-600 text-sm font-medium text-surface-300 transition-colors"
             >
-              <ChevronLeft className="w-5 h-5" />
-              <span className="hidden sm:inline">Previous</span>
+              <LayoutGrid className="w-4 h-4" />
+              <span className="hidden sm:inline">All Questions</span>
             </button>
 
-            {/* Middle Actions */}
-            <div className="flex items-center gap-2">
-              {/* Question Palette Button */}
-              <button
-                onClick={() => setShowPalette(true)}
-                className="flex items-center gap-2 px-4 py-2.5 bg-purple-500/20 hover:bg-purple-500/30 rounded-xl transition-all duration-300 border border-purple-500/30"
-              >
-                <Grid3x3 className="w-5 h-5 text-purple-400" />
-                <span className="hidden sm:inline text-purple-400 font-semibold">Palette</span>
-              </button>
-
-              {/* Submit Button (show on last question or always on mobile) */}
-              <button
-                onClick={() => setShowSubmitConfirm(true)}
-                className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-green-600 to-green-500 hover:from-green-500 hover:to-green-400 rounded-xl transition-all duration-300 shadow-lg shadow-green-500/30 font-bold"
-              >
-                <Send className="w-5 h-5" />
-                <span className="hidden sm:inline">Submit</span>
-              </button>
-            </div>
-
-            {/* Next Button */}
             <button
-              onClick={handleNextQuestion}
-              disabled={currentQuestionIndex === questions.length - 1}
-              className="flex items-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed rounded-xl transition-all duration-300 shadow-lg shadow-blue-500/30"
+              onClick={() => setShowSubmitConfirm(true)}
+              className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-success-600 hover:bg-success-500 text-sm font-semibold text-white transition-colors"
             >
-              <span className="hidden sm:inline">Next</span>
-              <ChevronRight className="w-5 h-5" />
+              <Send className="w-4 h-4" />
+              <span className="hidden sm:inline">Submit</span>
             </button>
           </div>
+
+          {/* next */}
+          <button
+            onClick={handleNext}
+            disabled={currentQuestionIndex === questions.length - 1}
+            className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-accent-600 hover:bg-accent-500 disabled:opacity-40 disabled:cursor-not-allowed text-sm font-semibold text-white transition-colors"
+          >
+            <span className="hidden sm:inline">Next</span>
+            <ChevronRight className="w-4 h-4" />
+          </button>
         </div>
       </div>
 
-      {/* Question Palette Modal */}
+      {/* ── MODALS ── */}
       {showPalette && (
         <QuestionPalette
           questions={questions}
           answers={answers}
           currentIndex={currentQuestionIndex}
-          onSelect={handleQuestionNavigation}
+          onSelect={(i) => setCurrentQuestionIndex(i)}
           onClose={() => setShowPalette(false)}
           flagged={flagged}
         />
       )}
 
-      {/* Submit Confirmation Modal */}
       {showSubmitConfirm && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-in fade-in">
-          <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-3xl max-w-md w-full p-8 border border-gray-700/50 shadow-2xl">
-            <div className="text-center mb-6">
-              <div className="inline-flex items-center justify-center w-16 h-16 bg-yellow-500/20 rounded-2xl border border-yellow-500/30 mb-4">
-                <AlertCircle className="w-8 h-8 text-yellow-400" />
-              </div>
-              <h3 className="text-2xl font-black text-white mb-2">Submit Test?</h3>
-              <p className="text-gray-400">Are you sure you want to submit your test?</p>
-            </div>
-
-            <div className="space-y-3 mb-6 p-4 bg-gray-800/40 rounded-xl">
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-400">Total Questions:</span>
-                <span className="text-white font-semibold">{questions.length}</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-400">Answered:</span>
-                <span className="text-green-400 font-semibold">{answeredCount}</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-400">Unanswered:</span>
-                <span className="text-red-400 font-semibold">{questions.length - answeredCount}</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-400">Time Spent:</span>
-                <span className="text-white font-semibold">{formatTime((90 * 60) - timeLeft)}</span>
-              </div>
-            </div>
-
-            <div className="flex gap-3">
-              <button
-                onClick={() => setShowSubmitConfirm(false)}
-                className="flex-1 px-6 py-3 bg-gray-700/50 hover:bg-gray-600/50 rounded-xl transition-all duration-300 font-semibold"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleSubmitTest}
-                className="flex-1 px-6 py-3 bg-gradient-to-r from-green-600 to-green-500 hover:from-green-500 hover:to-green-400 rounded-xl transition-all duration-300 shadow-lg shadow-green-500/30 font-bold"
-              >
-                Submit
-              </button>
-            </div>
-          </div>
-        </div>
+        <SubmitConfirmation
+          questions={questions}
+          answers={answers}
+          timeLeft={timeLeft}
+          onSubmit={handleSubmitTest}
+          onCancel={() => setShowSubmitConfirm(false)}
+        />
       )}
     </div>
   );

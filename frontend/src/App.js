@@ -70,15 +70,7 @@ export default function App() {
     }, []);
 
     return (
-        <div className="bg-gray-900 min-h-screen text-gray-200 font-sans">
-            <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap');
-        body { font-family: 'Inter', sans-serif; }
-        @keyframes fade-in { from { opacity: 0; transform: translateY(-10px); }
-                             to   { opacity: 1; transform: translateY(0); } }
-        .animate-fade-in { animation: fade-in 0.5s ease-out forwards; }
-      `}</style>
-
+        <div className="min-h-screen bg-surface-900 text-surface-200 font-sans">
             <Router>
                 <Navbar user={user} onLogout={handleLogout} />
 

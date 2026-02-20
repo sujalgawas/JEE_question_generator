@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { TrendingUp, Award, Clock, Brain, Target, Zap, ChevronRight, X, CheckCircle, XCircle, BookOpen, Activity } from 'lucide-react';
-import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar } from 'recharts';
+import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import API_URL from '../apiConfig';
 
-// Helper functions
+/* ── helpers ── */
 const convertOptionsToArray = (optionsObj) => {
     if (!optionsObj || typeof optionsObj !== 'object') return [];
-    return Object.keys(optionsObj).sort().map(key => optionsObj[key]);
+    return Object.keys(optionsObj).sort().map((k) => optionsObj[k]);
 };
 
 const getCorrectOptionValue = (optionsObj, correctKey) => {
@@ -16,189 +17,137 @@ const getCorrectOptionValue = (optionsObj, correctKey) => {
 
 const calculateCorrectScore = (result) => {
     if (!result.paper_details || !result.answers) return { score: 0, total: 0, percentage: 0 };
-    
     const options = result.paper_details.options;
     const correctAnswers = result.paper_details.correct_answer;
     const totalQuestions = result.paper_details.question_number?.length || 0;
     let score = 0;
-
-    for (let index = 0; index < totalQuestions; index++) {
-        const userAnswer = result.answers[index.toString()];
-        const correctKey = correctAnswers[index];
-        const correctValue = getCorrectOptionValue(options[index], correctKey);
-        
-        if (userAnswer === correctValue) {
-            score += 1;
-        }
+    for (let i = 0; i < totalQuestions; i++) {
+        const userAnswer = result.answers[i.toString()];
+        const correctKey = correctAnswers[i];
+        const correctValue = getCorrectOptionValue(options[i], correctKey);
+        if (userAnswer === correctValue) score++;
     }
-
-    const percentage = totalQuestions > 0 ? Math.round((score / totalQuestions) * 100 * 100) / 100 : 0;
+    const percentage = totalQuestions > 0 ? Math.round((score / totalQuestions) * 10000) / 100 : 0;
     return { score, total: totalQuestions, percentage };
 };
 
-// Stat Card Component
-const StatCard = ({ icon: Icon, title, value, subtitle, color, delay }) => (
-    <div 
-        className="group relative animate-in slide-in-from-bottom"
-        style={{ animationDelay: `${delay}ms`, animationDuration: '500ms' }}
-    >
-        <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-purple-500/10 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-        <div className="relative bg-gradient-to-br from-gray-800/60 to-gray-900/60 backdrop-blur-xl p-6 rounded-2xl border border-gray-700/50 hover:border-blue-500/50 transition-all duration-300 hover:-translate-y-1">
-            <div className="flex items-center justify-between mb-4">
-                <div className={`p-3 bg-gradient-to-br ${color} rounded-xl`}>
-                    <Icon className="w-6 h-6 text-white" />
-                </div>
-            </div>
-            <div>
-                <div className="text-3xl font-black text-white mb-1">{value}</div>
-                <div className="text-sm text-gray-400">{title}</div>
-                {subtitle && <div className="text-xs text-gray-500 mt-1">{subtitle}</div>}
-            </div>
+/* ── stat card ── */
+const StatCard = ({ icon: Icon, title, value, color }) => (
+    <div className="bg-surface-800 rounded-xl border border-surface-700 p-5 hover:border-surface-600 transition-colors">
+        <div className={`p-2.5 rounded-lg ${color} mb-3 w-fit`}>
+            <Icon className="w-5 h-5" />
         </div>
+        <p className="text-2xl font-bold text-white mb-0.5">{value}</p>
+        <p className="text-sm text-surface-400">{title}</p>
     </div>
 );
 
-// Test Details Modal
+const chartTooltipStyle = {
+    backgroundColor: '#1e293b',
+    border: '1px solid #334155',
+    borderRadius: '8px',
+    color: '#e2e8f0',
+    fontSize: '12px',
+};
+
+/* ── test details modal ── */
 const TestDetailsModal = ({ test, onClose }) => {
     if (!test || !test.paper_details) return null;
-
     const paper = test.paper_details;
     const userAnswers = test.answers;
-    const calculatedScore = calculateCorrectScore(test);
+    const calc = calculateCorrectScore(test);
 
-    const formatTime = (seconds) => {
-        const hours = Math.floor(seconds / 3600);
-        const minutes = Math.floor((seconds % 3600) / 60);
-        if (hours > 0) return `${hours}h ${minutes}m`;
-        return `${minutes}m`;
+    const fmt = (s) => {
+        const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60);
+        return h > 0 ? `${h}h ${m}m` : `${m}m`;
     };
 
     return (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-in fade-in">
-            <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-3xl max-w-5xl max-h-[90vh] overflow-hidden w-full border border-gray-700/50 shadow-2xl">
-                {/* Header */}
-                <div className="sticky top-0 bg-gradient-to-r from-gray-800/95 to-gray-900/95 backdrop-blur-xl p-6 border-b border-gray-700/50 z-10">
-                    <div className="flex justify-between items-center mb-4">
-                        <h2 className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500">
-                            Test Analysis
-                        </h2>
-                        <button
-                            onClick={onClose}
-                            className="p-2 hover:bg-gray-700/50 rounded-xl transition-colors duration-200"
-                        >
-                            <X className="w-6 h-6 text-gray-400 hover:text-white" />
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fade-in">
+            <div className="bg-surface-800 rounded-2xl max-w-4xl max-h-[90vh] overflow-hidden w-full border border-surface-700 shadow-2xl">
+                {/* header */}
+                <div className="sticky top-0 bg-surface-800 px-6 py-4 border-b border-surface-700 z-10">
+                    <div className="flex items-center justify-between mb-4">
+                        <h2 className="text-xl font-bold text-white">Test Analysis</h2>
+                        <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-surface-700 transition-colors">
+                            <X className="w-5 h-5 text-surface-400" />
                         </button>
                     </div>
-                    
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        <div className="bg-green-500/10 border border-green-500/30 p-4 rounded-xl text-center">
-                            <div className="text-2xl font-bold text-green-400">{calculatedScore.score}</div>
-                            <div className="text-xs text-gray-400 mt-1">Correct</div>
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                        <div className="p-3 rounded-lg bg-success-500/10 border border-success-500/20 text-center">
+                            <div className="text-xl font-bold text-success-400">{calc.score}</div>
+                            <div className="text-xs text-surface-400">Correct</div>
                         </div>
-                        <div className="bg-red-500/10 border border-red-500/30 p-4 rounded-xl text-center">
-                            <div className="text-2xl font-bold text-red-400">{calculatedScore.total - calculatedScore.score}</div>
-                            <div className="text-xs text-gray-400 mt-1">Incorrect</div>
+                        <div className="p-3 rounded-lg bg-danger-500/10 border border-danger-500/20 text-center">
+                            <div className="text-xl font-bold text-danger-400">{calc.total - calc.score}</div>
+                            <div className="text-xs text-surface-400">Incorrect</div>
                         </div>
-                        <div className="bg-blue-500/10 border border-blue-500/30 p-4 rounded-xl text-center">
-                            <div className="text-2xl font-bold text-blue-400">{calculatedScore.percentage}%</div>
-                            <div className="text-xs text-gray-400 mt-1">Score</div>
+                        <div className="p-3 rounded-lg bg-accent-500/10 border border-accent-500/20 text-center">
+                            <div className="text-xl font-bold text-accent-400">{calc.percentage}%</div>
+                            <div className="text-xs text-surface-400">Score</div>
                         </div>
-                        <div className="bg-purple-500/10 border border-purple-500/30 p-4 rounded-xl text-center">
-                            <div className="text-2xl font-bold text-purple-400">{formatTime(test.time_spent || 0)}</div>
-                            <div className="text-xs text-gray-400 mt-1">Time Taken</div>
+                        <div className="p-3 rounded-lg bg-surface-700/60 text-center">
+                            <div className="text-xl font-bold text-white">{fmt(test.time_spent || 0)}</div>
+                            <div className="text-xs text-surface-400">Time</div>
                         </div>
                     </div>
                 </div>
 
-                {/* Questions */}
+                {/* questions */}
                 <div className="p-6 overflow-y-auto max-h-[calc(90vh-200px)]">
-                    <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
-                        <BookOpen className="w-5 h-5 text-blue-400" />
-                        Question-wise Analysis
+                    <h3 className="text-sm font-semibold text-surface-400 mb-4 flex items-center gap-1.5">
+                        <BookOpen className="w-4 h-4" /> Question-wise Analysis
                     </h3>
-                    <div className="space-y-4">
-                        {paper.question_number?.map((qNum, index) => {
-                            const userAnswer = userAnswers[index.toString()];
-                            const correctKey = paper.correct_answer[index];
-                            const correctValue = getCorrectOptionValue(paper.options[index], correctKey);
-                            const isCorrect = userAnswer === correctValue;
+                    <div className="space-y-3">
+                        {paper.question_number?.map((qNum, i) => {
+                            const userAnswer = userAnswers[i.toString()];
+                            const correctKey = paper.correct_answer[i];
+                            const correctValue = getCorrectOptionValue(paper.options[i], correctKey);
+                            const ok = userAnswer === correctValue;
 
                             return (
-                                <div 
-                                    key={index} 
-                                    className={`relative overflow-hidden rounded-2xl border ${
-                                        isCorrect 
-                                            ? 'border-green-500/50 bg-gradient-to-r from-green-900/20 to-green-800/10' 
-                                            : 'border-red-500/50 bg-gradient-to-r from-red-900/20 to-red-800/10'
-                                    }`}
-                                >
-                                    <div className={`absolute left-0 top-0 bottom-0 w-1 ${isCorrect ? 'bg-green-500' : 'bg-red-500'}`}></div>
-                                    
-                                    <div className="p-6">
-                                        <div className="flex items-start justify-between mb-4">
-                                            <div className="flex-1">
-                                                <div className="flex items-center gap-2 mb-2">
-                                                    <span className="px-2 py-1 bg-gray-700/50 rounded-lg text-xs font-bold text-gray-300">
-                                                        Q{qNum}
-                                                    </span>
-                                                    {paper.subject && paper.subject[index] && (
-                                                        <span className="px-2 py-1 bg-blue-500/20 border border-blue-500/30 rounded-lg text-xs text-blue-300">
-                                                            {paper.subject[index]}
-                                                        </span>
-                                                    )}
-                                                    {paper.difficulty && paper.difficulty[index] && (
-                                                        <span className={`px-2 py-1 rounded-lg text-xs ${
-                                                            paper.difficulty[index] === 'easy' 
-                                                                ? 'bg-green-500/20 border border-green-500/30 text-green-300'
-                                                                : paper.difficulty[index] === 'medium'
-                                                                ? 'bg-yellow-500/20 border border-yellow-500/30 text-yellow-300'
-                                                                : 'bg-red-500/20 border border-red-500/30 text-red-300'
-                                                        }`}>
-                                                            {paper.difficulty[index]}
-                                                        </span>
-                                                    )}
-                                                </div>
-                                                <p className="text-white font-medium">{paper.question_text[index]}</p>
-                                            </div>
-                                            <div className={`p-2 rounded-xl ${isCorrect ? 'bg-green-500/20' : 'bg-red-500/20'}`}>
-                                                {isCorrect ? (
-                                                    <CheckCircle className="w-6 h-6 text-green-400" />
-                                                ) : (
-                                                    <XCircle className="w-6 h-6 text-red-400" />
+                                <div key={i} className={`rounded-xl border p-4 ${ok ? 'border-success-500/30 bg-success-500/5' : 'border-danger-500/30 bg-danger-500/5'}`}>
+                                    {/* q header */}
+                                    <div className="flex items-start justify-between mb-3">
+                                        <div className="flex-1">
+                                            <div className="flex items-center gap-2 mb-2 flex-wrap">
+                                                <span className="px-2 py-0.5 rounded bg-surface-700 text-xs font-semibold text-surface-300">Q{qNum}</span>
+                                                {paper.subject?.[i] && <span className="px-2 py-0.5 rounded bg-accent-500/10 text-xs text-accent-400">{paper.subject[i]}</span>}
+                                                {paper.difficulty?.[i] && (
+                                                    <span className={`px-2 py-0.5 rounded text-xs font-medium ${paper.difficulty[i] === 'easy' ? 'bg-success-500/10 text-success-400'
+                                                            : paper.difficulty[i] === 'medium' ? 'bg-warning-500/10 text-warning-400'
+                                                                : 'bg-danger-500/10 text-danger-400'
+                                                        }`}>{paper.difficulty[i]}</span>
                                                 )}
                                             </div>
+                                            <p className="text-sm text-white">{paper.question_text[i]}</p>
                                         </div>
-
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                                            <div>
-                                                <p className="text-gray-400 text-sm mb-2 font-semibold">Your Answer:</p>
-                                                <div className={`p-3 rounded-xl ${
-                                                    isCorrect 
-                                                        ? 'bg-green-500/20 border border-green-500/30' 
-                                                        : 'bg-red-500/20 border border-red-500/30'
-                                                }`}>
-                                                    <p className={`${isCorrect ? 'text-green-300' : 'text-red-300'} font-medium`}>
-                                                        {userAnswer || 'Not answered'}
-                                                    </p>
-                                                </div>
-                                            </div>
-                                            <div>
-                                                <p className="text-gray-400 text-sm mb-2 font-semibold">Correct Answer:</p>
-                                                <div className="p-3 rounded-xl bg-green-500/20 border border-green-500/30">
-                                                    <p className="text-green-300 font-medium">
-                                                        {correctValue} <span className="text-gray-400">({correctKey})</span>
-                                                    </p>
-                                                </div>
-                                            </div>
+                                        <div className={`p-1.5 rounded-lg ml-3 shrink-0 ${ok ? 'bg-success-500/15' : 'bg-danger-500/15'}`}>
+                                            {ok ? <CheckCircle className="w-5 h-5 text-success-400" /> : <XCircle className="w-5 h-5 text-danger-400" />}
                                         </div>
-
-                                        {paper.explanation && paper.explanation[index] && (
-                                            <div className="p-4 bg-gray-800/50 rounded-xl border border-gray-700/50">
-                                                <p className="text-blue-400 text-sm font-semibold mb-2">💡 Explanation:</p>
-                                                <p className="text-gray-300 text-sm leading-relaxed">{paper.explanation[index]}</p>
-                                            </div>
-                                        )}
                                     </div>
+
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+                                        <div>
+                                            <p className="text-surface-500 text-xs mb-1">Your Answer</p>
+                                            <div className={`p-2.5 rounded-lg ${ok ? 'bg-success-500/10 text-success-400' : 'bg-danger-500/10 text-danger-400'}`}>
+                                                {userAnswer || 'Not answered'}
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <p className="text-surface-500 text-xs mb-1">Correct Answer</p>
+                                            <div className="p-2.5 rounded-lg bg-success-500/10 text-success-400">
+                                                {correctValue} <span className="text-surface-500">({correctKey})</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {paper.explanation?.[i] && (
+                                        <div className="mt-3 p-3 rounded-lg bg-surface-700/40 text-xs text-surface-300 leading-relaxed">
+                                            <span className="text-accent-400 font-medium">Explanation: </span>
+                                            {paper.explanation[i]}
+                                        </div>
+                                    )}
                                 </div>
                             );
                         })}
@@ -209,8 +158,9 @@ const TestDetailsModal = ({ test, onClose }) => {
     );
 };
 
-// Main Analytics Component
+/* ═══════  Analytics Component  ═══════ */
 export default function Analytics() {
+    const navigate = useNavigate();
     const [testResults, setTestResults] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
@@ -220,162 +170,79 @@ export default function Analytics() {
     useEffect(() => {
         const token = localStorage.getItem('idToken');
         const userName = localStorage.getItem('userName');
-
-        if (!token || !userName) {
-            setError('User not authenticated');
-            setLoading(false);
-            return;
-        }
+        if (!token || !userName) { setError('Not authenticated'); setLoading(false); return; }
 
         fetch(`${API_URL}/get-user-analytics`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ token, userName })
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ token, userName }),
         })
-            .then(res => res.json())
-            .then(data => {
-                if (data.results) {
-                    setTestResults(data.results);
-                    calculateAnalytics(data.results);
-                } else {
-                    setError(data.error || 'Failed to fetch results');
-                }
+            .then((r) => r.json())
+            .then((data) => {
+                if (data.results) { setTestResults(data.results); calcAnalytics(data.results); }
+                else setError(data.error || 'Failed to fetch results');
                 setLoading(false);
             })
-            .catch(err => {
-                setError('Failed to fetch analytics data');
-                setLoading(false);
-            });
+            .catch(() => { setError('Failed to fetch analytics'); setLoading(false); });
     }, []);
 
-    const calculateAnalytics = (results) => {
-        if (results.length === 0) {
-            setAnalytics({});
-            return;
-        }
+    const calcAnalytics = (results) => {
+        if (!results.length) { setAnalytics({}); return; }
 
-        const totalTests = results.length;
-        let totalQuestions = 0;
-        let totalCorrect = 0;
+        let totalQ = 0, totalCorrect = 0;
+        const subjectStats = {}, diffStats = {};
 
-        results.forEach(result => {
-            if (result.paper_details && result.paper_details.question_number) {
-                const questionCount = result.paper_details.question_number.length;
-                totalQuestions += questionCount;
+        results.forEach((r) => {
+            if (!r.paper_details?.question_number) return;
+            const n = r.paper_details.question_number.length;
+            totalQ += n;
 
-                const options = result.paper_details.options;
-                const correctAnswers = result.paper_details.correct_answer;
+            for (let i = 0; i < n; i++) {
+                const ua = r.answers[i.toString()];
+                const ck = r.paper_details.correct_answer[i];
+                const cv = getCorrectOptionValue(r.paper_details.options[i], ck);
+                const ok = ua === cv;
+                if (ok) totalCorrect++;
 
-                for (let index = 0; index < questionCount; index++) {
-                    const userAnswer = result.answers[index.toString()];
-                    const correctKey = correctAnswers[index];
-                    const correctValue = getCorrectOptionValue(options[index], correctKey);
+                const subj = r.paper_details.subject?.[i];
+                if (subj) {
+                    if (!subjectStats[subj]) subjectStats[subj] = { correct: 0, total: 0 };
+                    subjectStats[subj].total++;
+                    if (ok) subjectStats[subj].correct++;
+                }
 
-                    if (userAnswer === correctValue) {
-                        totalCorrect += 1;
-                    }
+                const diff = r.paper_details.difficulty?.[i];
+                if (diff) {
+                    if (!diffStats[diff]) diffStats[diff] = { correct: 0, total: 0 };
+                    diffStats[diff].total++;
+                    if (ok) diffStats[diff].correct++;
                 }
             }
         });
 
-        const averagePercentage = totalQuestions > 0 ? (totalCorrect / totalQuestions) * 100 : 0;
-        const averageTime = results.reduce((sum, result) => sum + (result.time_spent || 0), 0) / totalTests;
-
-        // Subject-wise analytics
-        const subjectStats = {};
-        results.forEach(result => {
-            if (result.paper_details && result.paper_details.subject) {
-                const subjects = result.paper_details.subject;
-                const options = result.paper_details.options;
-                const correctAnswers = result.paper_details.correct_answer;
-
-                subjects.forEach((subject, index) => {
-                    if (!subjectStats[subject]) {
-                        subjectStats[subject] = { correct: 0, total: 0 };
-                    }
-                    subjectStats[subject].total += 1;
-
-                    const userAnswer = result.answers[index.toString()];
-                    const correctKey = correctAnswers[index];
-                    const correctValue = getCorrectOptionValue(options[index], correctKey);
-
-                    if (userAnswer === correctValue) {
-                        subjectStats[subject].correct += 1;
-                    }
-                });
-            }
-        });
-
-        // Difficulty-wise analytics
-        const difficultyStats = {};
-        results.forEach(result => {
-            if (result.paper_details && result.paper_details.difficulty) {
-                const difficulties = result.paper_details.difficulty;
-                const options = result.paper_details.options;
-                const correctAnswers = result.paper_details.correct_answer;
-
-                difficulties.forEach((difficulty, index) => {
-                    if (!difficultyStats[difficulty]) {
-                        difficultyStats[difficulty] = { correct: 0, total: 0 };
-                    }
-                    difficultyStats[difficulty].total += 1;
-
-                    const userAnswer = result.answers[index.toString()];
-                    const correctKey = correctAnswers[index];
-                    const correctValue = getCorrectOptionValue(options[index], correctKey);
-
-                    if (userAnswer === correctValue) {
-                        difficultyStats[difficulty].correct += 1;
-                    }
-                });
-            }
-        });
-
-        // Progress over time
         const progressData = results
             .sort((a, b) => new Date(a.completed_at) - new Date(b.completed_at))
-            .map((result, index) => {
-                const score = calculateCorrectScore(result);
-                return {
-                    test: `Test ${index + 1}`,
-                    score: score.percentage
-                };
-            });
+            .map((r, i) => ({ test: `Test ${i + 1}`, score: calculateCorrectScore(r).percentage }));
 
         setAnalytics({
-            totalTests,
-            totalQuestions,
+            totalTests: results.length,
+            totalQuestions: totalQ,
             totalCorrect,
-            averagePercentage: Math.round(averagePercentage * 100) / 100,
-            averageTime: Math.round(averageTime / 60),
-            subjectStats,
-            difficultyStats,
-            progressData
+            averagePercentage: totalQ > 0 ? Math.round((totalCorrect / totalQ) * 10000) / 100 : 0,
+            averageTime: Math.round(results.reduce((s, r) => s + (r.time_spent || 0), 0) / results.length / 60),
+            subjectStats, diffStats, progressData,
         });
     };
 
-    const formatTime = (seconds) => {
-        const hours = Math.floor(seconds / 3600);
-        const minutes = Math.floor((seconds % 3600) / 60);
-        if (hours > 0) return `${hours}h ${minutes}m`;
-        return `${minutes}m`;
-    };
-
-    const formatDate = (dateString) => {
-        return new Date(dateString).toLocaleDateString('en-US', {
-            month: 'short',
-            day: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit'
-        });
-    };
+    const fmtTime = (s) => { const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60); return h > 0 ? `${h}h ${m}m` : `${m}m`; };
+    const fmtDate = (d) => new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-gradient-to-br from-gray-900 via-slate-900 to-gray-900 flex items-center justify-center">
+            <div className="min-h-screen bg-surface-900 flex items-center justify-center">
                 <div className="text-center">
-                    <div className="w-16 h-16 border-4 border-blue-500/30 border-t-blue-500 rounded-full animate-spin mx-auto mb-4"></div>
-                    <p className="text-gray-400 text-lg">Loading analytics...</p>
+                    <div className="w-10 h-10 border-3 border-accent-500/30 border-t-accent-500 rounded-full animate-spin mx-auto mb-3" />
+                    <p className="text-surface-400 text-sm">Loading analytics…</p>
                 </div>
             </div>
         );
@@ -383,201 +250,103 @@ export default function Analytics() {
 
     if (error) {
         return (
-            <div className="min-h-screen bg-gradient-to-br from-gray-900 via-slate-900 to-gray-900 flex items-center justify-center p-6">
+            <div className="min-h-screen bg-surface-900 flex items-center justify-center">
                 <div className="text-center">
-                    <div className="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <XCircle className="w-8 h-8 text-red-400" />
-                    </div>
-                    <p className="text-red-400 text-lg">{error}</p>
+                    <XCircle className="w-10 h-10 text-danger-400 mx-auto mb-3" />
+                    <p className="text-danger-400">{error}</p>
                 </div>
             </div>
         );
     }
 
-    const COLORS = ['#60A5FA', '#A855F7', '#EC4899', '#F59E0B', '#10B981'];
-
     return (
-        <div className="min-h-screen bg-gradient-to-br from-gray-900 via-slate-900 to-gray-900 text-white p-6 relative overflow-hidden">
-            {/* Background Effects */}
-            <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl animate-pulse"></div>
-                <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
-            </div>
-
-            <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:50px_50px] [mask-image:radial-gradient(ellipse_at_center,black_20%,transparent_80%)]"></div>
-
-            <div className="max-w-7xl mx-auto relative z-10">
-                {/* Header */}
-                <div className="text-center mb-12">
-                    <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-500/10 to-purple-500/10 border border-blue-500/30 rounded-full mb-6 backdrop-blur-sm">
-                        <Activity className="w-4 h-4 text-blue-400" />
-                        <span className="text-sm text-blue-300 font-medium">Performance Insights</span>
-                    </div>
-                    <h1 className="text-5xl md:text-6xl font-black mb-4">
-                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500">
-                            Analytics Dashboard
-                        </span>
-                    </h1>
-                    <p className="text-gray-400 text-lg">Track your progress and identify areas for improvement</p>
+        <div className="min-h-screen bg-surface-900">
+            <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
+                {/* header */}
+                <div className="mb-8">
+                    <h1 className="text-2xl sm:text-3xl font-bold text-white mb-1">Analytics</h1>
+                    <p className="text-surface-400 text-sm">Track your progress and identify areas for improvement</p>
                 </div>
 
                 {testResults.length === 0 ? (
                     <div className="text-center py-16">
-                        <div className="inline-flex items-center justify-center w-24 h-24 bg-gray-800/50 rounded-full mb-6 border border-gray-700/50">
-                            <TrendingUp className="w-12 h-12 text-gray-600" />
-                        </div>
-                        <h3 className="text-2xl font-bold text-gray-400 mb-4">No Analytics Yet</h3>
-                        <p className="text-gray-500 mb-8">Take your first test to see your performance insights</p>
+                        <TrendingUp className="w-12 h-12 text-surface-600 mx-auto mb-3" />
+                        <h3 className="text-lg font-semibold text-surface-400 mb-1">No Analytics Yet</h3>
+                        <p className="text-surface-500 text-sm mb-6">Take your first test to see performance insights</p>
                         <button
-                            onClick={() => alert("Navigate to past papers")}
-                            className="bg-gradient-to-r from-blue-600 to-purple-600 text-white font-bold px-8 py-4 rounded-xl hover:scale-105 transition-transform duration-300 shadow-lg shadow-blue-500/30"
+                            onClick={() => navigate('/past-papers')}
+                            className="px-5 py-2.5 rounded-xl bg-accent-600 hover:bg-accent-500 text-white text-sm font-semibold transition-colors"
                         >
-                            Start Your First Test
+                            Start a Test
                         </button>
                     </div>
                 ) : (
                     <>
-                        {/* Stats Grid */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-12">
-                            <StatCard 
-                                icon={Award} 
-                                title="Tests Taken" 
-                                value={analytics.totalTests}
-                                color="from-blue-500/20 to-blue-600/20"
-                                delay={0}
-                            />
-                            <StatCard 
-                                icon={Target} 
-                                title="Total Correct" 
-                                value={analytics.totalCorrect}
-                                color="from-green-500/20 to-green-600/20"
-                                delay={100}
-                            />
-                            <StatCard 
-                                icon={TrendingUp} 
-                                title="Average Score" 
-                                value={`${analytics.averagePercentage}%`}
-                                color="from-purple-500/20 to-purple-600/20"
-                                delay={200}
-                            />
-                            <StatCard 
-                                icon={Brain} 
-                                title="Total Questions" 
-                                value={analytics.totalQuestions}
-                                color="from-pink-500/20 to-pink-600/20"
-                                delay={300}
-                            />
-                            <StatCard 
-                                icon={Clock} 
-                                title="Avg Time" 
-                                value={`${analytics.averageTime}m`}
-                                color="from-orange-500/20 to-orange-600/20"
-                                delay={400}
-                            />
+                        {/* stats */}
+                        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 mb-8">
+                            <StatCard icon={Award} title="Tests Taken" value={analytics.totalTests} color="bg-accent-500/10 text-accent-400" />
+                            <StatCard icon={Target} title="Correct" value={analytics.totalCorrect} color="bg-success-500/10 text-success-400" />
+                            <StatCard icon={TrendingUp} title="Avg Score" value={`${analytics.averagePercentage}%`} color="bg-warning-500/10 text-warning-400" />
+                            <StatCard icon={Brain} title="Questions" value={analytics.totalQuestions} color="bg-accent-500/10 text-accent-300" />
+                            <StatCard icon={Clock} title="Avg Time" value={`${analytics.averageTime}m`} color="bg-surface-600/30 text-surface-300" />
                         </div>
 
-                        {/* Charts Section */}
-                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-12">
-                            {/* Progress Chart */}
-                            {analytics.progressData && analytics.progressData.length > 0 && (
-                                <div className="bg-gradient-to-br from-gray-800/60 to-gray-900/60 backdrop-blur-xl p-6 rounded-3xl border border-gray-700/50">
-                                    <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
-                                        <TrendingUp className="w-5 h-5 text-blue-400" />
-                                        Progress Over Time
+                        {/* charts */}
+                        <div className="grid lg:grid-cols-2 gap-6 mb-8">
+                            {analytics.progressData?.length > 0 && (
+                                <div className="bg-surface-800 rounded-xl border border-surface-700 p-5">
+                                    <h3 className="text-sm font-semibold text-surface-300 mb-4 flex items-center gap-1.5">
+                                        <TrendingUp className="w-4 h-4 text-accent-400" /> Progress Over Time
                                     </h3>
-                                    <ResponsiveContainer width="100%" height={250}>
+                                    <ResponsiveContainer width="100%" height={220}>
                                         <LineChart data={analytics.progressData}>
-                                            <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-                                            <XAxis dataKey="test" stroke="#9CA3AF" style={{ fontSize: '12px' }} />
-                                            <YAxis stroke="#9CA3AF" style={{ fontSize: '12px' }} />
-                                            <Tooltip 
-                                                contentStyle={{ 
-                                                    backgroundColor: '#1F2937', 
-                                                    border: '1px solid #374151',
-                                                    borderRadius: '12px',
-                                                    color: '#fff'
-                                                }} 
-                                            />
-                                            <Line 
-                                                type="monotone" 
-                                                dataKey="score" 
-                                                stroke="#60A5FA" 
-                                                strokeWidth={3}
-                                                dot={{ fill: '#60A5FA', r: 5 }}
-                                                activeDot={{ r: 7 }}
-                                            />
+                                            <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
+                                            <XAxis dataKey="test" stroke="#64748b" style={{ fontSize: '11px' }} />
+                                            <YAxis stroke="#64748b" style={{ fontSize: '11px' }} />
+                                            <Tooltip contentStyle={chartTooltipStyle} />
+                                            <Line type="monotone" dataKey="score" stroke="#6366f1" strokeWidth={2} dot={{ fill: '#6366f1', r: 4 }} activeDot={{ r: 6 }} />
                                         </LineChart>
                                     </ResponsiveContainer>
                                 </div>
                             )}
 
-                            {/* Subject Performance */}
                             {analytics.subjectStats && Object.keys(analytics.subjectStats).length > 0 && (
-                                <div className="bg-gradient-to-br from-gray-800/60 to-gray-900/60 backdrop-blur-xl p-6 rounded-3xl border border-gray-700/50">
-                                    <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
-                                        <Brain className="w-5 h-5 text-purple-400" />
-                                        Subject Performance
+                                <div className="bg-surface-800 rounded-xl border border-surface-700 p-5">
+                                    <h3 className="text-sm font-semibold text-surface-300 mb-4 flex items-center gap-1.5">
+                                        <Brain className="w-4 h-4 text-accent-400" /> Subject Performance
                                     </h3>
-                                    <ResponsiveContainer width="100%" height={250}>
-                                        <BarChart data={Object.entries(analytics.subjectStats).map(([name, stats]) => ({
-                                            name,
-                                            percentage: Math.round((stats.correct / stats.total) * 100)
-                                        }))}>
-                                            <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-                                            <XAxis dataKey="name" stroke="#9CA3AF" style={{ fontSize: '12px' }} />
-                                            <YAxis stroke="#9CA3AF" style={{ fontSize: '12px' }} />
-                                            <Tooltip 
-                                                contentStyle={{ 
-                                                    backgroundColor: '#1F2937', 
-                                                    border: '1px solid #374151',
-                                                    borderRadius: '12px',
-                                                    color: '#fff'
-                                                }} 
-                                            />
-                                            <Bar dataKey="percentage" fill="#A855F7" radius={[8, 8, 0, 0]} />
+                                    <ResponsiveContainer width="100%" height={220}>
+                                        <BarChart data={Object.entries(analytics.subjectStats).map(([name, s]) => ({ name, pct: Math.round((s.correct / s.total) * 100) }))}>
+                                            <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
+                                            <XAxis dataKey="name" stroke="#64748b" style={{ fontSize: '11px' }} />
+                                            <YAxis stroke="#64748b" style={{ fontSize: '11px' }} />
+                                            <Tooltip contentStyle={chartTooltipStyle} />
+                                            <Bar dataKey="pct" fill="#818cf8" radius={[6, 6, 0, 0]} />
                                         </BarChart>
                                     </ResponsiveContainer>
                                 </div>
                             )}
                         </div>
 
-                        {/* Difficulty Distribution */}
-                        {analytics.difficultyStats && Object.keys(analytics.difficultyStats).length > 0 && (
-                            <div className="bg-gradient-to-br from-gray-800/60 to-gray-900/60 backdrop-blur-xl p-6 rounded-3xl border border-gray-700/50 mb-12">
-                                <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
-                                    <Zap className="w-5 h-5 text-yellow-400" />
-                                    Difficulty Breakdown
+                        {/* difficulty breakdown */}
+                        {analytics.diffStats && Object.keys(analytics.diffStats).length > 0 && (
+                            <div className="bg-surface-800 rounded-xl border border-surface-700 p-5 mb-8">
+                                <h3 className="text-sm font-semibold text-surface-300 mb-4 flex items-center gap-1.5">
+                                    <Zap className="w-4 h-4 text-warning-400" /> Difficulty Breakdown
                                 </h3>
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                    {Object.entries(analytics.difficultyStats).map(([difficulty, stats]) => {
-                                        const percentage = Math.round((stats.correct / stats.total) * 100);
+                                <div className="grid sm:grid-cols-3 gap-4">
+                                    {Object.entries(analytics.diffStats).map(([diff, s]) => {
+                                        const pct = Math.round((s.correct / s.total) * 100);
+                                        const color = diff === 'easy' ? 'success' : diff === 'medium' ? 'warning' : 'danger';
                                         return (
-                                            <div key={difficulty} className="bg-gray-800/40 p-6 rounded-2xl border border-gray-700/50">
-                                                <div className="flex items-center justify-between mb-4">
-                                                    <h4 className="font-bold text-white capitalize text-lg">{difficulty}</h4>
-                                                    <span className={`px-3 py-1 rounded-full text-xs font-bold ${
-                                                        difficulty === 'easy' ? 'bg-green-500/20 text-green-400' :
-                                                        difficulty === 'medium' ? 'bg-yellow-500/20 text-yellow-400' :
-                                                        'bg-red-500/20 text-red-400'
-                                                    }`}>
-                                                        {percentage}%
-                                                    </span>
+                                            <div key={diff} className="p-4 rounded-lg bg-surface-700/30">
+                                                <div className="flex items-center justify-between mb-2">
+                                                    <span className="text-white font-medium capitalize">{diff}</span>
+                                                    <span className={`text-${color}-400 text-sm font-semibold`}>{pct}%</span>
                                                 </div>
-                                                <div className="space-y-2">
-                                                    <div className="flex justify-between text-sm text-gray-400">
-                                                        <span>Correct: {stats.correct}</span>
-                                                        <span>Total: {stats.total}</span>
-                                                    </div>
-                                                    <div className="w-full bg-gray-700/50 rounded-full h-3 overflow-hidden">
-                                                        <div
-                                                            className={`h-full rounded-full transition-all duration-1000 ${
-                                                                difficulty === 'easy' ? 'bg-gradient-to-r from-green-500 to-green-400' :
-                                                                difficulty === 'medium' ? 'bg-gradient-to-r from-yellow-500 to-yellow-400' :
-                                                                'bg-gradient-to-r from-red-500 to-red-400'
-                                                            }`}
-                                                            style={{ width: `${percentage}%` }}
-                                                        ></div>
-                                                    </div>
+                                                <div className="text-xs text-surface-500 mb-2">{s.correct}/{s.total} correct</div>
+                                                <div className="h-1.5 bg-surface-700 rounded-full overflow-hidden">
+                                                    <div className={`h-full rounded-full bg-${color}-500 transition-all duration-700`} style={{ width: `${pct}%` }} />
                                                 </div>
                                             </div>
                                         );
@@ -586,74 +355,45 @@ export default function Analytics() {
                             </div>
                         )}
 
-                        {/* Recent Tests */}
-                        <div className="bg-gradient-to-br from-gray-800/60 to-gray-900/60 backdrop-blur-xl p-6 rounded-3xl border border-gray-700/50">
-                            <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
-                                <Clock className="w-5 h-5 text-blue-400" />
-                                Recent Tests
-                            </h3>
-                            <div className="space-y-4">
+                        {/* recent tests */}
+                        <div className="bg-surface-800 rounded-xl border border-surface-700 overflow-hidden">
+                            <div className="px-5 py-4 border-b border-surface-700/50">
+                                <h3 className="text-sm font-semibold text-surface-300 flex items-center gap-1.5">
+                                    <Clock className="w-4 h-4 text-accent-400" /> Recent Tests
+                                </h3>
+                            </div>
+                            <div className="divide-y divide-surface-700/50">
                                 {testResults
                                     .sort((a, b) => new Date(b.completed_at) - new Date(a.completed_at))
                                     .slice(0, 10)
-                                    .map((test, index) => {
-                                        const score = calculateCorrectScore(test);
+                                    .map((test, i) => {
+                                        const sc = calculateCorrectScore(test);
                                         return (
-                                            <div 
-                                                key={index}
-                                                className="group relative bg-gradient-to-r from-gray-800/40 to-gray-900/40 p-6 rounded-2xl border border-gray-700/50 hover:border-blue-500/50 transition-all duration-300 hover:-translate-y-1 cursor-pointer"
+                                            <button
+                                                key={i}
                                                 onClick={() => setSelectedTest(test)}
+                                                className="w-full flex items-center justify-between px-5 py-4 hover:bg-surface-700/30 transition-colors text-left"
                                             >
-                                                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                                                    <div className="flex-1">
-                                                        <div className="flex items-center gap-3 mb-2">
-                                                            <span className="px-3 py-1 bg-blue-500/20 border border-blue-500/30 rounded-lg text-sm font-bold text-blue-300">
-                                                                Test #{testResults.length - index}
-                                                            </span>
-                                                            <span className="text-gray-400 text-sm">
-                                                                {formatDate(test.completed_at)}
-                                                            </span>
-                                                        </div>
-                                                        <div className="flex items-center gap-4 text-sm text-gray-400">
-                                                            <span className="flex items-center gap-1">
-                                                                <Target className="w-4 h-4" />
-                                                                {score.score}/{score.total} Questions
-                                                            </span>
-                                                            <span className="flex items-center gap-1">
-                                                                <Clock className="w-4 h-4" />
-                                                                {formatTime(test.time_spent || 0)}
-                                                            </span>
+                                                <div className="flex items-center gap-3">
+                                                    <div className="p-2 rounded-lg bg-accent-500/10">
+                                                        <Activity className="w-4 h-4 text-accent-400" />
+                                                    </div>
+                                                    <div>
+                                                        <p className="text-sm font-medium text-white">Test #{testResults.length - i}</p>
+                                                        <div className="flex items-center gap-3 text-xs text-surface-500 mt-0.5">
+                                                            <span>{fmtDate(test.completed_at)}</span>
+                                                            <span>{sc.score}/{sc.total} questions</span>
+                                                            <span>{fmtTime(test.time_spent || 0)}</span>
                                                         </div>
                                                     </div>
-                                                    <div className="flex items-center gap-4">
-                                                        <div className="text-right">
-                                                            <div className={`text-3xl font-black ${
-                                                                score.percentage >= 80 ? 'text-green-400' :
-                                                                score.percentage >= 60 ? 'text-yellow-400' :
-                                                                'text-red-400'
-                                                            }`}>
-                                                                {score.percentage}%
-                                                            </div>
-                                                            <div className="text-xs text-gray-500">Score</div>
-                                                        </div>
-                                                        <button className="p-3 bg-blue-500/20 border border-blue-500/30 rounded-xl hover:bg-blue-500/30 transition-colors duration-200 group-hover:scale-110">
-                                                            <ChevronRight className="w-5 h-5 text-blue-400" />
-                                                        </button>
-                                                    </div>
                                                 </div>
-                                                
-                                                {/* Progress Bar */}
-                                                <div className="mt-4 w-full bg-gray-700/50 rounded-full h-2 overflow-hidden">
-                                                    <div
-                                                        className={`h-full rounded-full transition-all duration-1000 ${
-                                                            score.percentage >= 80 ? 'bg-gradient-to-r from-green-500 to-green-400' :
-                                                            score.percentage >= 60 ? 'bg-gradient-to-r from-yellow-500 to-yellow-400' :
-                                                            'bg-gradient-to-r from-red-500 to-red-400'
-                                                        }`}
-                                                        style={{ width: `${score.percentage}%` }}
-                                                    ></div>
+                                                <div className="flex items-center gap-3">
+                                                    <span className={`text-lg font-bold ${sc.percentage >= 70 ? 'text-success-400' : sc.percentage >= 40 ? 'text-warning-400' : 'text-danger-400'}`}>
+                                                        {sc.percentage}%
+                                                    </span>
+                                                    <ChevronRight className="w-4 h-4 text-surface-600" />
                                                 </div>
-                                            </div>
+                                            </button>
                                         );
                                     })}
                             </div>
@@ -662,13 +402,7 @@ export default function Analytics() {
                 )}
             </div>
 
-            {/* Test Details Modal */}
-            {selectedTest && (
-                <TestDetailsModal 
-                    test={selectedTest} 
-                    onClose={() => setSelectedTest(null)} 
-                />
-            )}
+            {selectedTest && <TestDetailsModal test={selectedTest} onClose={() => setSelectedTest(null)} />}
         </div>
     );
 }
