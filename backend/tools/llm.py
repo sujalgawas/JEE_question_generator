@@ -20,11 +20,11 @@ client = openai.OpenAI(
     api_key=groq_api_key,
 )
 
-# --- Gemini API (for embeddings) ---
-import google.generativeai as genai
+# --- Gemini API Client (new google-genai SDK) ---
+from google import genai
 
 gemini_key = os.getenv("gemini_key")
-genai.configure(api_key=gemini_key)
+gemini_client = genai.Client(api_key=gemini_key)
 
 
 # --- Global Rate Limiting ---

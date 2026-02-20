@@ -1,7 +1,7 @@
 # tools/embeddings.py - Shared FAISS and embedding utilities
 import pickle
 import numpy as np
-import google.generativeai as genai
+from tools.llm import gemini_client
 
 
 def load_embedding(file_name):
@@ -14,12 +14,11 @@ def load_embedding(file_name):
 def get_embedding(text):
     """Generates an embedding for a given text using Gemini."""
     try:
-        result = genai.embed_content(
-            model="models/text-embedding-004",
-            content=text,
-            task_type="RETRIEVAL_DOCUMENT"
+        result = gemini_client.models.embed_content(
+            model="text-embedding-004",
+            contents=text,
         )
-        return result['embedding']
+        return result.embeddings[0].values
     except Exception as e:
         print(f"An error occurred while generating embedding: {e}")
         return None
