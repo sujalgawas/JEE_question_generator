@@ -12,6 +12,7 @@ import {
   LogIn,
   UserPlus,
   GraduationCap,
+  BrainCircuit,
 } from 'lucide-react';
 
 const ROUTE_MAP = {
@@ -19,6 +20,7 @@ const ROUTE_MAP = {
   homepage: '/dashboard',
   pastpapers: '/past-papers',
   analytics: '/analytics',
+  placement: '/placement',
   contact: '/contact',
   login: '/login',
   signup: '/signup',
@@ -45,6 +47,7 @@ const Navbar = ({ user, onLogout = () => { }, onNavigate }) => {
       { page: 'homepage', label: 'Dashboard', icon: LayoutDashboard },
       { page: 'pastpapers', label: 'Past Papers', icon: FileText },
       { page: 'analytics', label: 'Analytics', icon: BarChart3 },
+      { page: 'placement', label: 'Placement', icon: BrainCircuit },
     ] : []),
     { page: 'contact', label: 'Contact', icon: Mail },
   ];
@@ -74,8 +77,8 @@ const Navbar = ({ user, onLogout = () => { }, onNavigate }) => {
                   key={link.page}
                   onClick={(e) => handleNavClick(link.page, e)}
                   className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-150 ${active
-                      ? 'bg-accent-500/10 text-accent-400'
-                      : 'text-surface-400 hover:text-white hover:bg-surface-800'
+                    ? 'bg-accent-500/10 text-accent-400'
+                    : 'text-surface-400 hover:text-white hover:bg-surface-800'
                     }`}
                 >
                   <Icon className="w-4 h-4" />

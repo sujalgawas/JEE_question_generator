@@ -14,6 +14,9 @@ import PastPaper from './components/PastPapers';
 import MCQTest from './components/MCQTest';
 import Analytics from './components/Analytics';
 import Contact from './components/Contact';
+import PlacementHome from './components/PlacementHome';
+import PlacementTest from './components/PlacementTest';
+import PlacementPastPapers from './components/PlacementPastPapers';
 import API_URL from './apiConfig';
 
 export default function App() {
@@ -86,6 +89,9 @@ export default function App() {
                             : <Navigate to="/login" />} />
                         <Route path="/past-papers" element={user ? <PastPaper /> : <Navigate to="/login" />} />
                         <Route path="/analytics" element={user ? <Analytics /> : <Navigate to="/login" />} />
+                        <Route path="/placement" element={user ? <PlacementHome /> : <Navigate to="/login" />} />
+                        <Route path="/placement-test" element={user ? <PlacementTest /> : <Navigate to="/login" />} />
+                        <Route path="/placement-history" element={user ? <PlacementPastPapers /> : <Navigate to="/login" />} />
                         <Route path="/contact" element={<Contact />} />
                         <Route path="/mcq-test/:paperId" element={<MCQTest />} />
                         <Route path="*" element={<Navigate to="/" />} />

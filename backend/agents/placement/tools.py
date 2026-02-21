@@ -3,7 +3,7 @@
 from google import genai
 from google.genai import types 
 
-from typing import TypedDict
+from typing_extensions import TypedDict
 
 from dotenv import load_dotenv
 import pandas as pd
@@ -103,7 +103,7 @@ def create_final_topics(question_total:int, weak_concept:list ,target_topic:None
             temp_list = concepts_for_placement[target_topic]
             final_topics.append(random.choice(temp_list))
             current_question += 1
-    elif len(weak_concept) == 0:
+    elif not weak_concept :
         while question_total != current_question:
             temp_list = random.choice(list(concepts_for_placement.keys()))
             temp_general_concepts = random.choice(concepts_for_placement[temp_list])

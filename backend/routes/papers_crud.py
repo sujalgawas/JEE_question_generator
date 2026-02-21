@@ -102,7 +102,7 @@ def retrieve_papers():
         return jsonify({'error': str(e)}), 500
 
 
-@papers_crud_bp.route('/placement_question',method=['POST'])
+@papers_crud_bp.route('/placement_question',methods=['POST'])
 def placement_question():
     try:
         data = request.json
@@ -116,10 +116,16 @@ def placement_question():
         decoded_token = admin_auth.verify_id_token(token)
         user_uid = decoded_token['uid']
         
-        initial_state = {
+        if target_topic == None:
+            initial_state = {
             "question_total" : question_total,
-            "target_topic" : target_topic
+            "target_topic" : ""
         }
+        else:    
+            initial_state = {
+                "question_total" : question_total,
+                "target_topic" : target_topic
+            }
         
         app_instane = get_agent_graph()
         
@@ -130,4 +136,4 @@ def placement_question():
         
         
     except Exception as e:
-        return {"message":"Error generating question paper"},410        
+        return {"message":f"Error {e}"},410        

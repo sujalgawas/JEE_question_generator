@@ -1,6 +1,6 @@
 # agents/placement/agent.py - Placement prep question generation agent
 # Stub: implement when ready
-from typing import TypedDict,List,Any,Dict
+from typing_extensions import TypedDict,List,Any,Dict
 from langgraph.graph import END,START,StateGraph
 import random
 
