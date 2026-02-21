@@ -2,6 +2,7 @@
 from flask import Blueprint, request, jsonify
 
 from services.firebase_service import db, admin_auth
+from backend.agents.placement.agent import get_agent_graph
 
 papers_crud_bp = Blueprint('papers_crud', __name__)
 
@@ -99,3 +100,34 @@ def retrieve_papers():
 
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+
+@papers_crud_bp.route('/placement_question',method=['POST'])
+def placement_question():
+    try:
+        data = request.json
+        token = data.get('token')
+        question_total = data.get('question_total')
+        target_topic = data.get('target_topic')
+        
+        if not token:
+            return jsonify({'error': 'Missing token'}), 400
+            
+        decoded_token = admin_auth.verify_id_token(token)
+        user_uid = decoded_token['uid']
+        
+        initial_state = {
+            "question_total" : question_total,
+            "target_topic" : target_topic
+        }
+        
+        app_instane = get_agent_graph()
+        
+        final_state = app_instane.invoke(initial_state)
+        paper_data = final_state.get("final_paper")
+        
+        return {"message" : "paper generated successfully","paper_data":paper_data},201
+        
+        
+    except Exception as e:
+        return {"message":"Error generating question paper"},410        

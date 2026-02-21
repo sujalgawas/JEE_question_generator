@@ -5,7 +5,7 @@ from langgraph.graph import END,START,StateGraph
 import random
 
 from .concepts import concepts_for_placement
-from .tools import generate_mcq,option_checker_tool
+from .tools import generate_mcq,option_checker_tool,create_final_topics
 
 class PaperData(TypedDict):
     question_number : List[int]
@@ -24,40 +24,6 @@ class PaperGenerationState(TypedDict):
     
     final_topics : List[str]
     final_paper : PaperData
-
-def create_final_topics(question_total:int, weak_concept:list ,target_topic:None):
-    #returns a final list of subtopics
-    final_topics = []
-    current_question = 0
-    if target_topic:
-        while question_total != current_question:
-            temp_list = concepts_for_placement[target_topic]
-            final_topics.append(random.choice(temp_list))
-            current_question += 1
-    elif len(weak_concept) == 0:
-        while question_total != current_question:
-            temp_list = random.choice(list(concepts_for_placement.keys()))
-            temp_general_concepts = random.choice(concepts_for_placement[temp_list])
-            final_topics.append(temp_general_concepts)
-            current_question += 1
-    else:
-        weak_concept_total = round(question_total * 35/100)
-        general_concept_total = question_total - weak_concept_total
-        current_weak_concept = 0
-        current_general_concept = 0
-        
-        while weak_concept_total != current_weak_concept:
-            temp_weak_concept = random.choice(weak_concept)
-            final_topics.append(temp_weak_concept)
-            current_weak_concept += 1
-        
-        while general_concept_total != current_general_concept:
-            temp_list = random.choice(list(concepts_for_placement.keys()))
-            temp_general_concepts = random.choice(concepts_for_placement[temp_list])
-            final_topics.append(temp_general_concepts)
-            current_general_concept += 1
-            
-    return final_topics
 
 
 def weak_concept_priority(state: PaperGenerationState):

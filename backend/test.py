@@ -3,7 +3,7 @@ from agents.placement.agent import get_agent_graph
 
 initial_state = {
     "question_total" : 5,
-    "target_topic": "Logical Reasoning",
+    "target_topic": None,
     "weak_concepts": []
 }
 app_instance = get_agent_graph()
