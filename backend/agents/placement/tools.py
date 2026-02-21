@@ -79,7 +79,7 @@ def generate_mcq(topic:str):
     client = genai.Client(api_key=gemini_key)
 
     response = client.models.generate_content(
-        model="gemini-2.5-flash",
+        model="gemini-2.5-flash-lite",
         config = types.GenerateContentConfig(system_instruction="you are a expert mcq question designer for AMCAT exam",
                                              temperature=0.7,
                                              response_mime_type= "application/json",
@@ -95,7 +95,7 @@ def generate_mcq(topic:str):
     return output[0]
     
     
-def option_checker(question_text:str, option:list,
+def option_checker_tool(question_text:str, option:list,
                    correct_answer:str, explanation:str):
     initial_promt = f"""
     You are an expert Educational Content Reviewer and MCQ (Multiple Choice Question) Editor. Your task is to evaluate a given MCQ, verify its accuracy, and fix any issues in a single step.
@@ -138,7 +138,7 @@ def option_checker(question_text:str, option:list,
     client = genai.Client(api_key = gemini_key)
     
     response = client.models.generate_content(
-        model = "gemini-2.5-flash",
+        model = "gemini-2.5-flash-lite",
         config = types.GenerateContentConfig(
             system_instruction="you are a expert mcq option checker you job is to check the options and the correct answer and cross check if its correct",
             temperature=0.7,
@@ -149,8 +149,6 @@ def option_checker(question_text:str, option:list,
     )
     
     output = json.loads(response.text)
-    
-    print(output)
     
     return output[0]["is_correct"],output[0]
     

@@ -1,13 +1,15 @@
-from agents.placement.tools import generate_mcq,option_checker
+from agents.placement.agent import get_agent_graph
 
-text = generate_mcq("Profit and Loss") 
 
-print("text before option_checker",text)
+initial_state = {
+    "question_total" : 5,
+    "target_topic": "Logical Reasoning",
+    "weak_concepts": []
+}
+app_instance = get_agent_graph()
 
-is_correct, output = option_checker(question_text=text["question"],
-                                    option = text["options"],
-                                    correct_answer = text["correct_answer"],
-                                    explanation=text["explanation"])
+final_state = app_instance.invoke(initial_state)
+paper_data = final_state.get("final_paper")
 
-print("is_correct",is_correct)
-print("output",output)
+print(paper_data)
+
