@@ -22,6 +22,13 @@ class question_format(TypedDict):
     options : list
     correct_answer : str
     explanation : str
+
+class option_format(TypedDict):
+    is_correct : bool 
+    question : str
+    options : list 
+    correct_answer : str
+    explanation : str
     
 
 def generate_mcq(topic:str):
@@ -78,7 +85,7 @@ def generate_mcq(topic:str):
                                              response_mime_type= "application/json",
                                              response_schema= list[question_format]
                                              ), 
-        contents="Explain how AI works in a few words"
+        contents=prompt
     )
     
     output = json.loads(response.text)
@@ -88,5 +95,62 @@ def generate_mcq(topic:str):
     return output[0]
     
     
-def option_checker(question_text:str, option:list, correct_answer:str,explanation:str):
-    pass
+def option_checker(question_text:str, option:list,
+                   correct_answer:str, explanation:str):
+    initial_promt = f"""
+    You are an expert Educational Content Reviewer and MCQ (Multiple Choice Question) Editor. Your task is to evaluate a given MCQ, verify its accuracy, and fix any issues in a single step.
+
+    Here is the input data:
+    Question Text: {question_text}
+    Options: {option}
+    Provided Correct Answer: {correct_answer}
+    Explanation: {explanation}
+
+    ### Instructions:
+    1. Verify Solvability: Is the question logically sound, complete, and solvable?
+    2. Verify Options & Answer: Is the `correct_answer` factually accurate based on the explanation? Is the exact text of the `correct_answer` present in the `options` array?
+    3. Determine the Output:
+    - Perfect: If the original question is solvable and the options/answer/explanation are perfectly correct, set `"is_correct": true` and return the original data.
+    - Fixable Errors: If the question is solvable but has wrong options, a missing correct answer, or typos, set `"is_correct": false` and return the FIXED question, options, answer, and explanation.
+    - Unsolvable: If the question is fundamentally broken or unsolvable, set `"is_solvable": false`, `"is_correct": false`, and completely rewrite the question, options, answer, and explanation into a valid, solvable state based on the original intent.
+"""
+    format_prompt = """
+    ### Output Format:
+    You must return ONLY a valid JSON object. Do not wrap it in markdown code blocks (like ```json), and do not include any other text. Always use this exact schema:
+
+    {
+    "is_correct": <boolean true or false>,
+    "is_solvable": <boolean true or false>,
+    "question_text": "<Insert original or corrected question text>",
+    "options": [
+        "<Option 1>",
+        "<Option 2>",
+        "<Option 3>",
+        "<Option 4>"
+    ],
+    "correct_answer": "<Insert the exact string of the correct option here>",
+    "explanation": "<Insert the step-by-step explanation here>"
+    }
+    """
+    
+    prompt = initial_promt + format_prompt
+
+    client = genai.Client(api_key = gemini_key)
+    
+    response = client.models.generate_content(
+        model = "gemini-2.5-flash",
+        config = types.GenerateContentConfig(
+            system_instruction="you are a expert mcq option checker you job is to check the options and the correct answer and cross check if its correct",
+            temperature=0.7,
+            response_mime_type="application/json",
+            response_schema = list[option_format]
+        ),
+        contents=prompt
+    )
+    
+    output = json.loads(response.text)
+    
+    print(output)
+    
+    return output[0]["is_correct"],output[0]
+    
