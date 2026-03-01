@@ -39,7 +39,7 @@ const ProgressBar = ({ progress, stage, message, onCancel }) => (
   </div>
 );
 
-/* ═══════  Homepage Component  ═══════ */
+/* ═══════  Homepage Component (JEE only)  ═══════ */
 export default function Homepage({ user, onLogout }) {
   const navigate = useNavigate();
   const [isGenerating, setIsGenerating] = useState(false);
@@ -109,62 +109,6 @@ export default function Homepage({ user, onLogout }) {
     if (pollingRef.current) clearInterval(pollingRef.current);
     setIsGenerating(false); setJobId(null); setProgress(0);
   };
-
-  /* ── Logged-Out Landing ── */
-  if (!user) {
-    return (
-      <div className="min-h-screen bg-surface-900 flex items-center justify-center px-4">
-        <div className={`text-center max-w-2xl transition-all duration-700 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}>
-          {/* badge */}
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-accent-500/10 border border-accent-500/20 text-accent-400 text-xs font-semibold mb-6">
-            <Sparkles className="w-3.5 h-3.5" />
-            AI-Powered JEE Preparation
-          </div>
-
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-white leading-tight mb-4">
-            Master JEE with
-            <span className="block text-transparent bg-clip-text bg-gradient-to-r from-accent-400 to-accent-300">
-              Smart Practice
-            </span>
-          </h1>
-          <p className="text-surface-400 text-lg mb-8 max-w-xl mx-auto">
-            Generate personalized MCQ papers tailored to your level. AI analyzes your strengths and weaknesses for focused prep.
-          </p>
-
-          {/* feature chips */}
-          <div className="flex flex-wrap justify-center gap-3 mb-8">
-            {[
-              { icon: Brain, label: 'AI-Generated Questions' },
-              { icon: Target, label: 'Adaptive Difficulty' },
-              { icon: Zap, label: 'Instant Results' },
-            ].map(({ icon: Icon, label }) => (
-              <div key={label} className="flex items-center gap-2 px-3 py-2 rounded-lg bg-surface-800 border border-surface-700 text-sm text-surface-300">
-                <Icon className="w-4 h-4 text-accent-400" />
-                {label}
-              </div>
-            ))}
-          </div>
-
-          {/* CTA */}
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-            <button
-              onClick={() => navigate('/signup')}
-              className="flex items-center gap-2 px-6 py-3 rounded-xl bg-accent-600 hover:bg-accent-500 text-white font-semibold transition-colors"
-            >
-              Get Started Free
-              <ArrowRight className="w-4 h-4" />
-            </button>
-            <button
-              onClick={() => navigate('/login')}
-              className="flex items-center gap-2 px-6 py-3 rounded-xl bg-surface-800 hover:bg-surface-700 border border-surface-700 text-surface-300 font-medium transition-colors"
-            >
-              I have an account
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   /* ── Logged-In — Paper Generator ── */
   return (

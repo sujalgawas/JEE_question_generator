@@ -5,6 +5,7 @@ import Cookies from 'js-cookie';
 
 // Components
 import Navbar from './components/Navbar';
+import LandingPage from './components/LandingPage';
 import Homepage from './components/Homepage';
 import Login from './components/Login';
 import SignUp from './components/SignUp';
@@ -21,6 +22,13 @@ import API_URL from './apiConfig';
 
 export default function App() {
     const [user, setUser] = useState(null);
+    const [appMode, setAppMode] = useState(() => localStorage.getItem('appMode') || 'placement');
+
+    /* ---------- MODE ---------- */
+    const handleModeChange = (newMode) => {
+        setAppMode(newMode);
+        localStorage.setItem('appMode', newMode);
+    };
 
     /* ---------- LOGIN ---------- */
     const handleLoginSuccess = (name, token) => {
@@ -72,28 +80,40 @@ export default function App() {
         setUser(storedToken && storedName ? { name: storedName, token: storedToken } : null);
     }, []);
 
+    /* ---------- Determine home route based on mode ---------- */
+    const HomeElement = () => {
+        if (!user) return <LandingPage appMode={appMode} onModeChange={handleModeChange} />;
+        if (appMode === 'placement') return <PlacementHome />;
+        return <Homepage user={user} onLogout={handleLogout} />;
+    };
+
     return (
         <div className="min-h-screen bg-surface-900 text-surface-200 font-sans">
             <Router>
-                <Navbar user={user} onLogout={handleLogout} />
+                <Navbar user={user} onLogout={handleLogout} appMode={appMode} onModeChange={handleModeChange} />
 
                 <main className="flex-grow">
                     <Routes>
-                        <Route path="/" element={<Homepage user={user} onLogout={handleLogout} />} />
+                        <Route path="/" element={<HomeElement />} />
                         <Route path="/login" element={user ? <Navigate to="/dashboard" />
                             : <Login onLoginSuccess={handleLoginSuccess} />} />
                         <Route path="/signup" element={user ? <Navigate to="/dashboard" />
                             : <SignUp onLoginSuccess={handleLoginSuccess} />} />
                         <Route path="/auth/callback" element={<AuthCallback />} />
-                        <Route path="/dashboard" element={user ? <Dashboard userName={user.name} />
+                        <Route path="/dashboard" element={user ? <Dashboard userName={user.name} appMode={appMode} onModeChange={handleModeChange} />
                             : <Navigate to="/login" />} />
+                        <Route path="/contact" element={<Contact />} />
+                        <Route path="/mcq-test/:paperId" element={<MCQTest />} />
+
+                        {/* JEE routes */}
                         <Route path="/past-papers" element={user ? <PastPaper /> : <Navigate to="/login" />} />
                         <Route path="/analytics" element={user ? <Analytics /> : <Navigate to="/login" />} />
+
+                        {/* Placement routes */}
                         <Route path="/placement" element={user ? <PlacementHome /> : <Navigate to="/login" />} />
                         <Route path="/placement-test" element={user ? <PlacementTest /> : <Navigate to="/login" />} />
                         <Route path="/placement-history" element={user ? <PlacementPastPapers /> : <Navigate to="/login" />} />
-                        <Route path="/contact" element={<Contact />} />
-                        <Route path="/mcq-test/:paperId" element={<MCQTest />} />
+
                         <Route path="*" element={<Navigate to="/" />} />
                     </Routes>
                 </main>
