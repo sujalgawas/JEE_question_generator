@@ -120,8 +120,9 @@ def take_test():
         all_paper_id.append(paper_id)
         
     for paper_id in all_paper_id:
-        temp_paper = db.child('placements').get()
-        if temp_paper['uid'] == uid:
+        temp_paper = db.child('placements').child(paper_id).get()
+        print(temp_paper)
+        if temp_paper['user_uid'] == uid:
                user_paper_uid.append(paper_id)
     
     return {"message" : "paper generated successfully","all papers":user_paper_uid},201
