@@ -2,6 +2,7 @@
 # Stub: implement when ready
 from typing_extensions import TypedDict,List,Any,Dict
 from langgraph.graph import END,START,StateGraph
+from services.concept_service import get_weak_concepts
 import random
 
 from .concepts import concepts_for_placement
@@ -27,7 +28,9 @@ class PaperGenerationState(TypedDict):
 
 
 def weak_concept_priority(state: PaperGenerationState):
-    weak_concepts = []
+    uid = PaperGenerationState.get('uid')
+    weak_concepts = get_weak_concepts(uid)
+    print(weak_concepts)
     return {"weal_concepts" : weak_concepts}
 
     

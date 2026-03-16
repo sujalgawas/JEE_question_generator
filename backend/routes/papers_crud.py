@@ -100,10 +100,11 @@ def retrieve_papers():
 
     except Exception as e:
         return jsonify({'error': str(e)}), 500
-
-
+    
 @papers_crud_bp.route('/placement_question',methods=['POST'])
 def placement_question():
+    import uuid
+    
     try:
         data = request.json
         token = data.get('token')
@@ -116,22 +117,39 @@ def placement_question():
         decoded_token = admin_auth.verify_id_token(token)
         user_uid = decoded_token['uid']
         
+        placement_paper_id = str(uuid.uuid4())    
+        
         if target_topic == None:
             initial_state = {
             "question_total" : question_total,
-            "target_topic" : ""
+            "target_topic" : "All",
+            "uid" : user_uid
         }
         else:    
             initial_state = {
                 "question_total" : question_total,
-                "target_topic" : target_topic
+                "target_topic" : target_topic,
+                "uid" : user_uid
             }
-        
+            
         app_instane = get_agent_graph()
         
         final_state = app_instane.invoke(initial_state)
         paper_data = final_state.get("final_paper")
         
+        
+        paper_data = db.child('papers').child('0490b0f1-103c-478d-9e2c-adfa752b5585').get()
+        
+        paper_data["user_uid"] = user_uid
+        
+        if target_topic == None:
+            target_topic = "All"
+        db.child('placements')\
+            .child(placement_paper_id)\
+            .child(str(question_total))\
+            .child(str(target_topic))\
+            .set(paper_data)
+            
         return {"message" : "paper generated successfully","paper_data":paper_data},201
         
         
