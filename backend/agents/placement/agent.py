@@ -28,9 +28,9 @@ class PaperGenerationState(TypedDict):
 
 
 def weak_concept_priority(state: PaperGenerationState):
-    uid = PaperGenerationState.get('uid')
-    weak_concepts = get_weak_concepts(uid)
-    print(weak_concepts)
+    uid = state.get('uid')
+    #weak_concepts = get_weak_concepts(uid)
+    weak_concepts = []
     return {"weal_concepts" : weak_concepts}
 
     

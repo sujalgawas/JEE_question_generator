@@ -100,7 +100,32 @@ def retrieve_papers():
 
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+@papers_crud_bp.route('/placement_take_test',methods=['POST'])
+def take_test():
+    data = request.json
+    token = data.get('token')
     
+    if not token:
+        return jsonify({'error':'Missing token'}),400
+
+    decoded_token = admin_auth.verify_id_token(token)
+    uid = decoded_token['uid']
+    
+    all_papers = db.child('placements').get()
+    
+    all_paper_id = []
+    user_paper_uid = []
+    for paper_id in all_papers:
+        all_paper_id.append(paper_id)
+        
+    for paper_id in all_paper_id:
+        temp_paper = db.child('placements').get()
+        if temp_paper['uid'] == uid:
+               user_paper_uid.append(paper_id)
+    
+    return {"message" : "paper generated successfully","all papers":user_paper_uid},201
+
 @papers_crud_bp.route('/placement_question',methods=['POST'])
 def placement_question():
     import uuid
@@ -119,35 +144,29 @@ def placement_question():
         
         placement_paper_id = str(uuid.uuid4())    
         
-        if target_topic == None:
-            initial_state = {
+        
+        initial_state = {
             "question_total" : question_total,
-            "target_topic" : "All",
+            "target_topic" : target_topic,
             "uid" : user_uid
         }
-        else:    
-            initial_state = {
-                "question_total" : question_total,
-                "target_topic" : target_topic,
-                "uid" : user_uid
-            }
-            
+        
         app_instane = get_agent_graph()
         
         final_state = app_instane.invoke(initial_state)
         paper_data = final_state.get("final_paper")
         
         
-        paper_data = db.child('papers').child('0490b0f1-103c-478d-9e2c-adfa752b5585').get()
-        
-        paper_data["user_uid"] = user_uid
-        
+        #paper_data = db.child('papers').child('0490b0f1-103c-478d-9e2c-adfa752b5585').get().val()
         if target_topic == None:
             target_topic = "All"
+        
+        paper_data["user_uid"] = user_uid
+        paper_data['question_total'] = str(question_total)
+        paper_data['target_topic'] = target_topic
+            
         db.child('placements')\
             .child(placement_paper_id)\
-            .child(str(question_total))\
-            .child(str(target_topic))\
             .set(paper_data)
             
         return {"message" : "paper generated successfully","paper_data":paper_data},201
@@ -155,3 +174,4 @@ def placement_question():
         
     except Exception as e:
         return {"message":f"Error {e}"},410        
+    

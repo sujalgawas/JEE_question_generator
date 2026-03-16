@@ -52,7 +52,7 @@ def generate_mcq(topic:str):
     client = genai.Client(api_key=gemini_key)
 
     response = client.models.generate_content(
-        model="gemini-2.5-flash-lite",
+        model="gemini-3.1-flash-lite-preview",
         config = types.GenerateContentConfig(system_instruction="you are a expert mcq question designer for AMCAT exam",
                                              temperature=0.7,
                                              response_mime_type= "application/json",
@@ -79,7 +79,7 @@ def option_checker_tool(question_text:str, option:list,
     client = genai.Client(api_key = gemini_key)
     
     response = client.models.generate_content(
-        model = "gemini-2.5-flash-lite",
+        model = "gemini-3.1-flash-lite-preview",
         config = types.GenerateContentConfig(
             system_instruction="you are a expert mcq option checker you job is to check the options and the correct answer and cross check if its correct",
             temperature=0.7,
