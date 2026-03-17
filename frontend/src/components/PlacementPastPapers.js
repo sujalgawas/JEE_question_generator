@@ -14,7 +14,7 @@ import {
 } from 'lucide-react';
 
 // Make sure to define your API_URL here or import it
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000'; 
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
 export default function PlacementPastPapers() {
     const navigate = useNavigate();
@@ -26,7 +26,7 @@ export default function PlacementPastPapers() {
     useEffect(() => {
         const fetchPastPapers = async () => {
             const token = localStorage.getItem('idToken');
-            
+
             if (!token) {
                 setError('Authentication token missing. Please log in.');
                 setLoading(false);
@@ -39,7 +39,7 @@ export default function PlacementPastPapers() {
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ token }),
                 });
-            
+
                 const data = await res.json();
 
                 // The API returns { "all papers": ["uuid1", "uuid2"] }
@@ -60,21 +60,26 @@ export default function PlacementPastPapers() {
 
     const handleDelete = (id) => {
         if (!window.confirm('Hide this test result?')) return;
-        
+
         // Note: This only removes it from the UI. 
         // You will likely need another API call here to actually delete it from the database!
         const updated = history.filter((h) => h.id !== id);
         setHistory(updated);
-        
+
         setDeleteSuccess('Test result removed from view');
         setTimeout(() => setDeleteSuccess(''), 3000);
     };
 
     const handleRetake = (item) => {
-        // Since we only have the ID now, store the ID instead of the full question array
-        // The '/placement-test' page will need to fetch the paper details using this ID
-        sessionStorage.setItem('placementPaperId', item.id);
-        navigate('/placement-test');
+        // Changed item.paper_id to item.id to match your API data structure
+        const paperId = item.id;
+
+        if (paperId) {
+            // This passes the ID directly to the URL so useParams() can catch it
+            navigate(`/placementMCQ-test/${paperId}`);
+        } else {
+            console.error("Paper ID is missing from this item!");
+        }
     };
 
     return (
@@ -95,7 +100,7 @@ export default function PlacementPastPapers() {
                         <AlertCircle className="w-4 h-4 shrink-0" /> {error}
                     </div>
                 )}
-                
+
                 {deleteSuccess && (
                     <div className="flex items-center gap-2 p-3 mb-4 rounded-lg bg-success-500/10 border border-success-500/20 text-success-400 text-sm animate-fade-in">
                         <CheckCircle className="w-4 h-4 shrink-0" /> {deleteSuccess}

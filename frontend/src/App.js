@@ -18,6 +18,7 @@ import Contact from './components/Contact';
 import PlacementHome from './components/PlacementHome';
 import PlacementTest from './components/PlacementTest';
 import PlacementPastPapers from './components/PlacementPastPapers';
+import PlacementMCQTest from './components/PlacementMCQTest';
 import API_URL from './apiConfig';
 
 export default function App() {
@@ -110,6 +111,7 @@ export default function App() {
                         <Route path="/analytics" element={user ? <Analytics /> : <Navigate to="/login" />} />
 
                         {/* Placement routes */}
+                        <Route path="/placementMCQ-test/:paperId" element={user ? <PlacementMCQTest /> : <Navigate to="/login" />} />
                         <Route path="/placement" element={user ? <PlacementHome /> : <Navigate to="/login" />} />
                         <Route path="/placement-test" element={user ? <PlacementTest /> : <Navigate to="/login" />} />
                         <Route path="/placement-history" element={user ? <PlacementPastPapers /> : <Navigate to="/login" />} />
