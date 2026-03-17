@@ -232,7 +232,7 @@ def placement_question():
             .child(placement_paper_id)\
             .set(paper_data)
             
-        return {"message" : "paper generated successfully","paper_data":paper_data},201
+        return {"message" : "paper generated successfully","paper_id": placement_paper_id, "paper_data":paper_data},201
         
         
     except Exception as e:

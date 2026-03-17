@@ -57,9 +57,19 @@ export default function PlacementHome() {
             const data = await res.json();
 
             if (res.ok && data.paper_data) {
-                // Store paper in sessionStorage and navigate to test
+                // You might not even need sessionStorage anymore since the test page fetches the data itself, 
+                // but we can leave it here just in case!
                 sessionStorage.setItem('placementPaper', JSON.stringify(data.paper_data));
-                navigate('/placement-test');
+                
+                // Get the paper ID from your backend response
+                const generatedPaperId = data.paper_id; 
+
+                if (generatedPaperId) {
+                    navigate(`/placementMCQ-test/${generatedPaperId}`);
+                } else {
+                    setError('Test generated, but no Paper ID was returned from the server.');
+                }
+                
             } else {
                 setError(data.message || data.error || 'Failed to generate questions');
             }
@@ -69,7 +79,7 @@ export default function PlacementHome() {
             setIsGenerating(false);
         }
     };
-
+    
     return (
         <div className="min-h-screen bg-surface-900">
             <div className="max-w-2xl mx-auto px-4 py-12">
