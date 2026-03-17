@@ -101,8 +101,8 @@ def retrieve_papers():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-@papers_crud_bp.route('/placement_take_test',methods=['POST'])
-def take_test():
+@papers_crud_bp.route('/placement_paper_id',methods=['POST'])
+def placement_paper_id():
     data = request.json
     token = data.get('token')
     
@@ -127,6 +127,65 @@ def take_test():
     
     return {"message" : "paper generated successfully","all papers":user_paper_uid},201
 
+@papers_crud_bp.route('/placements_take_test',methods=['POST'])
+def placements_take_test():
+    data = request.json
+    token = request.get('token')
+    paper_id = request.get('paper_id')
+    
+    if not token:
+        return jsonify({"message":"Missing token"}), 400
+
+    decoded_token = admin_auth.verify_id_token(token)
+    uid = decoded_token['uid']
+    
+    paper = db.child('placements').child(paper_id).get()
+    
+    return jsonify({"message":"paper retrieved successfully","paper":paper}),201
+
+@papers_crud_bp.route('/placements_submit_test',methods=['POST'])
+def placements_submit_test():
+    import uuid
+    
+    data = request.json
+    token = data.get('token')
+    answer = data.get('answer')
+    paper_id = data.get('paper_id')
+    time = data.get('time')
+    
+    if not token:
+        return jsonify ({"message":"Missing Token"}), 400
+    
+    decoded_token = admin_auth.verify_id_token(token)
+    uid = decoded_token['uid']
+
+    result_uid = uuid.uuid4()
+    
+    
+    score = 0
+
+    question_paper = db.child('placements').child(paper_id)
+    
+    for ans in answer:
+        if ans in question_paper['correct_answer']:
+            score += 1 
+    
+    percentage = (score/question_paper['total_questions']) / 100
+    
+    
+    result = {"answers" : answer,
+              "user_uid" : uid,
+              "paper_id": paper_id,
+              "percentage":percentage,
+              "score":score,
+              "total_time_spent":time,
+              "result_id":result_uid
+              }
+    
+    db.child('test_results').child(result_uid).set(result)
+    
+    return jsonify({"message","result updated in the database"})
+    
 @papers_crud_bp.route('/placement_question',methods=['POST'])
 def placement_question():
     import uuid

@@ -34,7 +34,7 @@ export default function PlacementPastPapers() {
             }
 
             try {
-                const res = await fetch(`${API_URL}/placement_take_test`, {
+                const res = await fetch(`${API_URL}/placement_paper_id`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ token }),
