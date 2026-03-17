@@ -188,7 +188,7 @@ def placements_submit_test():
     db.child('test_results').child('placements').child(result_uid).set(result)
     
     return jsonify({"message":"result updated in the database"})
-    
+
 @papers_crud_bp.route('/placement_question',methods=['POST'])
 def placement_question():
     import uuid
