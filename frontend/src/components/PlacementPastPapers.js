@@ -13,8 +13,7 @@ import {
     Loader2
 } from 'lucide-react';
 
-// Make sure to define your API_URL here or import it
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+import API_URL from '../apiConfig';
 
 export default function PlacementPastPapers() {
     const navigate = useNavigate();
