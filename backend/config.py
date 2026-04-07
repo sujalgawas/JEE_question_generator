@@ -38,7 +38,12 @@ def create_app():
     app = Flask(__name__)
     app.secret_key = os.environ.get("FLASK_SECRET_KEY", os.urandom(24))
 
-    CORS(app, resources={r"/*": {"origins": [FRONTEND_ORIGIN]}}, supports_credentials=True)
+    import re
+    if FLASK_ENV == 'development':
+        # Allow any origin during development to support ngrok, custom local IPs, etc.
+        CORS(app, resources={r"/*": {"origins": re.compile(r".*")}}, supports_credentials=True)
+    else:
+        CORS(app, resources={r"/*": {"origins": [FRONTEND_ORIGIN]}}, supports_credentials=True)
 
     os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
 

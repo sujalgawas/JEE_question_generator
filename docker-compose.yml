@@ -1,0 +1,32 @@
+services:
+  question_generator:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: ghcr.io/sujalgawas/question_generator/question_generator:latest
+    container_name: question_generator
+    env_file:
+      - .env
+    volumes:
+      - .:/app
+    ports: 
+      - "8083:8083"
+    networks:
+      - tunnel_network
+    restart: unless-stopped
+
+  ngrok:
+    image: ngrok/ngrok:latest
+    container_name: ngrok
+    command: http question_generator:8083
+    env_file:
+      - .env.ngrok
+    ports:
+      - "4041:4040"
+    networks:
+      - tunnel_network
+    restart: unless-stopped
+
+networks:
+  tunnel_network:
+    driver: bridge

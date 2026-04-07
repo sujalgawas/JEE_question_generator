@@ -12,6 +12,7 @@ wheels/
 venv
 
 .env
+.env.*
 
 # Data and index files
 final_paper.json

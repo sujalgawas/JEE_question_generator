@@ -2,7 +2,7 @@
 FROM python:3.10-slim
 
 # Set the working directory in the container
-WORKDIR /app
+WORKDIR app
 
 # Copy requirements and install dependencies
 COPY requirements.txt .
@@ -12,8 +12,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 # Expose port for local testing
-EXPOSE 8080
+EXPOSE 8083
 
 # Run app with Gunicorn, binding to $PORT (set by Render)
-CMD ["gunicorn", "--bind", "0.0.0.0:8080", "--workers", "2", "--threads", "4", "server:app"]
-
+CMD ["gunicorn", "--bind", "0.0.0.0:8083", "--workers", "2", "--threads", "4", "server:app"]

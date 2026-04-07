@@ -11,5 +11,9 @@ from config import create_app
 
 app = create_app()
 
+app.route('/health', methods=['GET'])(lambda: 'OK')
+def run_server():
+    print("server is running")
+
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    app.run(debug=True, host='0.0.0.0', port=8083)
