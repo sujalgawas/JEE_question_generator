@@ -13,14 +13,14 @@ from tools.embeddings import get_embedding, load_embedding
 
 
 # --- Load JEE Data and FAISS Indexes ---
-df = pd.read_csv("question_difficulty_concept.csv")
+df = pd.read_csv("data/question_difficulty_concept.csv")
 text_columns = ['question', 'option1', 'option2', 'option3', 'option4',
                 'solution', 'explanation', 'difficulty', 'difficulty_prob', 'concept']
 for col in text_columns:
     df[col] = df[col].fillna('')
 
-index = faiss.read_index("jee_questions.index")
-content_ncert = load_embedding("ncert_embeddings.pkl")
+index = faiss.read_index("data/jee_questions.index")
+content_ncert = load_embedding("data/ncert_embeddings.pkl")
 
 if not content_ncert or 'embedding' not in content_ncert[0]:
     raise ValueError("Loaded data is empty or does not contain embeddings.")

@@ -19,7 +19,7 @@ load_dotenv()
 
 gemini_key = os.getenv('GEMINI_API_KEY')
 
-sample_question_dataframe = pd.read_json('placement_questions.json')
+sample_question_dataframe = pd.read_json('data/placement_questions.json')
 
 class question_format(TypedDict):
     question : str
