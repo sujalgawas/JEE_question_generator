@@ -19,7 +19,10 @@ load_dotenv()
 
 gemini_key = os.getenv('GEMINI_API_KEY')
 
-sample_question_dataframe = pd.read_json('data/placement_questions.json')
+json_1 = pd.read_json('data/indiabix.json')
+json_2 = pd.read_json('data/placement_questions.json')
+
+sample_question_dataframe = pd.concat([json_1,json_2],ignore_index=True)
 
 class question_format(TypedDict):
     question : str
@@ -36,9 +39,12 @@ class option_format(TypedDict):
     
 
 def generate_mcq(topic:str):
-    filtered_df = sample_question_dataframe[sample_question_dataframe["topic"] == topic]
-    
-    filtered_df = filtered_df.sample(n=1)
+    random_topic = sample_question_dataframe["topic"].unique()
+    random_topic = random.choice(random_topic)
+
+    filtered_df = sample_question_dataframe[
+        sample_question_dataframe["topic"] == random_topic
+    ].sample(n=1)
     
     question_text =  filtered_df["question_text"].astype(str)
     options = filtered_df["options"].apply(list)
@@ -52,7 +58,7 @@ def generate_mcq(topic:str):
     client = genai.Client(api_key=gemini_key)
 
     response = client.models.generate_content(
-        model="gemini-3.1-flash-lite-preview",
+        model="gemini-3-flash-preview",
         config = types.GenerateContentConfig(system_instruction="you are a expert mcq question designer for AMCAT exam",
                                              temperature=0.7,
                                              response_mime_type= "application/json",
@@ -79,7 +85,7 @@ def option_checker_tool(question_text:str, option:list,
     client = genai.Client(api_key = gemini_key)
     
     response = client.models.generate_content(
-        model = "gemini-3.1-flash-lite-preview",
+        model = "gemini-3-flash-preview",
         config = types.GenerateContentConfig(
             system_instruction="you are a expert mcq option checker you job is to check the options and the correct answer and cross check if its correct",
             temperature=0.7,

@@ -1,0 +1,1898 @@
+[
+  {
+    "topic": "Divisibility",
+    "question_text": "Which one of the following is not a prime number?",
+    "options": [
+      "31",
+      "61",
+      "71",
+      "91"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Divisibility",
+    "question_text": "(112 x 5 4 ) = ?",
+    "options": [
+      "67000",
+      "70000",
+      "76500",
+      "77200"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Divisibility",
+    "question_text": "It is being given that (2 32 + 1) is completely divisible by a whole number. Which of the following numbers is completely divisible by this number?",
+    "options": [
+      "(2 16 + 1)",
+      "(2 16 - 1)",
+      "(7 x 2 23 )",
+      "(2 96 + 1)"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Divisibility",
+    "question_text": "What least number must be added to 1056, so that the sum is completely divisible by 23 ?",
+    "options": [
+      "2",
+      "3",
+      "18",
+      "21"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Divisibility",
+    "question_text": "1397 x 1397 = ?",
+    "options": [
+      "1951609",
+      "1981709",
+      "18362619",
+      "2031719"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "HCF and LCM",
+    "question_text": "Find the greatest number that will divide 43, 91 and 183 so as to leave the same remainder in each case.",
+    "options": [
+      "4",
+      "7",
+      "9",
+      "13"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "HCF and LCM",
+    "question_text": "The H.C.F. of two numbers is 23 and the other two factors of their L.C.M. are 13 and 14. The larger of the two numbers is:",
+    "options": [
+      "276",
+      "299",
+      "322",
+      "345"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "HCF and LCM",
+    "question_text": "Six bells commence tolling together and toll at intervals of 2, 4, 6, 8 10 and 12 seconds respectively. In 30 minutes, how many times do they toll together ?",
+    "options": [
+      "4",
+      "10",
+      "15",
+      "16"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "HCF and LCM",
+    "question_text": "Let N be the greatest number that will divide 1305, 4665 and 6905, leaving the same remainder in each case. Then sum of the digits in N is:",
+    "options": [
+      "4",
+      "5",
+      "6",
+      "8"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "HCF and LCM",
+    "question_text": "The greatest number of four digits which is divisible by 15, 25, 40 and 75 is:",
+    "options": [
+      "9000",
+      "9400",
+      "9600",
+      "9800"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Power and Divisibility",
+    "question_text": "(17) 3.5 x (17) ? = 17 8",
+    "options": [
+      "2.29",
+      "2.75",
+      "4.25",
+      "4.5"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Power and Divisibility",
+    "question_text": "If a x - 1 = b x - 3 , then the value of x is: b a",
+    "options": [
+      "1 2",
+      "1",
+      "2",
+      "7 2"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Power and Divisibility",
+    "question_text": "Given that 10 0.48 = x , 10 0.70 = y and x z = y 2 , then the value of z is close to:",
+    "options": [
+      "1.45",
+      "1.88",
+      "2.9",
+      "3.7"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Power and Divisibility",
+    "question_text": "If 5 a = 3125, then the value of 5 ( a - 3) is:",
+    "options": [
+      "25",
+      "125",
+      "625",
+      "1625"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Power and Divisibility",
+    "question_text": "If 3 ( x - y ) = 27 and 3 ( x + y ) = 243, then x is equal to:",
+    "options": [
+      "0",
+      "2",
+      "4",
+      "6"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Profit and Loss",
+    "question_text": "Alfred buys an old scooter for Rs. 4700 and spends Rs. 800 on its repairs. If he sells the scooter for Rs. 5800, his gain percent is:",
+    "options": [
+      "4 4 % 7",
+      "5 5 % 11",
+      "10%",
+      "12%"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Profit and Loss",
+    "question_text": "The cost price of 20 articles is the same as the selling price of x articles. If the profit is 25%, then the value of x is:",
+    "options": [
+      "15",
+      "16",
+      "18",
+      "25"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Profit and Loss",
+    "question_text": "If selling price is doubled, the profit triples. Find the profit percent.",
+    "options": [
+      "66 2 3",
+      "100",
+      "105 1 3",
+      "120"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Profit and Loss",
+    "question_text": "In a certain store, the profit is 320% of the cost. If the cost increases by 25% but the selling price remains constant, approximately what percentage of the selling price is the profit?",
+    "options": [
+      "30%",
+      "70%",
+      "100%",
+      "250%"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Profit and Loss",
+    "question_text": "A vendor bought toffees at 6 for a rupee. How many for a rupee must he sell to gain 20%?",
+    "options": [
+      "3",
+      "4",
+      "5",
+      "6"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Time, Speed, and Distance",
+    "question_text": "A person crosses a 600 m long street in 5 minutes. What is his speed in km per hour?",
+    "options": [
+      "3.6",
+      "7.2",
+      "8.4",
+      "10"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Time, Speed, and Distance",
+    "question_text": "An aeroplane covers a certain distance at a speed of 240 kmph in 5 hours. To cover the same distance in 1 hours, it must travel at a speed of:",
+    "options": [
+      "300 kmph",
+      "360 kmph",
+      "600 kmph",
+      "720 kmph"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Time, Speed, and Distance",
+    "question_text": "If a person walks at 14 km/hr instead of 10 km/hr, he would have walked 20 km more. The actual distance travelled by him is:",
+    "options": [
+      "50 km",
+      "56 km",
+      "70 km",
+      "80 km"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Time, Speed, and Distance",
+    "question_text": "A train can travel 50% faster than a car. Both start from point A at the same time and reach point B 75 kms away from A at the same time. On the way, however, the train lost about 12.5 minutes while stopping at the stations. The speed of the car is:",
+    "options": [
+      "100 kmph",
+      "110 kmph",
+      "120 kmph",
+      "130 kmph"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Time, Speed, and Distance",
+    "question_text": "Excluding stoppages, the speed of a bus is 54 kmph and including stoppages, it is 45 kmph. For how many minutes does the bus stop per hour?",
+    "options": [
+      "9",
+      "10",
+      "12",
+      "20"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Averages",
+    "question_text": "In the first 10 overs of a cricket game, the run rate was only 3.2. What should be the run rate in the remaining 40 overs to reach the target of 282 runs?",
+    "options": [
+      "6.25",
+      "6.5",
+      "6.75",
+      "7"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Averages",
+    "question_text": "A family consists of two grandparents, two parents and three grandchildren. The average age of the grandparents is 67 years, that of the parents is 35 years and that of the grandchildren is 6 years. What is the average age of the family?",
+    "options": [
+      "28 4 years 7",
+      "31 5 years 7",
+      "32 1 years 7",
+      "None of these"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Averages",
+    "question_text": "A grocer has a sale of Rs. 6435, Rs. 6927, Rs. 6855, Rs. 7230 and Rs. 6562 for 5 consecutive months. How much sale must he have in the sixth month so that he gets an average sale of Rs. 6500?",
+    "options": [
+      "Rs. 4991",
+      "Rs. 5991",
+      "Rs. 6001",
+      "Rs. 6991"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Averages",
+    "question_text": "The average of 20 numbers is zero. Of them, at the most, how many may be greater than zero?",
+    "options": [
+      "0",
+      "1",
+      "10",
+      "19"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Averages",
+    "question_text": "The average weight of 8 person's increases by 2.5 kg when a new person comes in place of one of them weighing 65 kg. What might be the weight of the new person?",
+    "options": [
+      "76 kg",
+      "76.5 kg",
+      "85 kg",
+      "Data inadequate"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Time and Work",
+    "question_text": "A can do a work in 15 days and B in 20 days. If they work on it together for 4 days, then the fraction of the work that is left is :",
+    "options": [
+      "1 4",
+      "1 10",
+      "7 15",
+      "8 15"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Time and Work",
+    "question_text": "A can lay railway track between two given stations in 16 days and B can do the same job in 12 days. With help of C, they did the job in 4 days only. Then, C alone can do the job in:",
+    "options": [
+      "9 1 days 5",
+      "9 2 days 5",
+      "9 3 days 5",
+      "10"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Time and Work",
+    "question_text": "A, B and C can do a piece of work in 20, 30 and 60 days respectively. In how many days can A do the work if he is assisted by B and C on every third day?",
+    "options": [
+      "12 days",
+      "15 days",
+      "16 days",
+      "18 days"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Time and Work",
+    "question_text": "A is thrice as good as workman as B and therefore is able to finish a job in 60 days less than B. Working together, they can do it in:",
+    "options": [
+      "20 days",
+      "22 1 days 2",
+      "25 days",
+      "30 days"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Time and Work",
+    "question_text": "A alone can do a piece of work in 6 days and B alone in 8 days. A and B undertook to do it for Rs. 3200. With the help of C, they completed the work in 3 days. How much is to be paid to C?",
+    "options": [
+      "Rs. 375",
+      "Rs. 400",
+      "Rs. 600",
+      "Rs. 800"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Logarithms",
+    "question_text": "Which of the following statements is not correct?",
+    "options": [
+      "log 10 10 = 1",
+      "log (2 + 3) = log (2 x 3)",
+      "log 10 1 = 0",
+      "log (1 + 2 + 3) = log 1 + log 2 + log 3"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Logarithms",
+    "question_text": "If log 2 = 0.3010 and log 3 = 0.4771, the value of log 5 512 is:",
+    "options": [
+      "2.870",
+      "2.967",
+      "3.876",
+      "3.912"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Logarithms",
+    "question_text": "log 8 is equal to: log 8",
+    "options": [
+      "1 8",
+      "1 4",
+      "1 2",
+      "1 8"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Logarithms",
+    "question_text": "If log 27 = 1.431, then the value of log 9 is:",
+    "options": [
+      "0.934",
+      "0.945",
+      "0.954",
+      "0.958"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Logarithms",
+    "question_text": "If log a + log b = log ( a + b ), then: b a",
+    "options": [
+      "a + b = 1",
+      "a - b = 1",
+      "a = b",
+      "a 2 - b 2 = 1"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Permutation and Combinations",
+    "question_text": "From a group of 7 men and 6 women, five persons are to be selected to form a committee so that at least 3 men are there on the committee. In how many ways can it be done?",
+    "options": [
+      "564",
+      "645",
+      "735",
+      "756"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Permutation and Combinations",
+    "question_text": "In how many different ways can the letters of the word 'LEADING' be arranged in such a way that the vowels always come together?",
+    "options": [
+      "360",
+      "480",
+      "720",
+      "5040"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Permutation and Combinations",
+    "question_text": "In how many different ways can the letters of the word 'CORPORATION' be arranged so that the vowels always come together?",
+    "options": [
+      "810",
+      "1440",
+      "2880",
+      "50400"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Permutation and Combinations",
+    "question_text": "Out of 7 consonants and 4 vowels, how many words of 3 consonants and 2 vowels can be formed?",
+    "options": [
+      "210",
+      "1050",
+      "25200",
+      "21400"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Permutation and Combinations",
+    "question_text": "In how many ways can the letters of the word 'LEADER' be arranged?",
+    "options": [
+      "72",
+      "144",
+      "360",
+      "720"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Percentages",
+    "question_text": "A batsman scored 110 runs which included 3 boundaries and 8 sixes. What percent of his total score did he make by running between the wickets?",
+    "options": [
+      "45%",
+      "45 5 % 11",
+      "54 6 % 11",
+      "55%"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Percentages",
+    "question_text": "Two students appeared at an examination. One of them secured 9 marks more than the other and his marks was 56% of the sum of their marks. The marks obtained by them are:",
+    "options": [
+      "39, 30",
+      "41, 32",
+      "42, 33",
+      "43, 34"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Percentages",
+    "question_text": "A fruit seller had some apples. He sells 40% apples and still has 420 apples. Originally, he had:",
+    "options": [
+      "588 apples",
+      "600 apples",
+      "672 apples",
+      "700 apples"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Percentages",
+    "question_text": "What percentage of numbers from 1 to 70 have 1 or 9 in the unit's digit?",
+    "options": [
+      "1",
+      "14",
+      "20",
+      "21"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Percentages",
+    "question_text": "If A = x % of y and B = y % of x , then which of the following is true?",
+    "options": [
+      "A is smaller than B.",
+      "A is greater than B",
+      "Relationship between A and B cannot be determined.",
+      "If x is smaller than y , then A is greater than B."
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Equations",
+    "question_text": "A man has Rs.480 in the denominations of one-rupee notes, five-rupee notes and ten-rupee notes. The number of notes of each denomination is equal. What is the total number of notes that he has ?",
+    "options": [
+      "45",
+      "60",
+      "75",
+      "90"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Equations",
+    "question_text": "There are two examinations rooms A and B. If 10 students are sent from A to B, then the number of students in each room is the same. If 20 candidates are sent from B to A, then the number of students in A is double the number of students in B. The number of students in room A is:",
+    "options": [
+      "20",
+      "80",
+      "100",
+      "200"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Equations",
+    "question_text": "The price of 10 chairs is equal to that of 4 tables. The price of 15 chairs and 2 tables together is Rs. 4000. The total price of 12 chairs and 3 tables is:",
+    "options": [
+      "Rs. 3500",
+      "Rs. 3750",
+      "Rs. 3840",
+      "Rs. 3900"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Equations",
+    "question_text": "If a - b = 3 and a 2 + b 2 = 29, find the value of ab.",
+    "options": [
+      "10",
+      "12",
+      "15",
+      "18"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Equations",
+    "question_text": "The price of 2 sarees and 4 shirts is Rs. 1600. With the same money one can buy 1 saree and 6 shirts. If one wants to buy 12 shirts, how much shall he have to pay ?",
+    "options": [
+      "Rs. 1200",
+      "Rs. 2400",
+      "Rs. 4800",
+      "Cannot be determined"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Ratio and Proportion",
+    "question_text": "A and B together have Rs. 1210. If of A's amount is equal to of B's amount, how much amount does B have?",
+    "options": [
+      "Rs. 460",
+      "Rs. 484",
+      "Rs. 550",
+      "Rs. 664"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Ratio and Proportion",
+    "question_text": "Two numbers are respectively 20% and 50% more than a third number. The ratio of the two numbers is:",
+    "options": [
+      "2 : 5",
+      "3 : 5",
+      "4 : 5",
+      "6 : 7"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Ratio and Proportion",
+    "question_text": "A sum of money is to be distributed among A, B, C, D in the proportion of 5 : 2 : 4 : 3. If C gets Rs. 1000 more than D, what is B's share?",
+    "options": [
+      "Rs. 500",
+      "Rs. 1500",
+      "Rs. 2000",
+      "None of these"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Ratio and Proportion",
+    "question_text": "Seats for Mathematics, Physics and Biology in a school are in the ratio 5 : 7 : 8. There is a proposal to increase these seats by 40%, 50% and 75% respectively. What will be the ratio of increased seats?",
+    "options": [
+      "2 : 3 : 4",
+      "6 : 7 : 8",
+      "6 : 8 : 9",
+      "None of these"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Ratio and Proportion",
+    "question_text": "In a mixture 60 litres, the ratio of milk and water 2 : 1. If this ratio is to be 1 : 2, then the quantity of water to be further added is:",
+    "options": [
+      "20 litres",
+      "30 litres",
+      "40 litres",
+      "60 litres"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Logical Sequence",
+    "question_text": "Look at this series: 2, 1, (1/2), (1/4), ... What number should come next?",
+    "options": [
+      "(1/3)",
+      "(1/8)",
+      "(2/8)",
+      "(1/16)"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Logical Sequence",
+    "question_text": "Look at this series: 7, 10, 8, 11, 9, 12, ... What number should come next?",
+    "options": [
+      "7",
+      "10",
+      "12",
+      "13"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Logical Sequence",
+    "question_text": "Look at this series: 36, 34, 30, 28, 24, ... What number should come next?",
+    "options": [
+      "20",
+      "22",
+      "23",
+      "26"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Logical Sequence",
+    "question_text": "Look at this series: 22, 21, 23, 22, 24, 23, ... What number should come next?",
+    "options": [
+      "22",
+      "24",
+      "25",
+      "26"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Logical Sequence",
+    "question_text": "Look at this series: 53, 53, 40, 40, 27, 27, ... What number should come next?",
+    "options": [
+      "12",
+      "14",
+      "27",
+      "53"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Directional Sense",
+    "question_text": "One morning Udai and Vishal were talking to each other face to face at a crossing. If Vishal's shadow was exactly to the left of Udai, which direction was Udai facing?",
+    "options": [
+      "East",
+      "West",
+      "North",
+      "South"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Directional Sense",
+    "question_text": "Y is in the East of X which is in the North of Z. If P is in the South of Z, then in which direction of Y, is P?",
+    "options": [
+      "North",
+      "South",
+      "South-East",
+      "None of these"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Directional Sense",
+    "question_text": "If South-East becomes North, North-East becomes West and so on. What will West become?",
+    "options": [
+      "North-East",
+      "North-West",
+      "South-East",
+      "South-West"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Directional Sense",
+    "question_text": "A man walks 5 km toward south and then turns to the right. After walking 3 km he turns to the left and walks 5 km. Now in which direction is he from the starting place?",
+    "options": [
+      "West",
+      "South",
+      "North-East",
+      "South-West"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Directional Sense",
+    "question_text": "Rahul put his timepiece on the table in such a way that at 6 P.M. hour hand points to North. In which direction the minute hand will point at 9.15 P.M. ?",
+    "options": [
+      "South-East",
+      "South",
+      "North",
+      "West"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Data Sufficiency",
+    "question_text": "Question: In which year was Rahul born ? Statements: Rahul at present is 25 years younger to his mother. Rahul's brother, who was born in 1964, is 35 years younger to his mother.",
+    "options": [
+      "I alone is sufficient while II alone is not sufficient",
+      "II alone is sufficient while I alone is not sufficient",
+      "Either I or II is sufficient",
+      "Neither I nor II is sufficient"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Data Sufficiency",
+    "question_text": "Question: What will be the total weight of 10 poles, each of the same weight ? Statements: One-fourth of the weight of each pole is 5 kg. The total weight of three poles is 20 kilograms more than the total weight of two poles.",
+    "options": [
+      "I alone is sufficient while II alone is not sufficient",
+      "II alone is sufficient while I alone is not sufficient",
+      "Either I or II is sufficient",
+      "Neither I nor II is sufficient"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Data Sufficiency",
+    "question_text": "Question: How many children does M have ? Statements: H is the only daughter of X who is wife of M. K and J are brothers of M.",
+    "options": [
+      "I alone is sufficient while II alone is not sufficient",
+      "II alone is sufficient while I alone is not sufficient",
+      "Either I or II is sufficient",
+      "Neither I nor II is sufficient"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Data Sufficiency",
+    "question_text": "Question: How much was the total sale of the company ? Statements: The company sold 8000 units of product A each costing Rs. 25. This company has no other product line.",
+    "options": [
+      "I alone is sufficient while II alone is not sufficient",
+      "II alone is sufficient while I alone is not sufficient",
+      "Either I or II is sufficient",
+      "Neither I nor II is sufficient"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Data Sufficiency",
+    "question_text": "Question: The last Sunday of March, 2006 fell on which date ? Statements: The first Sunday of that month fell on 5th. The last day of that month was Friday.",
+    "options": [
+      "I alone is sufficient while II alone is not sufficient",
+      "II alone is sufficient while I alone is not sufficient",
+      "Either I or II is sufficient",
+      "Neither I nor II is sufficient"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Objective Reasoning",
+    "question_text": "Statement: A large number of people in ward X of the city are diagnosed to be suffering from a fatal malaria type. Courses of Action: The city municipal authority should take immediate steps to carry out extensive fumigation in ward X. The people in the area should be advised to take steps to avoid mosquito bites.",
+    "options": [
+      "Only I follows",
+      "Only II follows",
+      "Either I or II follows",
+      "Neither I nor II follows"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Objective Reasoning",
+    "question_text": "Statement: Severe drought is reported to have set in several parts of the country. Courses of Action: Government should immediately make arrangement for providing financial assistance to those affected. Food, water and fodder should immediately be sent to all these areas to save the people and cattle.",
+    "options": [
+      "Only I follows",
+      "Only II follows",
+      "Either I or II follows",
+      "Neither I nor II follows"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Objective Reasoning",
+    "question_text": "Statement: Since its launching in 1981, Vayudoot has so far accumulated losses amounting to Rs 153 crore. Courses of Action: Vayudoot should be directed to reduce wasteful expenditure and to increase passenger fare. An amount of about Rs 300 crore should be provided to Vayudoot to make the airliner economically viable.",
+    "options": [
+      "Only I follows",
+      "Only II follows",
+      "Either I or II follows",
+      "Neither I nor II follows"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Objective Reasoning",
+    "question_text": "Statement: Exporters in the capital are alleging that commercial banks are violating a Reserve Bank of India directive to operate a post shipment export credit denominated in foreign currency at international rates from January this year. Courses of Action: The officers concerned in the commercial banks are to be suspended. The RBI should be asked to stop giving such directives to commercial banks.",
+    "options": [
+      "Only I follows",
+      "Only II follows",
+      "Either I or II follows",
+      "Neither I nor II follows"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Objective Reasoning",
+    "question_text": "Statement: A large number of people die every year due to drinking polluted water during the summer. Courses of Action: The government should make adequate arrangements to provide safe drinking water to all its citizens. The people should be educated about the dangers of drinking polluted water.",
+    "options": [
+      "Only I follows",
+      "Only II follows",
+      "Either I or II follows",
+      "Neither I nor II follows"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Blood Relation",
+    "question_text": "Pointing to a photograph of a boy Suresh said, \"He is the son of the only son of my mother.\" How is Suresh related to that boy?",
+    "options": [
+      "Brother",
+      "Uncle",
+      "Cousin",
+      "Father"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Blood Relation",
+    "question_text": "If A + B means A is the mother of B; A - B means A is the brother B; A % B means A is the father of B and A x B means A is the sister of B, which of the following shows that P is the maternal uncle of Q?",
+    "options": [
+      "Q - N + M x P",
+      "P + S x N - Q",
+      "P - M + N x Q",
+      "Q - S % P"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Blood Relation",
+    "question_text": "If A is the brother of B; B is the sister of C; and C is the father of D, how D is related to A?",
+    "options": [
+      "Brother",
+      "Sister",
+      "Nephew",
+      "Cannot be determined"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Blood Relation",
+    "question_text": "If A + B means A is the brother of B; A - B means A is the sister of B and A x B means A is the father of B. Which of the following means that C is the son of M?",
+    "options": [
+      "M - N x C + F",
+      "F - C + N x M",
+      "N + M - F x C",
+      "M x N - C + F"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Blood Relation",
+    "question_text": "Introducing a boy, a girl said, \"He is the son of the daughter of the father of my uncle.\" How is the boy related to the girl?",
+    "options": [
+      "Brother",
+      "Nephew",
+      "Uncle",
+      "Son-in-law"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Odd One Out",
+    "question_text": "3, 5, 11, 14, 17, 21",
+    "options": [
+      "21",
+      "17",
+      "14",
+      "3"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Odd One Out",
+    "question_text": "8, 27, 64, 100, 125, 216, 343",
+    "options": [
+      "27",
+      "100",
+      "125",
+      "343"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Odd One Out",
+    "question_text": "10, 25, 45, 54, 60, 75, 80",
+    "options": [
+      "10",
+      "45",
+      "54",
+      "75"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Odd One Out",
+    "question_text": "396, 462, 572, 427, 671, 264",
+    "options": [
+      "396",
+      "427",
+      "671",
+      "264"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Odd One Out",
+    "question_text": "6, 9, 15, 21, 24, 28, 30",
+    "options": [
+      "28",
+      "21",
+      "24",
+      "30"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Inferred Meaning",
+    "question_text": "Statements: In a one day cricket match, the total runs made by a team were 200. Out of these 160 runs were made by spinners. Conclusions: 80% of the team consists of spinners. The opening batsmen were spinners.",
+    "options": [
+      "Only conclusion I follows",
+      "Only conclusion II follows",
+      "Either I or II follows",
+      "Neither I nor II follows"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Inferred Meaning",
+    "question_text": "Statements: The old order changed yielding place to new. Conclusions: Change is the law of nature. Discard old ideas because they are old.",
+    "options": [
+      "Only conclusion I follows",
+      "Only conclusion II follows",
+      "Either I or II follows",
+      "Neither I nor II follows"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Inferred Meaning",
+    "question_text": "Statements: Government has spoiled many top ranking financial institutions by appointing bureaucrats as Directors of these institutions. Conclusions: Government should appoint Directors of the financial institutes taking into consideration the expertise of the person in the area of finance. The Director of the financial institute should have expertise commensurate with the financial work carried out by the institute.",
+    "options": [
+      "Only conclusion I follows",
+      "Only conclusion II follows",
+      "Either I or II follows",
+      "Neither I nor II follows"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Inferred Meaning",
+    "question_text": "Statements: Population increase coupled with depleting resources is going to be the scenario of many developing countries in days to come. Conclusions: The population of developing countries will not continue to increase in future. It will be very difficult for the governments of developing countries to provide its people decent quality of life.",
+    "options": [
+      "Only conclusion I follows",
+      "Only conclusion II follows",
+      "Either I or II follows",
+      "Neither I nor II follows"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Inferred Meaning",
+    "question_text": "Statements: Prime age school-going children in urban India have now become avid as well as more regular viewers of television, even in households without a TV. As a result there has been an alarming decline in the extent of readership of newspapers. Conclusions: Method of increasing the readership of newspapers should be devised. A team of experts should be sent to other countries to study the impact of TV. on the readership of newspapers.",
+    "options": [
+      "Only conclusion I follows",
+      "Only conclusion II follows",
+      "Either I or II follows",
+      "Neither I nor II follows"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Pattern Recognition",
+    "question_text": "Identify the figure that completes the pattern. (X) (1) (2) (3) (4)",
+    "options": [
+      "1",
+      "2",
+      "3",
+      "4"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Pattern Recognition",
+    "question_text": "Identify the figure that completes the pattern. (X) (1) (2) (3) (4)",
+    "options": [
+      "1",
+      "2",
+      "3",
+      "4"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Pattern Recognition",
+    "question_text": "Identify the figure that completes the pattern. (X) (1) (2) (3) (4)",
+    "options": [
+      "1",
+      "2",
+      "3",
+      "4"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Pattern Recognition",
+    "question_text": "Identify the figure that completes the pattern. (X) (1) (2) (3) (4)",
+    "options": [
+      "1",
+      "2",
+      "3",
+      "4"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Pattern Recognition",
+    "question_text": "Identify the figure that completes the pattern. (X) (1) (2) (3) (4)",
+    "options": [
+      "1",
+      "2",
+      "3",
+      "4"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Puzzles",
+    "question_text": "Which one will replace the question mark ?",
+    "options": [
+      "L 10",
+      "K 15",
+      "I 15",
+      "K 8"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Puzzles",
+    "question_text": "Which one will replace the question mark ?",
+    "options": [
+      "1",
+      "4",
+      "3",
+      "6"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Puzzles",
+    "question_text": "Which one will replace the question mark ?",
+    "options": [
+      "18",
+      "12",
+      "9",
+      "6"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Puzzles",
+    "question_text": "Which one will replace the question mark ?",
+    "options": [
+      "25",
+      "37",
+      "41",
+      "47"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Puzzles",
+    "question_text": "Which one will replace the question mark ?",
+    "options": [
+      "45",
+      "41",
+      "32",
+      "40"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Letter Series",
+    "question_text": "SCD, TEF, UGH, ____, WKL",
+    "options": [
+      "CMN",
+      "UJI",
+      "VIJ",
+      "IJT"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Letter Series",
+    "question_text": "B 2 CD, _____, BCD 4 , B 5 CD, BC 6 D",
+    "options": [
+      "B 2 C 2 D",
+      "BC 3 D",
+      "B 2 C 3 D",
+      "BCD 7"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Letter Series",
+    "question_text": "FAG, GAF, HAI, IAH, ____",
+    "options": [
+      "JAK",
+      "HAL",
+      "HAK",
+      "JAI"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Letter Series",
+    "question_text": "ELFA, GLHA, ILJA, _____, MLNA",
+    "options": [
+      "OLPA",
+      "KLMA",
+      "LLMA",
+      "KLLA"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Letter Series",
+    "question_text": "CMM, EOO, GQQ, _____, KUU",
+    "options": [
+      "GRR",
+      "GSS",
+      "ISS",
+      "ITT"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Synonyms and Antonyms",
+    "question_text": "CORPULENT",
+    "options": [
+      "Lean",
+      "Gaunt",
+      "Emaciated",
+      "Obese"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Synonyms and Antonyms",
+    "question_text": "BRIEF",
+    "options": [
+      "Limited",
+      "Small",
+      "Little",
+      "Short"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Synonyms and Antonyms",
+    "question_text": "EMBEZZLE",
+    "options": [
+      "Misappropriate",
+      "Balance",
+      "Remunerate",
+      "Clear"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Synonyms and Antonyms",
+    "question_text": "VENT",
+    "options": [
+      "Opening",
+      "Stodge",
+      "End",
+      "Past tense of go"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Synonyms and Antonyms",
+    "question_text": "AUGUST",
+    "options": [
+      "Common",
+      "Ridiculous",
+      "Dignified",
+      "Petty"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Contextual Vocabulary",
+    "question_text": "Fate smiles ...... those who untiringly grapple with stark realities of life.",
+    "options": [
+      "with",
+      "over",
+      "on",
+      "round"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Contextual Vocabulary",
+    "question_text": "The miser gazed ...... at the pile of gold coins in front of him.",
+    "options": [
+      "avidly",
+      "admiringly",
+      "thoughtfully",
+      "earnestly"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Contextual Vocabulary",
+    "question_text": "Catching the earlier train will give us the ...... to do some shopping.",
+    "options": [
+      "chance",
+      "luck",
+      "possibility",
+      "occasion"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Contextual Vocabulary",
+    "question_text": "I saw a ...... of cows in the field.",
+    "options": [
+      "group",
+      "herd",
+      "swarm",
+      "flock"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Contextual Vocabulary",
+    "question_text": "The grapes are now ...... enough to be picked.",
+    "options": [
+      "ready",
+      "mature",
+      "ripe",
+      "advanced"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Reading comprehension",
+    "question_text": "The word 'Command Module' used twice in the given passage indicates perhaps that it deals with",
+    "options": [
+      "an alarming journey",
+      "a commanding situation",
+      "a journey into outer space",
+      "a frightful battle."
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Reading comprehension",
+    "question_text": "Which one of the following reasons would one consider as more as possible for the warning lights to be on?",
+    "options": [
+      "There was a shower of debris.",
+      "Jack was yelling.",
+      "A catastrophe was imminent.",
+      "The moon was looming close and big."
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Reading comprehension",
+    "question_text": "The statement that the dazzling sunshine was \"for once unfiltered by layers of air\" means",
+    "options": [
+      "that the sun was very hot",
+      "that there was no strong wind",
+      "that the air was unpolluted",
+      "none of above"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Error Identification",
+    "question_text": "(solve as per the direction given above)",
+    "options": [
+      "We discussed about the problem so thoroughly",
+      "on the eve of the examination",
+      "that I found it very easy to work it out",
+      "No error."
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Error Identification",
+    "question_text": "(solve as per the direction given above)",
+    "options": [
+      "An Indian ship",
+      "laden with merchandise",
+      "got drowned in the Pacific Ocean.",
+      "No error."
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Error Identification",
+    "question_text": "(solve as per the direction given above)",
+    "options": [
+      "I could not put up in a hotel",
+      "because the boarding and lodging charges",
+      "were exorbitant.",
+      "No error."
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Error Identification",
+    "question_text": "(solve as per the direction given above)",
+    "options": [
+      "The Indian radio",
+      "which was previously controlled by the British rulers",
+      "is free now from the narrow vested interests.",
+      "No error."
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Error Identification",
+    "question_text": "(solve as per the direction given above)",
+    "options": [
+      "If I had known",
+      "this yesterday",
+      "I will have helped him.",
+      "No error."
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Sentence Improvement and Construction",
+    "question_text": "The workers are hell bent at getting what is due to them.",
+    "options": [
+      "hell bent on getting",
+      "hell bent for getting",
+      "hell bent upon getting",
+      "No improvement"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Sentence Improvement and Construction",
+    "question_text": "When it was feared that the serfs might go too far and gain their freedom from serfdom, the protestant leaders joined the princes at crushing them.",
+    "options": [
+      "into crushing",
+      "in crushing",
+      "without crushing",
+      "No improvement"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Sentence Improvement and Construction",
+    "question_text": "If the room had been brighter , I would have been able to read for a while before bed time.",
+    "options": [
+      "If the room was brighter",
+      "If the room are brighter",
+      "Had the room been brighter",
+      "No improvement"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Sentence Improvement and Construction",
+    "question_text": "The record for the biggest tiger hunt has not been met since 1911 when Lord Hardinge. then Viceroy of India, shot a tiger than measured 11 feet and 6 inches.",
+    "options": [
+      "improved",
+      "broken",
+      "bettered",
+      "No improvement"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Sentence Improvement and Construction",
+    "question_text": "his powerful desire brought about his downfall.",
+    "options": [
+      "His intense desire",
+      "His desire for power",
+      "His fatal desire",
+      "No improvement"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Sentence Correction",
+    "question_text": "The small child does whatever his father was done .",
+    "options": [
+      "has done",
+      "did",
+      "does",
+      "had done"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Sentence Correction",
+    "question_text": "You need not come unless you want to .",
+    "options": [
+      "You don't need to come unless you want to",
+      "You come only when you want to",
+      "You come unless you don't want to",
+      "You needn't come until you don't want to"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Sentence Correction",
+    "question_text": "There are not many men who are so famous that they are frequently referred to by their short names only",
+    "options": [
+      "initials",
+      "signatures",
+      "pictures",
+      "middle names"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Sentence Correction",
+    "question_text": "The man to who I sold my house was a cheat.",
+    "options": [
+      "to whom I sell",
+      "to who I sell",
+      "who was sold to",
+      "to whom I sold"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Sentence Correction",
+    "question_text": "They were all shocked at his failure in the competition.",
+    "options": [
+      "were shocked at all",
+      "had all shocked at",
+      "had all shocked by",
+      "had been all shocked on"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Prepositions and Conjunctions",
+    "question_text": "Fate smiles ...... those who untiringly grapple with stark realities of life.",
+    "options": [
+      "with",
+      "over",
+      "on",
+      "round"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Prepositions and Conjunctions",
+    "question_text": "The miser gazed ...... at the pile of gold coins in front of him.",
+    "options": [
+      "avidly",
+      "admiringly",
+      "thoughtfully",
+      "earnestly"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Prepositions and Conjunctions",
+    "question_text": "Catching the earlier train will give us the ...... to do some shopping.",
+    "options": [
+      "chance",
+      "luck",
+      "possibility",
+      "occasion"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Prepositions and Conjunctions",
+    "question_text": "I saw a ...... of cows in the field.",
+    "options": [
+      "group",
+      "herd",
+      "swarm",
+      "flock"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Prepositions and Conjunctions",
+    "question_text": "The grapes are now ...... enough to be picked.",
+    "options": [
+      "ready",
+      "mature",
+      "ripe",
+      "advanced"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Fill in the Blanks",
+    "question_text": "Despite his best efforts to conceal his anger ......",
+    "options": [
+      "we could detect that he was very happy",
+      "he failed to give us an impression of his agony",
+      "he succeeded in camouflaging his emotions",
+      "he could succeed in doing it easily"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Fill in the Blanks",
+    "question_text": "Even if it rains I shall come means ......",
+    "options": [
+      "if I come it will not rain",
+      "if it rains I shall not come",
+      "I will certainly come whether it rains or not",
+      "whenever there is rain I shall come"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Fill in the Blanks",
+    "question_text": "His appearance is unsmiling but ......",
+    "options": [
+      "his heart is full of compassion for others",
+      "he looks very serious on most occasions",
+      "people are afraid of him",
+      "he is uncompromising on matters of task performance"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Fill in the Blanks",
+    "question_text": "She never visits any zoo because she is strong opponent of the idea of ......",
+    "options": [
+      "setting the animals free into forest",
+      "feeding the animals while others are watching",
+      "watching the animals in their natural abode",
+      "going out of the house on a holiday"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Fill in the Blanks",
+    "question_text": "I felt somewhat more relaxed ......",
+    "options": [
+      "but tense as compared to earlier",
+      "and tense as compared to earlier",
+      "as there was already no tension at all",
+      "and tension-free as compared to earlier"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Data Interpretation",
+    "question_text": "What is the ratio of the total sales of branch B2 for both years to the total sales of branch B4 for both years?",
+    "options": [
+      "2:3",
+      "3:5",
+      "4:5",
+      "7:9"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Data Interpretation",
+    "question_text": "Total sales of branch B6 for both the years is what percent of the total sales of branches B3 for both the years?",
+    "options": [
+      "68.54%",
+      "71.11%",
+      "73.17%",
+      "75.55%"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Data Interpretation",
+    "question_text": "What percent of the average sales of branches B1, B2 and B3 in 2001 is the average sales of branches B1, B3 and B6 in 2000?",
+    "options": [
+      "75%",
+      "77.5%",
+      "82.5%",
+      "87.5%"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Data Interpretation",
+    "question_text": "What is the average sales of all the branches (in thousand numbers) for the year 2000?",
+    "options": [
+      "73",
+      "80",
+      "83",
+      "88"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Data Interpretation",
+    "question_text": "Total sales of branches B1, B3 and B5 together for both the years (in thousand numbers) is?",
+    "options": [
+      "250",
+      "310",
+      "435",
+      "560"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Information Ordering",
+    "question_text": "120, 99, 80, 63, 48, ?",
+    "options": [
+      "35",
+      "38",
+      "39",
+      "40"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Information Ordering",
+    "question_text": "589654237, 89654237, 8965423, 965423, ?",
+    "options": [
+      "58965",
+      "65423",
+      "89654",
+      "96542"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Information Ordering",
+    "question_text": "3, 10, 101,?",
+    "options": [
+      "10101",
+      "10201",
+      "10202",
+      "11012"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Information Ordering",
+    "question_text": "In the series 2, 6, 18, 54, ...... what will be the 8th term ?",
+    "options": [
+      "4370",
+      "4374",
+      "7443",
+      "7434"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  },
+  {
+    "topic": "Information Ordering",
+    "question_text": "125,80,45,20,?",
+    "options": [
+      "5",
+      "8",
+      "10",
+      "12"
+    ],
+    "correct_answer": "",
+    "explanation": ""
+  }
+]
