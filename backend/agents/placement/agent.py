@@ -20,6 +20,7 @@ class PaperGenerationState(TypedDict):
     question_total : int
     target_topic : List[str]
     option_checking : bool
+    model : str
     
     weak_concepts : List[str]
     
@@ -60,7 +61,7 @@ def question_generation(state: PaperGenerationState):
     }
     
     for index,topics in enumerate(final_topics):
-        question_data = generate_mcq(topics)
+        question_data = generate_mcq(topics,state.get("model"))
         
         final_paper["question_number"].append(index+1)
         final_paper["question_text"].append(question_data["question"])
@@ -78,7 +79,8 @@ def option_checker(state: PaperGenerationState):
         is_correct,question_changed = option_checker_tool(question_text=final_paper["question_text"][question_number-1],
                                           option=final_paper["option"][question_number-1],
                                           correct_answer= final_paper["correct_answer"][question_number-1],
-                                          explanation = final_paper["explanation"][question_number-1])
+                                          explanation = final_paper["explanation"][question_number-1],
+                                          model = state.get("model"))
         
         if not is_correct:
             final_paper["option"][question_number-1] = question_changed["options"]

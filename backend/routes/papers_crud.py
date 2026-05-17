@@ -198,6 +198,7 @@ def placement_question():
         token = data.get('token')
         question_total = data.get('question_total')
         target_topic = data.get('target_topic')
+        model = data.get('model')
         
         if not token:
             return jsonify({'error': 'Missing token'}), 400
@@ -211,7 +212,8 @@ def placement_question():
         initial_state = {
             "question_total" : question_total,
             "target_topic" : target_topic,
-            "uid" : user_uid
+            "uid" : user_uid,
+            "model" : model 
         }
         
         app_instane = get_agent_graph()

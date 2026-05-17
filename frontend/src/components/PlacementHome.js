@@ -28,11 +28,14 @@ const TOPICS = [
 
 const QUESTION_COUNTS = [5, 10, 15];
 
+const allModels = ["gemini", "ollama"];
+
 export default function PlacementHome() {
     const navigate = useNavigate();
     const [selectedTopic, setSelectedTopic] = useState(null); // null = all topics mixed
     const [questionCount, setQuestionCount] = useState(10);
     const [isGenerating, setIsGenerating] = useState(false);
+    const [model, setModel] = useState('gemini')
     const [error, setError] = useState('');
 
     const handleGenerate = async () => {
@@ -51,6 +54,7 @@ export default function PlacementHome() {
                     token,
                     question_total: questionCount,
                     target_topic: selectedTopic || null,
+                    model: model
                 }),
             });
 
@@ -60,16 +64,16 @@ export default function PlacementHome() {
                 // You might not even need sessionStorage anymore since the test page fetches the data itself, 
                 // but we can leave it here just in case!
                 sessionStorage.setItem('placementPaper', JSON.stringify(data.paper_data));
-                
+
                 // Get the paper ID from your backend response
-                const generatedPaperId = data.paper_id; 
+                const generatedPaperId = data.paper_id;
 
                 if (generatedPaperId) {
                     navigate(`/placementMCQ-test/${generatedPaperId}`);
                 } else {
                     setError('Test generated, but no Paper ID was returned from the server.');
                 }
-                
+
             } else {
                 setError(data.message || data.error || 'Failed to generate questions');
             }
@@ -79,7 +83,7 @@ export default function PlacementHome() {
             setIsGenerating(false);
         }
     };
-    
+
     return (
         <div className="min-h-screen bg-surface-900">
             <div className="max-w-2xl mx-auto px-4 py-12">
@@ -128,8 +132,8 @@ export default function PlacementHome() {
                                     <button
                                         onClick={() => setSelectedTopic(null)}
                                         className={`flex items-center gap-3 p-3 rounded-xl border transition-all duration-150 text-left ${selectedTopic === null
-                                                ? 'border-purple-500 bg-purple-500/10'
-                                                : 'border-surface-700 bg-surface-700/30 hover:border-surface-600'
+                                            ? 'border-purple-500 bg-purple-500/10'
+                                            : 'border-surface-700 bg-surface-700/30 hover:border-surface-600'
                                             }`}
                                     >
                                         <div className={`p-2 rounded-lg shrink-0 ${selectedTopic === null ? 'bg-purple-500/20' : 'bg-surface-700'
@@ -147,8 +151,8 @@ export default function PlacementHome() {
                                             key={key}
                                             onClick={() => setSelectedTopic(key)}
                                             className={`flex items-center gap-3 p-3 rounded-xl border transition-all duration-150 text-left ${selectedTopic === key
-                                                    ? 'border-purple-500 bg-purple-500/10'
-                                                    : 'border-surface-700 bg-surface-700/30 hover:border-surface-600'
+                                                ? 'border-purple-500 bg-purple-500/10'
+                                                : 'border-surface-700 bg-surface-700/30 hover:border-surface-600'
                                                 }`}
                                         >
                                             <div className={`p-2 rounded-lg shrink-0 ${selectedTopic === key ? 'bg-purple-500/20' : 'bg-surface-700'
@@ -173,11 +177,32 @@ export default function PlacementHome() {
                                             key={count}
                                             onClick={() => setQuestionCount(count)}
                                             className={`flex-1 py-3 rounded-xl text-sm font-semibold transition-all duration-150 ${questionCount === count
-                                                    ? 'bg-purple-500/20 text-purple-400 border border-purple-500'
-                                                    : 'bg-surface-700/50 text-surface-400 border border-surface-700 hover:border-surface-600'
+                                                ? 'bg-purple-500/20 text-purple-400 border border-purple-500'
+                                                : 'bg-surface-700/50 text-surface-400 border border-surface-700 hover:border-surface-600'
                                                 }`}
                                         >
                                             {count}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+
+                            <div className="mb-6">
+                                <label className="text-sm font-semibold text-white mb-3 block flex items-center gap-2">
+                                    <Hash className="w-4 h-4 text-purple-400" />
+                                    Modle
+                                </label>
+                                <div className="flex gap-2">
+                                    {allModels.map((models) => (
+                                        <button
+                                            key={models}
+                                            onClick={() => setModel(models)}
+                                            className={`flex-1 py-3 rounded-xl text-sm font-semibold transition-all duration-150 ${model === models
+                                                ? 'bg-purple-500/20 text-purple-400 border border-purple-500'
+                                                : 'bg-surface-700/50 text-surface-400 border border-surface-700 hover:border-surface-600'
+                                                }`}
+                                        >
+                                            {models}
                                         </button>
                                     ))}
                                 </div>
@@ -194,6 +219,10 @@ export default function PlacementHome() {
                                 <div className="flex justify-between">
                                     <span className="text-surface-400">Questions</span>
                                     <span className="text-white font-medium">{questionCount}</span>
+                                </div>
+                                <div className="flex justify-between">
+                                    <span className="text-surface-400">model</span>
+                                    <span className="text-white font-medium">{model}</span>
                                 </div>
                             </div>
 
