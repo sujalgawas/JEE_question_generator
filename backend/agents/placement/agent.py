@@ -33,7 +33,6 @@ def weak_concept_priority(state: PaperGenerationState):
     weak_concepts = get_weak_concepts(uid)
     print(weak_concepts)
     return {"weak_concepts" : weak_concepts}
-
     
 def plan_paper(state : PaperGenerationState):
     question_total = state.get("question_total")
@@ -89,6 +88,12 @@ def option_checker(state: PaperGenerationState):
 
     return{"final_paper" : final_paper}
 
+def route_option_checker(state: PaperGenerationState):
+    if state.get("option_checker"):
+        return "option_checker"
+    
+    return END
+
 def get_agent_graph():
     """build and compile of placement service Langraph workflow"""
     graph = StateGraph(PaperGenerationState)
@@ -101,7 +106,9 @@ def get_agent_graph():
     graph.add_edge(START,"weak_concept_priority")
     graph.add_edge("weak_concept_priority","plan_paper")
     graph.add_edge("plan_paper","question_generation")
-    graph.add_edge("question_generation","option_checker")
+    
+    graph.add_conditional_edges("question_generation",route_option_checker)
+
     graph.add_edge("option_checker",END)
     
     app = graph.compile()

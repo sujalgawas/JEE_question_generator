@@ -35,6 +35,7 @@ export default function PlacementHome() {
     const [selectedTopic, setSelectedTopic] = useState(null); // null = all topics mixed
     const [questionCount, setQuestionCount] = useState(10);
     const [isGenerating, setIsGenerating] = useState(false);
+    const [option_checker, setOption_checker] = useState(true);
     const [model, setModel] = useState('gemini')
     const [error, setError] = useState('');
 
@@ -190,7 +191,7 @@ export default function PlacementHome() {
                             <div className="mb-6">
                                 <label className="text-sm font-semibold text-white mb-3 block flex items-center gap-2">
                                     <Hash className="w-4 h-4 text-purple-400" />
-                                    Modle
+                                    Model
                                 </label>
                                 <div className="flex gap-2">
                                     {allModels.map((models) => (
@@ -206,6 +207,30 @@ export default function PlacementHome() {
                                         </button>
                                     ))}
                                 </div>
+                            </div>
+
+                            <div className="mb-6">
+                                <label className="text-sm font-semibold text-white mb-3 block flex items-center gap-2">
+                                    <Hash className="w-4 h-4 text-purple-400" />
+                                    option checker
+                                </label>
+
+                                <button
+                                    onClick={() => setOption_checker(prev => !prev)}
+                                    className={`relative w-16 h-8 rounded-full transition-all duration-300 ${option_checker
+                                            ? 'bg-purple-500'
+                                            : 'bg-surface-700'
+                                        }`}
+                                >
+                                    <div
+                                        className={`absolute top-1 w-6 h-6 bg-white rounded-full transition-all duration-300 ${option_checker ? 'left-9' : 'left-1'
+                                            }`}
+                                    />
+                                </button>
+
+                                <p className="mt-2 text-sm text-surface-300">
+                                    {option_checker ? "Enabled" : "Disabled"}
+                                </p>
                             </div>
 
                             {/* summary */}
