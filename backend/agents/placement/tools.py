@@ -29,7 +29,6 @@ json_2 = pd.read_json('data/placement_questions.json')
 
 sample_question_dataframe = pd.concat([json_1,json_2],ignore_index=True)
 
-llm = ChatOllama(model = "qwen2.5:3b",temperature=0,format='json')
 
 #same system prompt for consistency
 SYSTEM_GENERATE = "you are a expert mcq question designer for AMCAT exam"
@@ -80,7 +79,29 @@ def generate_mcq(topic:str,model:str):
         )
         
         output = json.loads(response.text)
-    else:
+        
+    elif model == "qwen2.5:3b":
+        llm = ChatOllama(model = "qwen2.5:3b",temperature=0,format='json')
+        
+        message = [
+            ("system",SYSTEM_GENERATE),
+            ("human",prompt),
+        ]
+
+        response_msg = llm.invoke(message)
+
+        print(response_msg)
+
+        try:
+            response = json.loads(response_msg.content)
+            if "question_text" in response and "question" not in response:
+                response["question"] = response.pop("question_text")
+        except Exception:
+            response = {"question": "", "options": [], "correct_answer": "", "explanation": ""}
+    
+    elif model == "qwen3:4b":
+        llm = ChatOllama(model = "qwen3:4b",temperature=0,format='json')
+        
         message = [
             ("system",SYSTEM_GENERATE),
             ("human",prompt),
@@ -97,7 +118,7 @@ def generate_mcq(topic:str,model:str):
         except Exception:
             response = {"question": "", "options": [], "correct_answer": "", "explanation": ""}
             
-        output = [response]
+    output = [response]
     
     output[0]["topic"] = topic
     

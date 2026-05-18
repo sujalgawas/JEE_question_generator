@@ -3,9 +3,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
     Sparkles,
-    Loader2,
     AlertCircle,
-    CheckCircle,
     BrainCircuit,
     Hash,
     Target,
@@ -27,16 +25,15 @@ const TOPICS = [
 ];
 
 const QUESTION_COUNTS = [5, 10, 15];
-
-const allModels = ["gemini", "ollama"];
+const allModels = ["gemini", "qwen2.5:3b", "qwen3:4b"];
 
 export default function PlacementHome() {
     const navigate = useNavigate();
-    const [selectedTopic, setSelectedTopic] = useState(null); // null = all topics mixed
+    const [selectedTopic, setSelectedTopic] = useState(null);
     const [questionCount, setQuestionCount] = useState(10);
     const [isGenerating, setIsGenerating] = useState(false);
     const [option_checker, setOption_checker] = useState(true);
-    const [model, setModel] = useState('gemini')
+    const [model, setModel] = useState('gemini');
     const [error, setError] = useState('');
 
     const handleGenerate = async () => {
@@ -55,18 +52,15 @@ export default function PlacementHome() {
                     token,
                     question_total: questionCount,
                     target_topic: selectedTopic || null,
-                    model: model
+                    model: model,
+                    option_checker: option_checker
                 }),
             });
 
             const data = await res.json();
 
             if (res.ok && data.paper_data) {
-                // You might not even need sessionStorage anymore since the test page fetches the data itself, 
-                // but we can leave it here just in case!
                 sessionStorage.setItem('placementPaper', JSON.stringify(data.paper_data));
-
-                // Get the paper ID from your backend response
                 const generatedPaperId = data.paper_id;
 
                 if (generatedPaperId) {
@@ -74,7 +68,6 @@ export default function PlacementHome() {
                 } else {
                     setError('Test generated, but no Paper ID was returned from the server.');
                 }
-
             } else {
                 setError(data.message || data.error || 'Failed to generate questions');
             }
@@ -124,12 +117,11 @@ export default function PlacementHome() {
                         <>
                             {/* topic selection */}
                             <div className="mb-6">
-                                <label className="text-sm font-semibold text-white mb-3 block flex items-center gap-2">
+                                <label className="text-sm font-semibold text-white mb-3 flex items-center gap-2">
                                     <Target className="w-4 h-4 text-purple-400" />
                                     Select Topic
                                 </label>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                                    {/* All topics option */}
                                     <button
                                         onClick={() => setSelectedTopic(null)}
                                         className={`flex items-center gap-3 p-3 rounded-xl border transition-all duration-150 text-left ${selectedTopic === null
@@ -137,8 +129,7 @@ export default function PlacementHome() {
                                             : 'border-surface-700 bg-surface-700/30 hover:border-surface-600'
                                             }`}
                                     >
-                                        <div className={`p-2 rounded-lg shrink-0 ${selectedTopic === null ? 'bg-purple-500/20' : 'bg-surface-700'
-                                            }`}>
+                                        <div className={`p-2 rounded-lg shrink-0 ${selectedTopic === null ? 'bg-purple-500/20' : 'bg-surface-700'}`}>
                                             <BookOpen className={`w-4 h-4 ${selectedTopic === null ? 'text-purple-400' : 'text-surface-400'}`} />
                                         </div>
                                         <div>
@@ -156,8 +147,7 @@ export default function PlacementHome() {
                                                 : 'border-surface-700 bg-surface-700/30 hover:border-surface-600'
                                                 }`}
                                         >
-                                            <div className={`p-2 rounded-lg shrink-0 ${selectedTopic === key ? 'bg-purple-500/20' : 'bg-surface-700'
-                                                }`}>
+                                            <div className={`p-2 rounded-lg shrink-0 ${selectedTopic === key ? 'bg-purple-500/20' : 'bg-surface-700'}`}>
                                                 <Icon className={`w-4 h-4 ${selectedTopic === key ? 'text-purple-400' : 'text-surface-400'}`} />
                                             </div>
                                             <p className={`text-sm font-medium ${selectedTopic === key ? 'text-white' : 'text-surface-300'}`}>{label}</p>
@@ -168,7 +158,7 @@ export default function PlacementHome() {
 
                             {/* question count */}
                             <div className="mb-6">
-                                <label className="text-sm font-semibold text-white mb-3 block flex items-center gap-2">
+                                <label className="text-sm font-semibold text-white mb-3 flex items-center gap-2">
                                     <Hash className="w-4 h-4 text-purple-400" />
                                     Number of Questions
                                 </label>
@@ -188,49 +178,64 @@ export default function PlacementHome() {
                                 </div>
                             </div>
 
+                            {/* model selector */}
                             <div className="mb-6">
-                                <label className="text-sm font-semibold text-white mb-3 block flex items-center gap-2">
+                                <label className="text-sm font-semibold text-white mb-3 flex items-center gap-2">
                                     <Hash className="w-4 h-4 text-purple-400" />
                                     Model
                                 </label>
                                 <div className="flex gap-2">
-                                    {allModels.map((models) => (
+                                    {allModels.map((modelOption) => (
                                         <button
-                                            key={models}
-                                            onClick={() => setModel(models)}
-                                            className={`flex-1 py-3 rounded-xl text-sm font-semibold transition-all duration-150 ${model === models
+                                            key={modelOption}
+                                            onClick={() => setModel(modelOption)}
+                                            className={`flex-1 py-3 rounded-xl text-sm font-semibold transition-all duration-150 ${model === modelOption
                                                 ? 'bg-purple-500/20 text-purple-400 border border-purple-500'
                                                 : 'bg-surface-700/50 text-surface-400 border border-surface-700 hover:border-surface-600'
                                                 }`}
                                         >
-                                            {models}
+                                            {modelOption}
                                         </button>
                                     ))}
                                 </div>
                             </div>
 
+                            {/* Option Checker */}
                             <div className="mb-6">
-                                <label className="text-sm font-semibold text-white mb-3 block flex items-center gap-2">
-                                    <Hash className="w-4 h-4 text-purple-400" />
-                                    option checker
+                                <label className="text-sm font-semibold text-white mb-3 flex items-center gap-2">
+                                    <Target className="w-4 h-4 text-purple-400" />
+                                    Option Checker
                                 </label>
 
-                                <button
-                                    onClick={() => setOption_checker(prev => !prev)}
-                                    className={`relative w-16 h-8 rounded-full transition-all duration-300 ${option_checker
-                                            ? 'bg-purple-500'
-                                            : 'bg-surface-700'
-                                        }`}
-                                >
-                                    <div
-                                        className={`absolute top-1 w-6 h-6 bg-white rounded-full transition-all duration-300 ${option_checker ? 'left-9' : 'left-1'
-                                            }`}
-                                    />
-                                </button>
+                                <div className="flex items-center gap-4">
 
-                                <p className="mt-2 text-sm text-surface-300">
-                                    {option_checker ? "Enabled" : "Disabled"}
-                                </p>
+                                    {/* Toggle */}
+                                    <div className="flex flex-col items-center">
+                                        <button
+                                            onClick={() => setOption_checker(prev => !prev)}
+                                            className={`relative w-16 h-8 rounded-full transition-all duration-300 ${option_checker ? 'bg-purple-500' : 'bg-surface-700'
+                                                }`}
+                                        >
+                                            <div
+                                                className={`absolute top-1 w-6 h-6 bg-white rounded-full transition-all duration-300 ${option_checker ? 'left-9' : 'left-1'
+                                                    }`}
+                                            />
+                                        </button>
+
+                                        <span className="mt-2 text-sm text-surface-300 font-medium">
+                                            {option_checker ? "Enabled" : "Disabled"}
+                                        </span>
+                                    </div>
+
+                                    {/* Info Box */}
+                                    <div className="flex-1 bg-surface-800 border border-surface-700 rounded-xl p-4">
+                                        <p className="text-sm text-surface-400 leading-relaxed">
+                                            Option checker increases the time taken to generate questions,
+                                            but ensures the generated options are more accurate and valid.
+                                        </p>
+                                    </div>
+
+                                </div>
                             </div>
 
                             {/* summary */}
@@ -241,12 +246,12 @@ export default function PlacementHome() {
                                         {selectedTopic ? TOPICS.find(t => t.key === selectedTopic)?.label : 'All Topics'}
                                     </span>
                                 </div>
-                                <div className="flex justify-between">
+                                <div className="flex justify-between mb-1">
                                     <span className="text-surface-400">Questions</span>
                                     <span className="text-white font-medium">{questionCount}</span>
                                 </div>
                                 <div className="flex justify-between">
-                                    <span className="text-surface-400">model</span>
+                                    <span className="text-surface-400">Model</span>
                                     <span className="text-white font-medium">{model}</span>
                                 </div>
                             </div>
