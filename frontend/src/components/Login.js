@@ -62,9 +62,10 @@ function Login({ onLoginSuccess }) {
 
     try {
       const res = await axios.post(`${API_URL}/login`, { email, password });
-      if (res.data.token) {
+      console.log(res.data.idToken)
+      if (res.data.idToken) {
         const name = res.data.name || email.split('@')[0];
-        localStorage.setItem('idToken', res.data.token);
+        localStorage.setItem('idToken', res.data.idToken);
         localStorage.setItem('userName', name);
         if (typeof onLoginSuccess === 'function') onLoginSuccess(name, res.data.token);
         navigate('/dashboard');
