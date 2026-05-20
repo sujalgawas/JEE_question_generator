@@ -20,3 +20,4 @@ torch
 transformers
 turboquant
 accelerate
+huggingface_hub
