@@ -16,3 +16,7 @@ firebase-admin
 psutil
 google-genai
 langchain-ollama
+torch
+transformers
+turboquant
+accelerate
