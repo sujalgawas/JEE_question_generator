@@ -10,7 +10,8 @@ import {
     Award,
     BrainCircuit,
     RotateCcw,
-    Loader2
+    Loader2,
+    Download
 } from 'lucide-react';
 
 import API_URL from '../apiConfig';
@@ -67,6 +68,50 @@ export default function PlacementPastPapers() {
 
         setDeleteSuccess('Test result removed from view');
         setTimeout(() => setDeleteSuccess(''), 3000);
+    };
+
+    const handelDownload = async (item) => {
+        const paperId = item.id;
+        const token = localStorage.getItem('idToken');
+
+        if (!paperId) return;
+
+        try {
+            const res = await fetch(`${API_URL}/placement_download_pdf`, {
+                method: "POST",
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ token, paper_id: paperId }),
+            });
+
+            if (!res.ok) {
+                const errorData = await res.json();
+                alert(`Failed to download: ${errorData.error || 'Unknown error'}`);
+                return;
+            }
+            //================AI generted======================================
+            // Get the PDF as a binary Blob
+            const blob = await res.blob();
+
+            // Create a temporary object URL pointing to the PDF blob
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+
+            // Suggest the filename to the browser
+            link.setAttribute('download', `placement_paper_${paperId}.pdf`);
+
+            // Append, trigger click, and cleanup
+            document.body.appendChild(link);
+            link.click();
+            link.parentNode.removeChild(link);
+
+            // Revoke object URL to free up browser memory
+            window.URL.revokeObjectURL(url);
+            //================END AI generated======================================
+        } catch (error) {
+            console.error("Download error:", error);
+            alert("An error occurred while downloading the PDF.");
+        }
     };
 
     const handleRetake = (item) => {
@@ -152,12 +197,21 @@ export default function PlacementPastPapers() {
                                     {/* actions */}
                                     <div className="flex items-center gap-2 shrink-0">
                                         <button
+                                            onClick={() => handelDownload(item)}
+                                            className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-red-600 hover:bg-purple-500 text-white text-sm font-medium transition-colors"
+                                        >
+                                            <Download className="w-4 h-4" />
+                                            download
+                                        </button>
+
+                                        <button
                                             onClick={() => handleRetake(item)}
                                             className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-purple-600 hover:bg-purple-500 text-white text-sm font-medium transition-colors"
                                         >
                                             <RotateCcw className="w-4 h-4" />
                                             Retake
                                         </button>
+
                                         <button
                                             onClick={() => handleDelete(item.id)}
                                             className="p-2 rounded-lg bg-surface-700 hover:bg-danger-500/15 text-surface-500 hover:text-danger-400 transition-colors"

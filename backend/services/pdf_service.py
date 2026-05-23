@@ -1,19 +1,9 @@
-#======================this block is only for testing=====================================
-import os
-import sys
-
-# Automatically inject paths for both import styles so that this service
-# can be run directly from any directory.
-root_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-sys.path.insert(0, root_dir)
-sys.path.insert(0, os.path.join(root_dir, 'backend'))
-
-#=====================================================================================
-
 from fpdf import FPDF
-from backend.routes.papers_crud import fetch_placement_paper
+from io import BytesIO
 
 def create_pdf(paper_id):
+    from backend.routes.papers_crud import fetch_placement_paper
+    
     # Unpack the response dictionary and HTTP status code from fetch_placement_paper
     response, status_code = fetch_placement_paper(paper_id)
     if status_code != 201 or "paper" not in response:
@@ -51,10 +41,8 @@ def create_pdf(paper_id):
 
         pdf.ln(15)
 
-    # Save PDF
-    pdf.output("mcq.pdf")
+    paper_bytes = pdf.output(dest="S").encode("latin1")
 
-    print("PDF created!")
+    pdf_buffer = BytesIO(paper_bytes)
 
-if "__main__" == __name__:
-    create_pdf("860d6f3a-f512-4998-8dfc-2e6b07223576")
+    return pdf_buffer

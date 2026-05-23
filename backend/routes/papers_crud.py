@@ -1,5 +1,5 @@
 # routes/papers_crud.py - Paper retrieval and deletion endpoints
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify,send_file
 
 from services.firebase_service import db, admin_auth
 from backend.agents.placement.agent import get_agent_graph
@@ -251,4 +251,31 @@ def placement_question():
         
     except Exception as e:
         return {"message":f"Error {e}"},410        
-    
+
+@papers_crud_bp.route('/placement_download_pdf',methods=['POST'])
+def placement_paper_pdf():
+    try:
+        data = request.json
+        token = data.get('token')
+        paper_id = data.get('paper_id')
+
+        if not token:
+            return jsonify({"error":"token not found"}),400
+
+        decoded_token = admin_auth.verify_id_token(token)
+        user_uid = decoded_token['uid']
+        
+        if not user_uid:
+            return jsonify({"error":"invalid token"}),400
+
+        from backend.services.pdf_service import create_pdf
+        pdf_buffer = create_pdf(paper_id)
+
+        return send_file(
+            pdf_buffer,
+            as_attachment = True,
+            download_name="test_paper.pdf",
+            mimetype="application/pdf"
+        )
+    except Exception as e:
+        return jsonify({"error":f"Error occured as {e}"}),400
