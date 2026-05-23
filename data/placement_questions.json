@@ -478,5 +478,1001 @@
     ],
     "correct_answer": "3",
     "explanation": "Bin B holds files <= 5MB. The files that fit this logic are 3MB, 5MB, and 1MB. That makes a total of 3 files."
+  },
+  {
+    "topic": "Time, Speed, and Distance",
+    "question_text": "A man can row upstream at 10 km/hr and downstream at 16 km/hr. Find the speed of the man in still water.",
+    "options": [
+      "12 km/hr",
+      "13 km/hr",
+      "14 km/hr",
+      "15 km/hr"
+    ],
+    "correct_answer": "13 km/hr",
+    "explanation": "Speed in still water is calculated as 1/2 * (Downstream Speed + Upstream Speed). Therefore, 1/2 * (16 + 10) = 1/2 * 26 = 13 km/hr."
+  },
+  {
+    "topic": "Profit and Loss",
+    "question_text": "By selling an article for Rs. 600, a merchant loses 20%. At what price should he sell it to gain 20%?",
+    "options": [
+      "Rs. 800",
+      "Rs. 900",
+      "Rs. 1000",
+      "Rs. 1200"
+    ],
+    "correct_answer": "Rs. 900",
+    "explanation": "Let the Cost Price be CP. Since the loss is 20%, Selling Price = 0.8 * CP = 600, which means CP = 600 / 0.8 = Rs. 750. To gain 20%, the new Selling Price should be 1.2 * 750 = Rs. 900."
+  },
+  {
+    "topic": "HCF and LCM",
+    "question_text": "Six bells commence tolling together and toll at intervals of 2, 4, 6, 8, 10, and 12 seconds respectively. In 30 minutes, how many times do they toll together?",
+    "options": [
+      "4",
+      "10",
+      "15",
+      "16"
+    ],
+    "correct_answer": "16",
+    "explanation": "The bells will toll together after a time equal to the LCM of 2, 4, 6, 8, 10, and 12, which is 120 seconds (or 2 minutes). In 30 minutes, they toll together (30 / 2) = 15 times. Adding the initial tolling when they commenced, the total is 15 + 1 = 16 times."
+  },
+  {
+    "topic": "Blood Relation",
+    "question_text": "A is the mother of B. C is the father of B, and C has 3 children. Based on this information, what is the relationship between A and C?",
+    "options": [
+      "Brother and Sister",
+      "Husband and Wife",
+      "Uncle and Niece",
+      "Cousins"
+    ],
+    "correct_answer": "Husband and Wife",
+    "explanation": "Since A is the mother of B and C is the father of B, they are the parents of the same person. Therefore, A and C are husband and wife."
+  },
+  {
+    "topic": "Coding deductive Logic",
+    "question_text": "In a certain code language, 'COMPUTER' is written as 'RFUVQNPC'. How is 'MEDICINE' written in that code?",
+    "options": [
+      "EOJDJEFM",
+      "EOJDEJFM",
+      "MFEDJJOE",
+      "MFEJDJOE"
+    ],
+    "correct_answer": "EOJDJEFM",
+    "explanation": "The pattern involves keeping the first and last letters at the opposite ends (C and R are swapped). The middle letters (OMPUTE) are reversed (ETUPMO) and each is shifted forward by 1 letter in the alphabet (FUVQNP). Applying this to MEDICINE: Swap M and E. Reverse EDICIN to NICIDE and add 1 to each to get OJDJEF. Combining them gives E + OJDJEF + M = EOJDJEFM."
+  },
+  {
+    "topic": "Data Sufficiency",
+    "question_text": "In which year was Rahul born? \nStatement I: Rahul at present is 25 years younger than his mother. \nStatement II: Rahul's brother, who was born in 1964, is 35 years younger than his mother.",
+    "options": [
+      "Statement I alone is sufficient.",
+      "Statement II alone is sufficient.",
+      "Both statements together are sufficient.",
+      "Both statements together are not sufficient."
+    ],
+    "correct_answer": "Both statements together are sufficient.",
+    "explanation": "From Statement II, the brother's birth year is 1964, and he is 35 years younger than the mother. From Statement I, Rahul is 25 years younger than the mother. This means Rahul is 10 years older than his brother. Rahul's birth year = 1964 - 10 = 1954. Both statements are required to find the answer."
+  },
+  {
+    "topic": "Synonyms and Antonyms",
+    "question_text": "Choose the word that is an ANTONYM for 'MITIGATE'.",
+    "options": [
+      "Alleviate",
+      "Worsen",
+      "Relieve",
+      "Pacify"
+    ],
+    "correct_answer": "Worsen",
+    "explanation": "'Mitigate' means to make something less severe, harmful, or painful. The exact opposite is 'Worsen', which means to make something more severe."
+  },
+  {
+    "topic": "Error Identification",
+    "question_text": "Identify the part of the sentence containing a grammatical error: 'Every one of the employees (A) / are expected to attend (B) / the training session (C) / on Friday (D).'",
+    "options": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "correct_answer": "B",
+    "explanation": "The phrase 'Every one' is a singular subject, so it requires a singular verb. The phrase 'are expected to attend' (B) should be corrected to 'is expected to attend'."
+  },
+  {
+    "topic": "Conscientiousness",
+    "question_text": "You are finalizing a critical presentation, and it is past your regular working hours. You notice a minor formatting issue on the last slide. What do you do?",
+    "options": [
+      "Leave it as is since it is minor and the work day is over.",
+      "Ask a colleague to fix it the next morning before the presentation.",
+      "Stay a few minutes longer to fix the formatting issue so the presentation is flawless.",
+      "Delete the slide to avoid dealing with the formatting."
+    ],
+    "correct_answer": "Stay a few minutes longer to fix the formatting issue so the presentation is flawless.",
+    "explanation": "High conscientiousness implies a strong sense of duty, attention to detail, and a commitment to completing tasks thoroughly, even if it requires slight extra effort."
+  },
+  {
+    "topic": "Data Interpretation",
+    "question_text": "A bar chart displays the sales of two products, X and Y, over three years. In Year 1, X=400 and Y=500. In Year 2, X=600 and Y=700. In Year 3, X=800 and Y=600. What is the average sale of product X over the three years?",
+    "options": [
+      "500",
+      "600",
+      "700",
+      "800"
+    ],
+    "correct_answer": "600",
+    "explanation": "The average sale of Product X is the sum of its sales across all three years divided by 3. Average = (400 + 600 + 800) / 3 = 1800 / 3 = 600."
+  },
+  {
+    "topic": "Information Ordering",
+    "question_text": "Arrange the following steps of the Software Development Life Cycle (SDLC) in the correct chronological order: 1. Deployment, 2. Design, 3. Testing, 4. Requirement Analysis, 5. Coding.",
+    "options": [
+      "4, 2, 5, 3, 1",
+      "2, 4, 5, 3, 1",
+      "4, 2, 3, 5, 1",
+      "4, 5, 2, 3, 1"
+    ],
+    "correct_answer": "4, 2, 5, 3, 1",
+    "explanation": "The standard sequence of the SDLC is Requirement Analysis (4), followed by Design (2), Coding (5), Testing (3), and finally Deployment (1)."
+  },
+  {
+    "topic": "Time and Work",
+    "question_text": "P can complete a project in 20 days and Q can complete it in 30 days. If they work together, in how many days will the project be completed?",
+    "options": [
+      "10 days",
+      "12 days",
+      "15 days",
+      "50 days"
+    ],
+    "correct_answer": "12 days",
+    "explanation": "P's 1-day work = 1/20, Q's 1-day work = 1/30. Together, their 1-day work = 1/20 + 1/30 = (3+2)/60 = 5/60 = 1/12. Therefore, they will complete the total work in 12 days."
+  },
+  {
+    "topic": "Percentages",
+    "question_text": "In an election between two candidates, the winner received 60% of the valid votes and won by a majority of 2400 votes. What was the total number of valid votes cast?",
+    "options": [
+      "8000",
+      "10000",
+      "12000",
+      "15000"
+    ],
+    "correct_answer": "12000",
+    "explanation": "The winner received 60% of the votes, meaning the loser received 40% of the votes. The difference in vote percentage is 60% - 40% = 20%. This 20% margin is equal to 2400 votes. Total votes = 2400 * (100/20) = 12000."
+  },
+  {
+    "topic": "Ratio and Proportion",
+    "question_text": "Two numbers are in the ratio 3:4. If 6 is added to each number, the new ratio becomes 4:5. Find the original numbers.",
+    "options": [
+      "15 and 20",
+      "18 and 24",
+      "21 and 28",
+      "24 and 32"
+    ],
+    "correct_answer": "18 and 24",
+    "explanation": "Let the original numbers be 3x and 4x. According to the problem, (3x + 6) / (4x + 6) = 4/5. Cross-multiplying gives 5(3x + 6) = 4(4x + 6) -> 15x + 30 = 16x + 24 -> x = 6. The original numbers are 3(6) = 18 and 4(6) = 24."
+  },
+  {
+    "topic": "Logarithms",
+    "question_text": "If $\\log_x(81) = 4$, what is the value of x?",
+    "options": [
+      "2",
+      "3",
+      "4",
+      "9"
+    ],
+    "correct_answer": "3",
+    "explanation": "The logarithmic equation $\\log_x(81) = 4$ can be rewritten in exponential form as $x^4 = 81$. Since $3^4 = 81$, the value of x must be 3."
+  },
+  {
+    "topic": "Directional Sense",
+    "question_text": "A girl leaves her home. She first walks 30 meters in the North-West direction and then 30 meters in the South-West direction. Next, she walks 30 meters in the South-East direction. Finally, she turns towards her house. In which direction is she currently facing?",
+    "options": [
+      "North-East",
+      "North-West",
+      "South-East",
+      "South-West"
+    ],
+    "correct_answer": "North-East",
+    "explanation": "Her path forms three sides of a square tilted at a 45-degree angle. She goes NW, then SW, then SE. To return to her starting point (her house) from that position, she must walk in the North-East direction."
+  },
+  {
+    "topic": "Pattern Recognition",
+    "question_text": "Look at this series: 7, 10, 8, 11, 9, 12, ... What number should come next?",
+    "options": [
+      "7",
+      "10",
+      "12",
+      "13"
+    ],
+    "correct_answer": "10",
+    "explanation": "This is an alternating addition and subtraction series. The pattern is: add 3, then subtract 2. 7+3=10, 10-2=8, 8+3=11, 11-2=9, 9+3=12. The next step is to subtract 2 from 12, which gives 10."
+  },
+  {
+    "topic": "Puzzles",
+    "question_text": "Four people (P, Q, R, S) are standing in a line facing North. Q is to the immediate right of P. R is at one of the ends. S is standing between P and R. Who is standing at the extreme right?",
+    "options": [
+      "P",
+      "Q",
+      "R",
+      "S"
+    ],
+    "correct_answer": "Q",
+    "explanation": "S is between P and R, so the partial order is R-S-P or P-S-R. Since R is at an end, let's test R-S-P. Q is to the immediate right of P, giving R-S-P-Q. This satisfies all conditions. Since they are facing North, the extreme right position is occupied by Q."
+  },
+  {
+    "topic": "Inferred Meaning",
+    "question_text": "Statement: 'The CEO decided to step down, stating that the company needed fresh vision to navigate the rapidly changing tech landscape.' What can be directly inferred from this statement?",
+    "options": [
+      "The CEO was fired due to poor financial performance.",
+      "The tech landscape is currently stagnant.",
+      "The CEO believes a new leader will be better equipped to adapt to industry changes.",
+      "The company is going bankrupt."
+    ],
+    "correct_answer": "The CEO believes a new leader will be better equipped to adapt to industry changes.",
+    "explanation": "The phrase 'needed fresh vision to navigate the rapidly changing tech landscape' directly implies that the CEO feels a new leader (fresh vision) is required for better adaptation. The other options make unsupported assumptions."
+  },
+  {
+    "topic": "Reading comprehension",
+    "question_text": "Read the passage: 'Renewable energy sources like solar and wind are intermittent, meaning they do not produce power constantly. Therefore, efficient battery storage systems are crucial to ensure a steady energy supply when the sun isn't shining or the wind isn't blowing.' What is the main argument of this passage?",
+    "options": [
+      "Solar energy is vastly superior to wind energy.",
+      "Renewable energy is unreliable and should be completely avoided.",
+      "Battery storage is essential for the viability of intermittent renewable energy.",
+      "Traditional fossil-fuel power plants are now obsolete."
+    ],
+    "correct_answer": "Battery storage is essential for the viability of intermittent renewable energy.",
+    "explanation": "The passage explicitly states that because solar and wind are intermittent, efficient battery storage is 'crucial to ensure a steady energy supply.' It does not claim renewables should be avoided, nor does it compare solar to wind."
+  },
+  {
+    "topic": "Fill in the Blanks",
+    "question_text": "The speaker was so ______ that the audience was completely captivated and didn't realize how much time had passed.",
+    "options": [
+      "monotonous",
+      "eloquent",
+      "hesitant",
+      "arrogant"
+    ],
+    "correct_answer": "eloquent",
+    "explanation": "Being 'eloquent' means having fluent, forceful, and appropriate expression, which perfectly fits the context of captivating an audience. The other words carry negative connotations that would result in an unengaged audience."
+  },
+  {
+    "topic": "Extraversion",
+    "question_text": "During a team meeting, the project manager asks for volunteers to lead the presentation for an upcoming major client pitch. What is your response?",
+    "options": [
+      "Avoid eye contact and hope someone else volunteers.",
+      "Suggest someone else on the team who seems more suited for the role.",
+      "Volunteer enthusiastically, looking forward to the opportunity to engage with the client.",
+      "Agree to do it only if absolutely nobody else steps up."
+    ],
+    "correct_answer": "Volunteer enthusiastically, looking forward to the opportunity to engage with the client.",
+    "explanation": "This option clearly demonstrates HIGH Extraversion, which involves sociability, assertiveness, confidence, and actively seeking out external engagement."
+  },
+  {
+    "topic": "Information Processing",
+    "question_text": "A security system requires a 4-digit PIN based on specific rules: The first digit must be even, the second digit must be a prime number, the third digit must be the sum of the first two digits, and the fourth digit must be 0. Which of the following is a valid PIN?",
+    "options": [
+      "2460",
+      "4260",
+      "3580",
+      "6380"
+    ],
+    "correct_answer": "4260",
+    "explanation": "Let's check the rules against the correct option (4260): The 1st digit is 4 (even). The 2nd digit is 2 (a prime number). The 3rd digit is 6 (which is 4 + 2). The 4th digit is 0. This is the only option that satisfies all conditions. (e.g., 2460 fails because 4 is not prime; 3580 fails because 3 is not even)."
+  },
+  {
+    "topic": "Divisibility",
+    "question_text": "What is the smallest digit 'y' such that the 5-digit number 534y2 is exactly divisible by 8?",
+    "options": [
+      "0",
+      "1",
+      "3",
+      "5"
+    ],
+    "correct_answer": "3",
+    "explanation": "A number is divisible by 8 if the number formed by its last three digits is divisible by 8. We need '4y2' to be divisible by 8. Let's test the options: If y=0, 402/8 = 50.25. If y=1, 412/8 = 51.5. If y=3, 432/8 = 54 (an integer). Therefore, the smallest digit is 3."
+  },
+  {
+    "topic": "Averages",
+    "question_text": "The average of 5 consecutive odd numbers is 27. What is the product of the smallest and the largest number in this sequence?",
+    "options": [
+      "621",
+      "713",
+      "725",
+      "783"
+    ],
+    "correct_answer": "713",
+    "explanation": "For an odd number of consecutive integers (or consecutive odd/even integers), the average is always the middle number. So, the 3rd number is 27. The sequence is 23, 25, 27, 29, 31. The product of the smallest (23) and largest (31) is 23 * 31 = 713."
+  },
+  {
+    "topic": "Equations",
+    "question_text": "The sum of the digits of a two-digit number is 10. If the digits are reversed, the new number is 36 less than the original number. What is the original number?",
+    "options": [
+      "37",
+      "46",
+      "64",
+      "73"
+    ],
+    "correct_answer": "73",
+    "explanation": "Let the original number be 10x + y. We know x + y = 10. The reversed number is 10y + x. According to the condition: (10x + y) - (10y + x) = 36 -> 9x - 9y = 36 -> x - y = 4. Solving the system of equations (x+y=10 and x-y=4), we get 2x = 14, so x = 7. y = 3. The original number is 73."
+  },
+  {
+    "topic": "Permutation and Combinations",
+    "question_text": "How many different 4-letter strings can be formed using the letters of the word 'EQUATION' assuming no letter is repeated?",
+    "options": [
+      "1680",
+      "2520",
+      "3024",
+      "40320"
+    ],
+    "correct_answer": "1680",
+    "explanation": "The word 'EQUATION' contains 8 distinct letters. We are selecting and arranging 4 letters out of 8, which is a permutation. P(8, 4) = 8! / (8-4)! = 8 * 7 * 6 * 5 = 1680."
+  },
+  {
+    "topic": "Logical Sequence",
+    "question_text": "Arrange the following words in alphabetical (dictionary) order: 1. Eyelid, 2. Eyeless, 3. Eyesight, 4. Eyelash, 5. Eyebrow",
+    "options": [
+      "5, 4, 2, 1, 3",
+      "5, 4, 1, 2, 3",
+      "5, 2, 4, 1, 3",
+      "4, 5, 2, 1, 3"
+    ],
+    "correct_answer": "5, 4, 2, 1, 3",
+    "explanation": "Comparing the letters sequentially: 'Eyebrow' comes first (b). Next is 'Eyelash' (l-a), followed by 'Eyeless' (l-e-s), then 'Eyelid' (l-i). 'Eyesight' (s) comes last. The correct sequence is 5, 4, 2, 1, 3."
+  },
+  {
+    "topic": "Odd One Out",
+    "question_text": "Choose the odd one out from the following list of measurement units:",
+    "options": [
+      "Meter",
+      "Furlong",
+      "Acre",
+      "Mile"
+    ],
+    "correct_answer": "Acre",
+    "explanation": "Meter, Furlong, and Mile are all standard units used for measuring linear distance or length. Acre, however, is a unit used for measuring land area."
+  },
+  {
+    "topic": "Selection Decision Tables",
+    "question_text": "Academy criteria: >18 years old, >170 cm tall, passes fitness test. Exceptions: If <18 but has a national medal, WAITLIST. If <170 cm but is a state player, WAITLIST. Rahul is 19 years old, 168 cm tall, passed the fitness test, and is a registered state player. Decision?",
+    "options": [
+      "Selected",
+      "Rejected",
+      "Waitlisted",
+      "Data Inadequate"
+    ],
+    "correct_answer": "Waitlisted",
+    "explanation": "Rahul satisfies the age (>18) and fitness criteria. He fails the height criterion (168 cm is < 170 cm). However, he qualifies for the specific height exception because he is a state player. Therefore, his status becomes 'Waitlisted'."
+  },
+  {
+    "topic": "Letter Series",
+    "question_text": "Find the missing term in the series: BZA, DYC, FXE, ___, JVI",
+    "options": [
+      "HUG",
+      "HWG",
+      "GWH",
+      "HWF"
+    ],
+    "correct_answer": "HWG",
+    "explanation": "Analyze letter by letter. First letter: B, D, F, __, J (skips 1 forward; next is H). Middle letter: Z, Y, X, __, V (moves 1 backward; next is W). Last letter: A, C, E, __, I (skips 1 forward; next is G). Combining them gives HWG."
+  },
+  {
+    "topic": "Contextual Vocabulary",
+    "question_text": "The city council decided to ______ the derelict factory in order to make way for a modern community park.",
+    "options": [
+      "construct",
+      "demolish",
+      "renovate",
+      "abandon"
+    ],
+    "correct_answer": "demolish",
+    "explanation": "The phrase 'make way for a modern community park' implies that the old, derelict (ruined) factory must be knocked down. 'Demolish' is the exact word for destroying a building."
+  },
+  {
+    "topic": "Sentence Correction",
+    "question_text": "Identify the grammatically correct sentence.",
+    "options": [
+      "If I was you, I would not accept the offer.",
+      "If I were you, I would not accept the offer.",
+      "If I am you, I will not accept the offer.",
+      "If I had been you, I would not have accept the offer."
+    ],
+    "correct_answer": "If I were you, I would not accept the offer.",
+    "explanation": "The sentence expresses a hypothetical or contrary-to-fact situation in the present. In English grammar, this requires the subjunctive mood, which uses 'were' for all subjects, including 'I'."
+  },
+  {
+    "topic": "Prepositions and Conjunctions",
+    "question_text": "The supervisor was completely blind ______ the flaws in his own project, though he quickly pointed out errors in others.",
+    "options": [
+      "to",
+      "with",
+      "at",
+      "for"
+    ],
+    "correct_answer": "to",
+    "explanation": "When 'blind' is used metaphorically to mean 'lacking perception, awareness, or judgment', the correct preposition that follows it is 'to' (e.g., blind to the truth, blind to the flaws)."
+  },
+  {
+    "topic": "Neuroticism",
+    "question_text": "After receiving constructive but heavy criticism on a major project from your manager, how do you typically respond?",
+    "options": [
+      "I obsess over the critique, feeling inadequate and worrying about my job security.",
+      "I feel upset for hours and complain to my coworkers about the manager's high standards.",
+      "I analyze the feedback objectively to improve my work, maintaining my normal mood.",
+      "I ignore the feedback entirely to protect my self-esteem."
+    ],
+    "correct_answer": "I analyze the feedback objectively to improve my work, maintaining my normal mood.",
+    "explanation": "This option is indicative of LOW Neuroticism (or high emotional stability). It demonstrates resilience, emotional regulation, and the ability to process negative feedback without letting it disrupt mental well-being."
+  },
+  {
+    "topic": "Agreeableness",
+    "question_text": "A junior colleague approaches you with a question about a process you have already explained to them twice before. What is your reaction?",
+    "options": [
+      "I tell them I don't have time and they should have taken notes.",
+      "I sigh loudly and explain it again, making sure they know I am annoyed.",
+      "I patiently explain it a third time, perhaps offering to help them write it down.",
+      "I report them to the supervisor for being slow to learn."
+    ],
+    "correct_answer": "I patiently explain it a third time, perhaps offering to help them write it down.",
+    "explanation": "This response highlights HIGH Agreeableness, a personality trait characterized by empathy, patience, cooperativeness, and a willingness to help others succeed."
+  },
+  {
+    "topic": "Data Interpretation",
+    "question_text": "A manufacturing table shows the number of cars produced by Company Z: 2018 (4500), 2019 (5200), 2020 (4800), 2021 (6000). What is the percentage increase in production from 2020 to 2021?",
+    "options": [
+      "20%",
+      "25%",
+      "30%",
+      "15%"
+    ],
+    "correct_answer": "25%",
+    "explanation": "Production in 2020 was 4800, and in 2021 it was 6000. The absolute increase is 6000 - 4800 = 1200. Percentage Increase = (Increase / Original Value) * 100 = (1200 / 4800) * 100 = 0.25 * 100 = 25%."
+  },
+  {
+    "topic": "Information Ordering",
+    "question_text": "Arrange the following historical milestones in the correct chronological order: 1. Invention of the telephone, 2. First successful airplane flight, 3. Invention of the printing press, 4. Launch of the World Wide Web.",
+    "options": [
+      "3, 1, 2, 4",
+      "3, 2, 1, 4",
+      "1, 3, 2, 4",
+      "3, 1, 4, 2"
+    ],
+    "correct_answer": "3, 1, 2, 4",
+    "explanation": "The Printing Press was invented around 1440 (3). The Telephone was invented by Alexander Graham Bell in 1876 (1). The first airplane flight by the Wright Brothers was in 1903 (2). The World Wide Web was launched to the public in 1991 (4)."
+  },
+  {
+    "topic": "Power and Divisibility",
+    "question_text": "What is the unit digit of $7^{105}$?",
+    "options": [
+      "1",
+      "3",
+      "7",
+      "9"
+    ],
+    "correct_answer": "7",
+    "explanation": "The unit digits of powers of 7 repeat in a cycle of four: $7^1=7$, $7^2=9$, $7^3=3$, $7^4=1$, and then it repeats. To find the unit digit of $7^{105}$, divide the exponent 105 by 4. The remainder is 1. Therefore, the unit digit is the 1st number in the cycle, which is 7."
+  },
+  {
+    "topic": "Percentages",
+    "question_text": "The population of a town increases by 10% annually. If its current population is 12,100, what was its population 2 years ago?",
+    "options": [
+      "9000",
+      "10000",
+      "11000",
+      "12000"
+    ],
+    "correct_answer": "10000",
+    "explanation": "Let the population 2 years ago be P. According to the formula for compound growth: P * (1 + 10/100)^2 = 12100. Therefore, P * (11/10)^2 = 12100 -> P * (121/100) = 12100. Solving for P gives P = 12100 * 100 / 121 = 10000."
+  },
+  {
+    "topic": "Ratio and Proportion",
+    "question_text": "A sum of Rs. 312 was divided among 100 boys and girls in such a way that each boy gets Rs. 3.60 and each girl gets Rs. 2.40. What is the number of girls?",
+    "options": [
+      "35",
+      "40",
+      "60",
+      "65"
+    ],
+    "correct_answer": "40",
+    "explanation": "Let the number of boys be 'b' and girls be 'g'. We know b + g = 100. The total money equation is 3.60b + 2.40g = 312. Substitute b = 100 - g into the equation: 3.60(100 - g) + 2.40g = 312 -> 360 - 3.60g + 2.40g = 312 -> 360 - 1.20g = 312 -> 1.20g = 48 -> g = 40."
+  },
+  {
+    "topic": "Time and Work",
+    "question_text": "10 workers can build a wall in 8 days. How many days will it take 16 workers to build the exact same wall, assuming all workers work at the identical rate?",
+    "options": [
+      "4 days",
+      "5 days",
+      "6 days",
+      "7 days"
+    ],
+    "correct_answer": "5 days",
+    "explanation": "This is an inverse proportion problem, meaning more workers will take fewer days. Total work = (Workers * Days). So, 10 * 8 = 16 * x. 80 = 16x. x = 80 / 16 = 5 days."
+  },
+  {
+    "topic": "Objective Reasoning",
+    "question_text": "Fact 1: All birds have feathers. Fact 2: Penguins are birds. Fact 3: Penguins cannot fly. Conclusion: All feathered animals can fly. If the first three statements are facts, what is the conclusion?",
+    "options": [
+      "True",
+      "False",
+      "Uncertain",
+      "Cannot be determined"
+    ],
+    "correct_answer": "False",
+    "explanation": "Since penguins are birds (Fact 2) and all birds have feathers (Fact 1), penguins must have feathers. Since penguins cannot fly (Fact 3), there is at least one feathered animal that cannot fly. Therefore, the conclusion that 'All feathered animals can fly' is definitively false."
+  },
+  {
+    "topic": "Selection Decision Tables",
+    "question_text": "Criteria for an IT job: 1. B.Tech with >65%, 2. >2 years of Python experience, 3. Willing to work night shifts. Exception: If the candidate lacks >2 years Python but has a Master's degree, refer to the HR Manager. Candidate profile: Sarah has a B.Tech with 70%, a Master's in Data Science, 1 year of Python experience, and is willing to work night shifts. Decision?",
+    "options": [
+      "Selected",
+      "Rejected",
+      "Refer to HR Manager",
+      "Data Inadequate"
+    ],
+    "correct_answer": "Refer to HR Manager",
+    "explanation": "Sarah meets the degree/marks (B.Tech 70%) and shift criteria. She fails the standard experience criterion (she only has 1 year of Python, not >2). However, she has a Master's degree, which triggers the exception condition dictating that her profile be referred to the HR Manager."
+  },
+  {
+    "topic": "Puzzles",
+    "question_text": "A snail is at the bottom of a 20-foot well. Each day, it climbs up 5 feet, but at night, it slips down 4 feet. How many days will it take for the snail to reach the top of the well?",
+    "options": [
+      "15 days",
+      "16 days",
+      "20 days",
+      "21 days"
+    ],
+    "correct_answer": "16 days",
+    "explanation": "The snail makes a net progress of 1 foot per 24-hour cycle (5 up - 4 down). At the end of the 15th day, it is exactly at 15 feet. On the 16th day, it climbs its daily 5 feet, reaching exactly 20 feet (the top). Once it reaches the top, it escapes and does not slip down again."
+  },
+  {
+    "topic": "Logical Sequence",
+    "question_text": "Arrange the following words in a logical sequence of production: 1. Yarn, 2. Plant, 3. Shirt, 4. Cotton, 5. Cloth",
+    "options": [
+      "2, 4, 1, 5, 3",
+      "2, 4, 5, 1, 3",
+      "4, 2, 1, 5, 3",
+      "4, 2, 5, 1, 3"
+    ],
+    "correct_answer": "2, 4, 1, 5, 3",
+    "explanation": "The correct physical sequence is: First, a Plant (2) is grown. The plant produces Cotton (4). The cotton is spun into Yarn (1). The yarn is woven to create Cloth (5). Finally, the cloth is tailored to make a Shirt (3)."
+  },
+  {
+    "topic": "Sentence Improvement and Construction",
+    "question_text": "Improve the bracketed part of the sentence: The committee [has been discussing about the issue] for the past three hours.",
+    "options": [
+      "has been discussing the issue",
+      "have been discussing about the issue",
+      "has discussed about the issue",
+      "No improvement needed"
+    ],
+    "correct_answer": "has been discussing the issue",
+    "explanation": "The verb 'discuss' literally means 'to talk about'. Therefore, adding the preposition 'about' immediately after 'discussing' is grammatically redundant. The correct phrasing is 'discussing the issue'."
+  },
+  {
+    "topic": "Synonyms and Antonyms",
+    "question_text": "Choose the word most SIMILAR in meaning to 'PRAGMATIC'.",
+    "options": [
+      "Idealistic",
+      "Practical",
+      "Confused",
+      "Theoretical"
+    ],
+    "correct_answer": "Practical",
+    "explanation": "'Pragmatic' refers to dealing with things sensibly and realistically in a way that is based on practical rather than theoretical considerations. Therefore, 'Practical' is its closest synonym."
+  },
+  {
+    "topic": "Error Identification",
+    "question_text": "Identify the part of the sentence containing a grammatical error: 'Hardly had I (A) / reached the station (B) / than the train (C) / started moving (D).'",
+    "options": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "correct_answer": "C",
+    "explanation": "In English grammar, the correct correlative conjunction pair is 'Hardly... when' or 'Scarcely... when'. The word 'than' is paired with 'No sooner'. Therefore, 'than the train' should be 'when the train'."
+  },
+  {
+    "topic": "Reading comprehension",
+    "question_text": "Read the passage: 'While the initial cost of transitioning to a circular economy is high for manufacturers, the long-term reduction in material waste and increased brand loyalty consistently yield higher net profits after a five-year period.' What is the primary point of this sentence?",
+    "options": [
+      "The circular economy is ultimately too expensive for manufacturers.",
+      "Material waste is the biggest problem in modern manufacturing.",
+      "The long-term financial benefits of a circular economy outweigh the initial costs.",
+      "Brand loyalty is more important than achieving net profit."
+    ],
+    "correct_answer": "The long-term financial benefits of a circular economy outweigh the initial costs.",
+    "explanation": "The passage acknowledges a high initial cost but immediately contrasts it with 'higher net profits after a five-year period,' indicating that the long-term financial benefits surpass the steep initial expense."
+  },
+  {
+    "topic": "Openness to Experience",
+    "question_text": "You are given the opportunity to temporarily transfer to a completely new department for a 6-month project using software you have never seen before. How do you respond?",
+    "options": [
+      "I decline, preferring to stick strictly to the tasks I am already highly skilled at.",
+      "I accept reluctantly, but worry constantly about failing in front of new people.",
+      "I accept enthusiastically, excited to learn a new skill and understand a different part of the business.",
+      "I ask if I can participate in the project using my current software instead."
+    ],
+    "correct_answer": "I accept enthusiastically, excited to learn a new skill and understand a different part of the business.",
+    "explanation": "High 'Openness to Experience' is characterized by a strong desire to try new things, intellectual curiosity, adaptability, and a willingness to step outside one's established comfort zone."
+  },
+  {
+    "topic": "Conscientiousness",
+    "question_text": "You are working on a team project where tasks are clearly divided. You finish your portion two days ahead of the final deadline. What is your most likely next step?",
+    "options": [
+      "Take the next two days off since my assigned work is officially done.",
+      "Review my work for hidden errors and then ask my teammates if they need help meeting the deadline.",
+      "Submit my work immediately and wait passively for the manager to give me something else.",
+      "Spend the next two days doing personal tasks quietly at my desk."
+    ],
+    "correct_answer": "Review my work for hidden errors and then ask my teammates if they need help meeting the deadline.",
+    "explanation": "High conscientiousness implies a strong work ethic, high attention to detail (reviewing work), and a sense of proactive responsibility toward the collective success of the team or organization."
+  },
+  {
+    "topic": "Information Processing",
+    "question_text": "A logic gate system processes inputs (0 or 1). Gate A outputs 1 only if both inputs are 1. Gate B outputs 1 if at least one input is 1. If Input X=1 and Input Y=0 are fed into Gate A, and Gate A's output is then fed into Gate B along with a new Input Z=1, what is the final output of Gate B?",
+    "options": [
+      "0",
+      "1",
+      "2",
+      "Cannot be determined"
+    ],
+    "correct_answer": "1",
+    "explanation": "Gate A is an AND gate. Feeding inputs (1, 0) into Gate A gives an output of 0. Gate B is an OR gate. The output of Gate A (which is 0) and Input Z (which is 1) are fed into Gate B. Feeding inputs (0, 1) into Gate B results in a final output of 1."
+  },
+  {
+    "topic": "Equations",
+    "question_text": "If $2x + 3y = 12$ and $4x - y = 10$, what is the value of $x + y$?",
+    "options": [
+      "2",
+      "3",
+      "4",
+      "5"
+    ],
+    "correct_answer": "5",
+    "explanation": "Multiply the second equation by 3 to align the y terms: $3(4x - y) = 3(10) \\rightarrow 12x - 3y = 30$. Add this to the first equation: $(2x + 3y) + (12x - 3y) = 12 + 30 \\rightarrow 14x = 42 \\rightarrow x = 3$. Substitute x back into the second equation: $4(3) - y = 10 \\rightarrow 12 - y = 10 \\rightarrow y = 2$. Therefore, $x + y = 3 + 2 = 5$."
+  },
+  {
+    "topic": "Permutation and Combinations",
+    "question_text": "In a group of 6 boys and 4 girls, a team of 4 is to be selected. In how many ways can this be done if the team must contain exactly 2 girls?",
+    "options": [
+      "60",
+      "90",
+      "120",
+      "210"
+    ],
+    "correct_answer": "90",
+    "explanation": "To form a team of 4 with exactly 2 girls, we must select 2 girls from 4, and 2 boys from 6. Combinations of girls = C(4,2) = (4 * 3) / (2 * 1) = 6. Combinations of boys = C(6,2) = (6 * 5) / (2 * 1) = 15. Total ways to form the team = 6 * 15 = 90."
+  },
+  {
+    "topic": "Time, Speed, and Distance",
+    "question_text": "Two trains of equal length are running on parallel lines in the same direction at 46 km/hr and 36 km/hr. The faster train completely passes the slower train in 36 seconds. What is the length of each train?",
+    "options": [
+      "50 m",
+      "72 m",
+      "80 m",
+      "100 m"
+    ],
+    "correct_answer": "50 m",
+    "explanation": "Relative speed = 46 - 36 = 10 km/hr. Convert to m/s: $10 \\times (5/18) = 25/9$ m/s. Let the length of each train be $L$. The total distance to cover to pass each other is $L + L = 2L$. Distance = Speed $\\times$ Time $\\rightarrow 2L = (25/9) \\times 36 \\rightarrow 2L = 25 \\times 4 \\rightarrow 2L = 100$. So, $L = 50$ meters."
+  },
+  {
+    "topic": "Data Sufficiency",
+    "question_text": "What is the area of a right-angled triangle?\nStatement I: The perimeter of the triangle is 30 cm.\nStatement II: The hypotenuse of the triangle is 13 cm.",
+    "options": [
+      "Statement I alone is sufficient.",
+      "Statement II alone is sufficient.",
+      "Both statements together are sufficient.",
+      "Both statements together are not sufficient."
+    ],
+    "correct_answer": "Both statements together are sufficient.",
+    "explanation": "Let sides be $a$, $b$, and hypotenuse $c$. From II: $c = 13$, so $a^2 + b^2 = 13^2 = 169$. This alone isn't enough. From I: $a + b + c = 30$. With II, $a + b + 13 = 30 \\rightarrow a + b = 17$. Using the identity $(a+b)^2 = a^2 + b^2 + 2ab$, we get $17^2 = 169 + 2ab \\rightarrow 289 = 169 + 2ab \\rightarrow 2ab = 120 \\rightarrow ab = 60$. The area of the right triangle is $0.5 \\times ab = 0.5 \\times 60 = 30$. We required both statements to find the answer."
+  },
+  {
+    "topic": "Directional Sense",
+    "question_text": "A man is facing West. He turns 45 degrees in the clockwise direction, then another 180 degrees in the same direction, and then 270 degrees in the anti-clockwise direction. Which direction is he facing now?",
+    "options": [
+      "South",
+      "North-West",
+      "West",
+      "South-West"
+    ],
+    "correct_answer": "South-West",
+    "explanation": "Initial position = West. Total clockwise turns = $45 + 180 = 225$ degrees. Total anti-clockwise turns = 270 degrees. Net turn = $270 - 225 = 45$ degrees anti-clockwise. 45 degrees anti-clockwise from West points to South-West."
+  },
+  {
+    "topic": "Coding deductive Logic",
+    "question_text": "If in a certain code language, 'PROSE' is coded as 'PPOQE', how is 'LIGHT' coded in that language?",
+    "options": [
+      "LIGFT",
+      "LGGHT",
+      "LGFHT",
+      "LGGFT"
+    ],
+    "correct_answer": "LGGFT",
+    "explanation": "Analyze the shifts based on positions. Letters at odd positions (1st, 3rd, 5th) remain unchanged: P $\\rightarrow$ P, O $\\rightarrow$ O, E $\\rightarrow$ E. Letters at even positions (2nd, 4th) are shifted backward by 2: R(-2) $\\rightarrow$ P, S(-2) $\\rightarrow$ Q. Applying this to LIGHT: L, G, T remain unchanged. I(-2) $\\rightarrow$ G. H(-2) $\\rightarrow$ F. The resulting word is LGGFT."
+  },
+  {
+    "topic": "Blood Relation",
+    "question_text": "Pointing to a gentleman, Deepak said, \"His only brother is the father of my daughter's father.\" How is the gentleman related to Deepak?",
+    "options": [
+      "Grandfather",
+      "Father",
+      "Brother-in-law",
+      "Uncle"
+    ],
+    "correct_answer": "Uncle",
+    "explanation": "Break down the phrase 'my daughter's father'. Since Deepak is a male, 'my daughter's father' is Deepak himself. Therefore, the gentleman's only brother is Deepak's father. Since the gentleman is the brother of Deepak's father, he is Deepak's Uncle."
+  },
+  {
+    "topic": "Inferred Meaning",
+    "question_text": "Statement: 'The government has recently lifted the ban on the export of onions but imposed a high minimum export price to ensure domestic availability.' What can be inferred from this statement?",
+    "options": [
+      "The government wants to completely stop onion exports immediately.",
+      "There is a severe shortage of onions in the international market.",
+      "The government is balancing farmers' export opportunities with domestic supply stability.",
+      "Onions will become extremely cheap in the domestic market."
+    ],
+    "correct_answer": "The government is balancing farmers' export opportunities with domestic supply stability.",
+    "explanation": "Lifting the ban indicates a desire to allow exports (which benefits farmers and exporters), but imposing a high minimum price acts as a regulating mechanism to prevent excessive export volume that could lead to domestic shortages. This reflects a balancing act."
+  },
+  {
+    "topic": "Fill in the Blanks",
+    "question_text": "Due to unforeseen circumstances with the venue, the highly anticipated tech conference had to be ______ until the following month.",
+    "options": [
+      "canceled",
+      "postponed",
+      "expedited",
+      "abandoned"
+    ],
+    "correct_answer": "postponed",
+    "explanation": "The phrase 'until the following month' indicates that the event is still happening, just at a later date. The correct English word for delaying an event to a future time is 'postponed'."
+  },
+  {
+    "topic": "Contextual Vocabulary",
+    "question_text": "Despite being presented with irrefutable evidence, the suspect remained ______, completely refusing to admit his guilt or change his story.",
+    "options": [
+      "cooperative",
+      "obstinate",
+      "penitent",
+      "ambivalent"
+    ],
+    "correct_answer": "obstinate",
+    "explanation": "'Obstinate' means stubbornly refusing to change one's opinion or chosen course of action, regardless of attempts to persuade one to do so. This perfectly fits the context of ignoring irrefutable evidence."
+  },
+  {
+    "topic": "Prepositions and Conjunctions",
+    "question_text": "As an intern, I currently have no access ______ the confidential financial files stored on the central server.",
+    "options": [
+      "of",
+      "to",
+      "in",
+      "for"
+    ],
+    "correct_answer": "to",
+    "explanation": "In English grammar, the noun 'access' (when referring to the ability to approach, enter, or view something) is consistently followed by the preposition 'to'."
+  },
+  {
+    "topic": "Agreeableness",
+    "question_text": "A new team member makes a noticeable mistake during their first week, which slightly delays your workflow. How do you handle the situation?",
+    "options": [
+      "Immediately escalate the mistake to your supervisor to document their incompetence.",
+      "Send them a harsh email so they know not to make the error again.",
+      "Quietly fix the mistake yourself without saying anything to avoid any social conflict.",
+      "Privately explain the mistake to them and offer guidance on how to avoid it next time."
+    ],
+    "correct_answer": "Privately explain the mistake to them and offer guidance on how to avoid it next time.",
+    "explanation": "This option strongly indicates HIGH Agreeableness. It demonstrates empathy, patience, cooperative problem-solving, and a willingness to mentor rather than punish or passively avoid conflict."
+  },
+  {
+    "topic": "Extraversion",
+    "question_text": "When starting a new job, how do you typically handle your lunch breaks during the first few weeks?",
+    "options": [
+      "I eat quickly at my desk so I can continue working and impress my boss with my dedication.",
+      "I find an empty breakroom or go to my car to eat alone so I can decompress.",
+      "I wait to see if anyone invites me, and if not, I quietly eat by myself.",
+      "I proactively ask my new teammates if I can join them for lunch to get to know them."
+    ],
+    "correct_answer": "I proactively ask my new teammates if I can join them for lunch to get to know them.",
+    "explanation": "High Extraversion is characterized by proactively seeking out social interaction, initiating conversations, and drawing energy from social environments rather than isolating oneself."
+  },
+  {
+    "topic": "Data Interpretation",
+    "question_text": "A student's marks out of 100 in 5 subjects are: Math (85), Science (92), English (78), History (88), and Art (95). What is the student's overall percentage?",
+    "options": [
+      "85.5%",
+      "87.6%",
+      "88.2%",
+      "90.0%"
+    ],
+    "correct_answer": "87.6%",
+    "explanation": "Total marks obtained = $85 + 92 + 78 + 88 + 95 = 438$. Total possible marks across 5 subjects = 500. Overall Percentage = $(438 / 500) \\times 100 = 87.6\\%$."
+  },
+  {
+    "topic": "Information Ordering",
+    "question_text": "Arrange the following geographical entities in order from LARGEST to SMALLEST based on general area: 1. City, 2. Continent, 3. Country, 4. Province/State, 5. Planet.",
+    "options": [
+      "5, 2, 3, 4, 1",
+      "5, 3, 2, 4, 1",
+      "2, 5, 3, 4, 1",
+      "5, 2, 4, 3, 1"
+    ],
+    "correct_answer": "5, 2, 3, 4, 1",
+    "explanation": "The logical hierarchical order from largest to smallest is: Planet (5), Continent (2), Country (3), Province or State (4), and finally City (1)."
+  },
+  {
+    "topic": "Logarithms",
+    "question_text": "If $\\log_{10}(x) + \\log_{10}(5) = 2$, what is the value of x?",
+    "options": [
+      "20",
+      "50",
+      "100",
+      "200"
+    ],
+    "correct_answer": "20",
+    "explanation": "Using the logarithmic property $\\log(a) + \\log(b) = \\log(a \\times b)$, the equation becomes $\\log_{10}(5x) = 2$. Converting this to exponential form gives $10^2 = 5x \\rightarrow 100 = 5x \\rightarrow x = 20$."
+  },
+  {
+    "topic": "HCF and LCM",
+    "question_text": "The HCF of two numbers is 15 and their LCM is 300. If one of the numbers is 60, what is the other number?",
+    "options": [
+      "50",
+      "75",
+      "90",
+      "120"
+    ],
+    "correct_answer": "75",
+    "explanation": "For any two positive integers, the product of their HCF and LCM equals the product of the two numbers. So, $15 \\times 300 = 60 \\times x \\rightarrow 4500 = 60x \\rightarrow x = 4500 / 60 = 75$."
+  },
+  {
+    "topic": "Profit and Loss",
+    "question_text": "A vendor bought lemons at 6 for a rupee and sold them at 4 for a rupee. What is his gain percentage?",
+    "options": [
+      "25%",
+      "33.33%",
+      "50%",
+      "66.67%"
+    ],
+    "correct_answer": "50%",
+    "explanation": "Cost Price (CP) of 1 lemon = Rs. 1/6. Selling Price (SP) of 1 lemon = Rs. 1/4. Gain = SP - CP = $1/4 - 1/6 = (3 - 2)/12 = 1/12$. Gain% = (Gain / CP) $\\times$ 100 = $(1/12 \\div 1/6) \\times 100 = (6/12) \\times 100 = 50\\%$."
+  },
+  {
+    "topic": "Averages",
+    "question_text": "The average weight of a group of 8 boys increases by 1.5 kg when a boy weighing 50 kg is replaced by a new boy. What is the weight of the new boy?",
+    "options": [
+      "58 kg",
+      "60 kg",
+      "62 kg",
+      "65 kg"
+    ],
+    "correct_answer": "62 kg",
+    "explanation": "If the average weight of 8 boys increases by 1.5 kg, the total weight of the group has increased by $8 \\times 1.5 = 12$ kg. Therefore, the new boy must weigh 12 kg more than the boy he replaced. Weight = $50 + 12 = 62$ kg."
+  },
+  {
+    "topic": "Odd One Out",
+    "question_text": "Choose the odd one out from the following group of numbers: 8, 27, 64, 100, 125, 216.",
+    "options": [
+      "27",
+      "64",
+      "100",
+      "125"
+    ],
+    "correct_answer": "100",
+    "explanation": "8 ($2^3$), 27 ($3^3$), 64 ($4^3$), 125 ($5^3$), and 216 ($6^3$) are all perfect cubes of integers. However, 100 is a perfect square ($10^2$) but not a perfect cube, making it the odd one out."
+  },
+  {
+    "topic": "Pattern Recognition",
+    "question_text": "Find the missing number in the sequence: 1, 4, 9, 16, 25, 36, ___",
+    "options": [
+      "47",
+      "49",
+      "52",
+      "64"
+    ],
+    "correct_answer": "49",
+    "explanation": "The sequence represents the squares of consecutive positive integers: $1^2, 2^2, 3^2, 4^2, 5^2, 6^2$. The next term in the sequence must be $7^2 = 49$."
+  },
+  {
+    "topic": "Letter Series",
+    "question_text": "What is the next set of letters in the series: SCD, TEF, UGH, ____?",
+    "options": [
+      "VIJ",
+      "VJI",
+      "WKL",
+      "CMN"
+    ],
+    "correct_answer": "VIJ",
+    "explanation": "The first letter of each group moves forward by 1 alphabetically (S, T, U, V). The second and third letters are consecutive pairs moving forward in the alphabet (CD, EF, GH). The next consecutive pair after H is IJ. Combining these gives VIJ."
+  },
+  {
+    "topic": "Objective Reasoning",
+    "question_text": "Fact 1: All managers in the company have an MBA. Fact 2: John is a manager in the company. Fact 3: John is 30 years old. Conclusion: John has an MBA. If the first three statements are facts, is the conclusion true or false?",
+    "options": [
+      "True",
+      "False",
+      "Uncertain",
+      "Cannot be determined"
+    ],
+    "correct_answer": "True",
+    "explanation": "According to Fact 1, every single manager possesses an MBA. Fact 2 establishes that John is a manager. Therefore, applying deductive logic, it is absolutely true that John must have an MBA. Fact 3 is irrelevant filler information."
+  },
+  {
+    "topic": "Sentence Improvement and Construction",
+    "question_text": "Choose the best option to improve the bracketed phrase: She would rather read a book [than going] to the loud concert.",
+    "options": [
+      "than to go",
+      "than go",
+      "then going",
+      "No improvement needed"
+    ],
+    "correct_answer": "than go",
+    "explanation": "The phrase 'would rather' expresses preference and is followed by the bare infinitive (base form of the verb without 'to'). To maintain parallel structure in the comparison, 'read' must be matched with 'go' (She would rather read... than go)."
+  },
+  {
+    "topic": "Sentence Correction",
+    "question_text": "Identify the grammatically correct sentence.",
+    "options": [
+      "The data from the recent experiments is inconclusive.",
+      "The data from the recent experiments are inconclusive.",
+      "The datas from the recent experiment are inconclusive.",
+      "The data from the recent experiments was inconclusive."
+    ],
+    "correct_answer": "The data from the recent experiments are inconclusive.",
+    "explanation": "In formal and academic English, 'data' is the plural form of the singular noun 'datum'. Because it is a plural noun, it must be paired with a plural verb ('are')."
+  },
+  {
+    "topic": "Reading comprehension",
+    "question_text": "Read the excerpt: 'Automation and AI will undoubtedly displace certain administrative roles, but historically, technological revolutions have created more jobs than they have destroyed by giving rise to entirely new industries.' What is the author's tone regarding AI and employment?",
+    "options": [
+      "Extremely pessimistic",
+      "Cautiously optimistic",
+      "Completely indifferent",
+      "Aggressively dismissive"
+    ],
+    "correct_answer": "Cautiously optimistic",
+    "explanation": "The author acknowledges a negative short-term impact (displacing administrative roles) which shows caution, but counters it with a positive historical precedent (creating more jobs through new industries), indicating an overall optimistic view."
+  },
+  {
+    "topic": "Synonyms and Antonyms",
+    "question_text": "Choose the word most OPPOSITE in meaning to 'CANDID'.",
+    "options": [
+      "Honest",
+      "Deceitful",
+      "Outspoken",
+      "Sincere"
+    ],
+    "correct_answer": "Deceitful",
+    "explanation": "'Candid' means truthful, straightforward, and frank. The exact opposite is 'Deceitful', which implies concealing the truth, being misleading, or acting dishonestly."
+  },
+  {
+    "topic": "Neuroticism",
+    "question_text": "When an unexpected, major problem disrupts a project you have been planning for months, what is your immediate internal response?",
+    "options": [
+      "I feel paralyzed by stress and struggle to think clearly for the rest of the day.",
+      "I immediately look for someone else to blame so I don't look bad.",
+      "I feel a brief spike of frustration but quickly pivot to brainstorming solutions.",
+      "I completely shut down and consider resigning."
+    ],
+    "correct_answer": "I feel a brief spike of frustration but quickly pivot to brainstorming solutions.",
+    "explanation": "This demonstrates LOW Neuroticism (high emotional stability) because the individual acknowledges normal human frustration but quickly regulates their emotions and transitions into productive problem-solving mode."
+  },
+  {
+    "topic": "Openness to Experience",
+    "question_text": "The company offers an optional weekend workshop on a topic entirely unrelated to your current job role. How do you respond?",
+    "options": [
+      "I ignore the invitation because it doesn't directly benefit my current daily tasks.",
+      "I sign up eagerly, excited to broaden my knowledge and meet people from other departments.",
+      "I complain that the company is trying to take up my weekend time.",
+      "I only attend if I am promised a financial bonus or promotion."
+    ],
+    "correct_answer": "I sign up eagerly, excited to broaden my knowledge and meet people from other departments.",
+    "explanation": "High 'Openness to Experience' is characterized by intellectual curiosity, a love of learning new concepts for their own sake, and a willingness to explore outside of one's immediate routine."
+  },
+  {
+    "topic": "Information Processing",
+    "question_text": "A filtering algorithm flags emails as 'Spam' if they contain the word 'Lottery' OR if they have more than 5 attachments. An email arrives with 3 attachments and the subject line 'Claim your Lottery winnings today!' Will it be flagged as Spam?",
+    "options": [
+      "Yes",
+      "No",
+      "Needs manual review",
+      "Sent to Drafts"
+    ],
+    "correct_answer": "Yes",
+    "explanation": "The algorithm uses an 'OR' logic gate. While the email does not meet the attachment condition (3 is not > 5), it does contain the trigger word 'Lottery'. Since one of the conditions in the OR statement is true, the algorithm will execute the flag action."
   }
 ]

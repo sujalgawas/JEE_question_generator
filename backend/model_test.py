@@ -4,7 +4,7 @@ import re
 from transformers import AutoModelForCausalLM, AutoTokenizer
 from turboquant import TurboQuantCache
 
-model_name = "Qwen/Qwen2.5-1.5B-Instruct"
+model_name = "Qwen/Qwen2.5-3B-Instruct"
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
@@ -105,8 +105,8 @@ print("Decoding output...")
 new_tokens = generated_ids[0][inputs["input_ids"].shape[-1]:]
 raw_output = tokenizer.decode(new_tokens, skip_special_tokens=True).strip()
 
-print("\nRAW OUTPUT:\n")
-print(raw_output)
+#print("\nRAW OUTPUT:\n")
+#print(raw_output)
 
 print("\nTRYING JSON PARSE...\n")
 
