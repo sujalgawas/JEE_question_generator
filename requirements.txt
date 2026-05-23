@@ -21,3 +21,4 @@ transformers
 turboquant
 accelerate
 huggingface_hub
+fpdf2

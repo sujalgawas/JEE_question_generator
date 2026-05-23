@@ -126,6 +126,16 @@ def placement_paper_id():
     
     return {"message" : "paper generated successfully","all papers":user_paper_uid},201
 
+def fetch_placement_paper(paper_id):
+    if not paper_id:
+        return {"error":"paper_id is missing"},400
+    
+    paper = db.child('placements').child(paper_id).get()
+
+    return {"message":"paper retrieved successfully","paper":paper},201
+
+
+
 @papers_crud_bp.route('/placements_take_test',methods=['POST'])
 def placements_take_test():
     data = request.json
@@ -138,11 +148,11 @@ def placements_take_test():
     decoded_token = admin_auth.verify_id_token(token)
     uid = decoded_token['uid']
     
-    paper = db.child('placements').child(paper_id).get()
+    paper,status = fetch_placement_paper(paper_id)
     
     print("Received paper:", paper)  # Debugging statement
     
-    return jsonify({"message":"paper retrieved successfully","paper":paper}),201
+    return jsonify(paper),status
 
 @papers_crud_bp.route('/placements_submit_test',methods=['POST'])
 def placements_submit_test():

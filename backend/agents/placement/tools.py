@@ -29,7 +29,6 @@ json_2 = pd.read_json('data/placement_questions.json')
 
 sample_question_dataframe = pd.concat([json_1,json_2],ignore_index=True)
 
-
 #same system prompt for consistency
 SYSTEM_GENERATE = "you are a expert mcq question designer for AMCAT exam"
 SYSTEM_OPTION = "you are a expert mcq option checker you job is to check the options and the correct answer and cross check if its correct"
