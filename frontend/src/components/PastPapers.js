@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { FileText, Trash2, Clock, Brain, AlertCircle, ChevronRight, CheckCircle } from 'lucide-react';
 import API_URL from '../apiConfig';
+import { getAuthSession } from './authUtils';
 
 export default function PastPaper() {
     const [papers, setPapers] = useState([]);
@@ -13,8 +14,7 @@ export default function PastPaper() {
     useEffect(() => { fetchPapers(); }, []);
 
     const fetchPapers = () => {
-        const token = localStorage.getItem('idToken');
-        const userName = localStorage.getItem('userName');
+        const { token, name: userName } = getAuthSession();
         if (!token || !userName) { setError('User not authenticated'); setLoading(false); return; }
 
         fetch(`${API_URL}/retrieve-papers`, {
@@ -36,8 +36,7 @@ export default function PastPaper() {
         if (!window.confirm('Delete this paper? This cannot be undone.')) return;
         setDeletingId(paperId);
         setDeleteSuccess('');
-        const token = localStorage.getItem('idToken');
-        const userName = localStorage.getItem('userName');
+        const { token, name: userName } = getAuthSession();
 
         try {
             const res = await fetch(`${API_URL}/delete-paper`, {

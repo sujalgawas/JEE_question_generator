@@ -5,7 +5,7 @@ from datetime import datetime
 from flask import Blueprint, request, jsonify, session
 
 from services.firebase_service import db, admin_auth
-from services.auth_service import validate_user_token
+from services.auth_service import validate_user_token, verify_firebase_token
 
 test_results_bp = Blueprint('test_results', __name__)
 
@@ -25,10 +25,10 @@ def submit_test_result():
         if token.startswith("session_"):
             user_uid = session.get('user_uid')
         else:
-            try:
-                decoded_token = admin_auth.verify_id_token(token)
+            decoded_token = verify_firebase_token(token)
+            if decoded_token:
                 user_uid = decoded_token['uid']
-            except:
+            else:
                 user_uid = session.get('user_uid')  # Fallback
 
         if not user_uid:
@@ -112,10 +112,10 @@ def get_user_analytics():
         if token.startswith("session_"):
             user_uid = session.get('user_uid')
         else:
-            try:
-                decoded_token = admin_auth.verify_id_token(token)
+            decoded_token = verify_firebase_token(token)
+            if decoded_token:
                 user_uid = decoded_token['uid']
-            except:
+            else:
                 user_uid = session.get('user_uid')  # Fallback
 
         if not user_uid:

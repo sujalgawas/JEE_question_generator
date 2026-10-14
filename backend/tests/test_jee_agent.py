@@ -70,12 +70,14 @@ def _default_generate_similar(**kwargs):
 
 
 def _stub_generate_similar_question(original_question_text="", difficulty="",
-                                    concept="", ncert_content=""):
+                                    concept="", ncert_content="",
+                                    model_mode="api"):
     CALLS.append(("generate_similar_question", {
         "original_question_text": original_question_text,
         "difficulty": difficulty,
         "concept": concept,
         "ncert_content": ncert_content,
+        "model_mode": model_mode,
     }))
     override = BEHAVIOR.get("generate_similar_question")
     raw = override(concept=concept, difficulty=difficulty,
@@ -96,12 +98,13 @@ def _default_generate_distractors(**kwargs):
 
 
 def _stub_generate_distractors(question_text="", correct_answer_text="",
-                               concept="", difficulty=""):
+                               concept="", difficulty="", model_mode="api"):
     CALLS.append(("generate_distractors", {
         "question_text": question_text,
         "correct_answer_text": correct_answer_text,
         "concept": concept,
         "difficulty": difficulty,
+        "model_mode": model_mode,
     }))
     override = BEHAVIOR.get("generate_distractors")
     if override is not None:
@@ -168,10 +171,11 @@ class JEEAgentTestCase(unittest.TestCase):
         CALLS.clear()
         self.app = get_agent_graph()
 
-    def run_agent(self, structure, weak_concepts=None):
+    def run_agent(self, structure, weak_concepts=None, model_mode="api"):
         initial_state = {
             "paper_structure": structure,
             "weak_concepts": weak_concepts or [],
+            "model_mode": model_mode,
             "errors_encountered": [],
         }
         return self.app.invoke(initial_state)
@@ -281,6 +285,20 @@ class TestPaperGeneration(JEEAgentTestCase):
         similar_calls = [c for name, c in CALLS
                          if name == "generate_similar_question"]
         self.assertEqual(similar_calls[0]["ncert_content"], "")
+
+    def test_selected_model_mode_reaches_question_and_distractor_generation(self):
+        structure = {"Physics": {"total_questions": 1,
+                                 "concepts": {"Kinematics": 3.3}}}
+        self.run_agent(structure, model_mode="local")
+
+        generation_calls = [
+            call for name, call in CALLS
+            if name in {"generate_similar_question", "generate_distractors"}
+        ]
+        self.assertEqual(
+            [call["model_mode"] for call in generation_calls],
+            ["local", "local"],
+        )
 
     def test_concept_with_no_templates_is_skipped(self):
         def search(concept, num_questions):

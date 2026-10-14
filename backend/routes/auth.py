@@ -1,6 +1,6 @@
 # routes/auth.py - Authentication endpoints (signup, login, Google OAuth)
 from flask import Blueprint, request, jsonify, redirect, session, url_for
-from datetime import datetime
+from datetime import datetime, timedelta
 from services.firebase_service import db, auth, admin_auth, google_config
 from config import FRONTEND_BASE, SCOPES
 
@@ -65,12 +65,91 @@ def login():
         user_data = db.child("users").child(local_id).get()
         name = user_data.get('name') if user_data else "User"
 
+        # Bypass the Firebase 1-hour ID token limit:
+        # Create a 14-day Firebase session cookie using Firebase Admin SDK
+        expires_in = timedelta(days=14)
+        try:
+            session_token = admin_auth.create_session_cookie(login_data['idToken'], expires_in=expires_in)
+        except Exception as e:
+            print(f"Failed to create session cookie, fallback to idToken: {e}")
+            session_token = login_data['idToken']
+
         return jsonify({
             "status": "success", 
             "message": "Logged in successfully",
-            "idToken": login_data['idToken'],
+            "idToken": session_token,
+            "sessionToken": session_token,
+            "rawIdToken": login_data['idToken'],
+            "refreshToken": login_data.get('refreshToken'),
             "name": name
         })
     except Exception as e:
         print(f"Login error: {e}")
         return jsonify({"status": "error", "message": "Invalid email or password"}), 401
+
+
+@auth_bp.route('/session-login', methods=['POST'])
+def session_login():
+    """
+    Exchanges a Firebase ID token (e.g. from Google sign-in) for a 14-day Firebase session cookie.
+    """
+    data = request.get_json() or {}
+    id_token = data.get('idToken')
+    client_name = data.get('name')
+
+    if not id_token:
+        return jsonify({"status": "error", "message": "Missing idToken"}), 400
+
+    try:
+        expires_in = timedelta(days=14)
+        session_token = admin_auth.create_session_cookie(id_token, expires_in=expires_in)
+        decoded = admin_auth.verify_session_cookie(session_token, check_revoked=False)
+        uid = decoded['uid']
+        user_data = db.child("users").child(uid).get()
+        name = (user_data.get('name') if user_data else None) or client_name or decoded.get('name') or decoded.get('email', 'User').split('@')[0]
+
+        return jsonify({
+            "status": "success",
+            "idToken": session_token,
+            "sessionToken": session_token,
+            "name": name,
+            "uid": uid
+        })
+    except Exception as e:
+        print(f"Error creating session cookie: {e}")
+        return jsonify({"status": "error", "message": str(e)}), 400
+
+
+@auth_bp.route('/refresh-token', methods=['POST'])
+def refresh_token():
+    """
+    Refreshes an expired/expiring session using Pyrebase refresh token.
+    Mints a new 14-day Firebase session cookie.
+    """
+    data = request.get_json() or {}
+    refresh_tok = data.get('refreshToken')
+
+    if not refresh_tok:
+        return jsonify({"status": "error", "message": "Missing refreshToken"}), 400
+
+    try:
+        refreshed = auth.refresh(refresh_tok)
+        new_id_token = refreshed['idToken']
+        new_refresh_tok = refreshed.get('refreshToken', refresh_tok)
+        expires_in = timedelta(days=14)
+        session_token = admin_auth.create_session_cookie(new_id_token, expires_in=expires_in)
+
+        decoded = admin_auth.verify_session_cookie(session_token, check_revoked=False)
+        uid = decoded['uid']
+        user_data = db.child("users").child(uid).get()
+        name = (user_data.get('name') if user_data else None) or decoded.get('name') or decoded.get('email', 'User').split('@')[0]
+
+        return jsonify({
+            "status": "success",
+            "idToken": session_token,
+            "refreshToken": new_refresh_tok,
+            "name": name
+        })
+    except Exception as e:
+        print(f"Error refreshing token: {e}")
+        return jsonify({"status": "error", "message": str(e)}), 401

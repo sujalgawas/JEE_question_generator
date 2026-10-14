@@ -45,6 +45,7 @@ class PaperData(TypedDict):
 class PaperGenerationState(TypedDict):
     paper_structure: Dict[str, Any]      # {subject: {total_questions, concepts: {name: weight}}}
     weak_concepts: List[str]             # concept names to boost for this user
+    model_mode: str                      # "api" or "local"
     subjects_to_process: List[str]
     final_paper: PaperData
     errors_encountered: List[str]
@@ -189,7 +190,8 @@ def _append_question(paper: PaperData, question: Dict[str, Any]) -> None:
 
 def _generate_questions_for_concept(paper: PaperData, subject: str,
                                     concept: str, count: int,
-                                    weightage: float, errors: List[str]) -> None:
+                                    weightage: float, errors: List[str],
+                                    model_mode: str = "api") -> None:
     if count <= 0:
         return
 
@@ -216,6 +218,7 @@ def _generate_questions_for_concept(paper: PaperData, subject: str,
                 difficulty=difficulty,
                 concept=concept,
                 ncert_content=ncert_context,
+                model_mode=model_mode,
             )
             question = coerce_question_output(raw)
 
@@ -271,6 +274,10 @@ def plan_paper(state: PaperGenerationState):
 
     weak_concepts = [c for c in (state.get("weak_concepts") or [])
                      if isinstance(c, str)]
+    model_mode = state.get("model_mode", "api")
+    if model_mode not in {"api", "local"}:
+        errors.append(f"Invalid model_mode '{model_mode}', defaulting to api.")
+        model_mode = "api"
     subjects = list(structure.keys())
 
     print(f"   Subjects to process: {subjects}")
@@ -280,6 +287,7 @@ def plan_paper(state: PaperGenerationState):
     return {
         "subjects_to_process": subjects,
         "weak_concepts": weak_concepts,
+        "model_mode": model_mode,
         "final_paper": empty_paper(),
         "errors_encountered": errors,
     }
@@ -292,6 +300,7 @@ def process_subject(state: PaperGenerationState):
     paper = state.get("final_paper") or empty_paper()
     errors = list(state.get("errors_encountered") or [])
     subjects_remaining = list(state.get("subjects_to_process") or [])
+    model_mode = state.get("model_mode", "api")
 
     if not subjects_remaining:
         print("   No subjects left to process.")
@@ -325,7 +334,7 @@ def process_subject(state: PaperGenerationState):
         try:
             _generate_questions_for_concept(
                 paper, subject, concept, count,
-                concepts.get(concept, 0.0), errors,
+                concepts.get(concept, 0.0), errors, model_mode,
             )
         except Exception as e:
             errors.append(f"Error processing concept '{concept}' in subject "
@@ -344,6 +353,7 @@ def process_distractor(state: PaperGenerationState):
 
     paper = state.get("final_paper") or empty_paper()
     errors = list(state.get("errors_encountered") or [])
+    model_mode = state.get("model_mode", "api")
     total = len(paper.get("question_number", []))
 
     while len(paper.setdefault("options", [])) < total:
@@ -373,6 +383,7 @@ def process_distractor(state: PaperGenerationState):
                 correct_answer_text=correct_text or "N/A",
                 concept=concept,
                 difficulty=difficulty,
+                model_mode=model_mode,
             )
 
             paper["options"][i] = merge_options_with_distractors(

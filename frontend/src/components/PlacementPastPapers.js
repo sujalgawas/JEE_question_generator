@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 
 import API_URL from '../apiConfig';
+import { getAuthSession } from './authUtils';
 
 export default function PlacementPastPapers() {
     const navigate = useNavigate();
@@ -25,7 +26,7 @@ export default function PlacementPastPapers() {
 
     useEffect(() => {
         const fetchPastPapers = async () => {
-            const token = localStorage.getItem('idToken');
+            const { token } = getAuthSession();
 
             if (!token) {
                 setError('Authentication token missing. Please log in.');
@@ -72,7 +73,7 @@ export default function PlacementPastPapers() {
 
     const handelDownload = async (item) => {
         const paperId = item.id;
-        const token = localStorage.getItem('idToken');
+        const { token } = getAuthSession();
 
         if (!paperId) return;
 

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { TrendingUp, Award, Clock, Brain, Target, Zap, ChevronRight, X, CheckCircle, XCircle, BookOpen, Activity } from 'lucide-react';
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import API_URL from '../apiConfig';
+import { getAuthSession } from './authUtils';
 
 /* ── helpers ── */
 const convertOptionsToArray = (optionsObj) => {
@@ -168,8 +169,7 @@ export default function Analytics() {
     const [analytics, setAnalytics] = useState({});
 
     useEffect(() => {
-        const token = localStorage.getItem('idToken');
-        const userName = localStorage.getItem('userName');
+        const { token, name: userName } = getAuthSession();
         if (!token || !userName) { setError('Not authenticated'); setLoading(false); return; }
 
         fetch(`${API_URL}/get-user-analytics`, {

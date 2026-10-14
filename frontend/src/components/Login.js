@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+import { GoogleAuthProvider, signInWithPopup, sendPasswordResetEmail } from 'firebase/auth';
 import { auth as firebaseAuth } from '../firebaseConfig';
 import axios from 'axios';
 import {
@@ -14,8 +14,9 @@ import {
   GraduationCap,
 } from 'lucide-react';
 import API_URL from '../apiConfig';
+import { saveAuthSession } from './authUtils';
 
-/* ── input field ── */
+/* â”€â”€ input field â”€â”€ */
 const InputField = ({ icon: Icon, label, type, value, onChange, placeholder, required, showPassword, onTogglePassword }) => (
   <div className="space-y-1.5">
     <label className="text-sm font-medium text-surface-300 flex items-center gap-1.5">
@@ -44,7 +45,7 @@ const InputField = ({ icon: Icon, label, type, value, onChange, placeholder, req
   </div>
 );
 
-/* ═══════  Login Component  ═══════ */
+/* â•â•â•â•â•â•â•  Login Component  â•â•â•â•â•â•â• */
 function Login({ onLoginSuccess }) {
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
@@ -53,6 +54,14 @@ function Login({ onLoginSuccess }) {
   const [statusMessage, setStatusMessage] = useState('');
   const [isError, setIsError] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isForgotMode, setIsForgotMode] = useState(false);
+
+  const switchMode = (toForgot) => {
+    setIsForgotMode(toForgot);
+    setPassword('');
+    setStatusMessage('');
+    setIsError(false);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -62,12 +71,10 @@ function Login({ onLoginSuccess }) {
 
     try {
       const res = await axios.post(`${API_URL}/login`, { email, password });
-      console.log(res.data.idToken)
       if (res.data.idToken) {
         const name = res.data.name || email.split('@')[0];
-        localStorage.setItem('idToken', res.data.idToken);
-        localStorage.setItem('userName', name);
-        if (typeof onLoginSuccess === 'function') onLoginSuccess(name, res.data.token);
+        saveAuthSession(res.data.idToken, name, res.data.refreshToken);
+        if (typeof onLoginSuccess === 'function') onLoginSuccess(name, res.data.idToken);
         navigate('/dashboard');
       } else {
         setIsError(true);
@@ -81,6 +88,23 @@ function Login({ onLoginSuccess }) {
     }
   };
 
+  const handleForgotPassword = async (e) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setStatusMessage('');
+    setIsError(false);
+
+    try {
+      await sendPasswordResetEmail(firebaseAuth, email);
+      setStatusMessage('Password reset link sent! Check your inbox (and spam folder).');
+    } catch (err) {
+      setIsError(true);
+      setStatusMessage(err.message || 'Could not send reset email. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const handleGoogleLogin = async () => {
     setIsLoading(true);
     setStatusMessage('');
@@ -89,16 +113,39 @@ function Login({ onLoginSuccess }) {
     try {
       const provider = new GoogleAuthProvider();
       const result = await signInWithPopup(firebaseAuth, provider);
-      const idToken = await result.user.getIdToken();
+      const rawIdToken = await result.user.getIdToken();
       const displayName = result.user.displayName || result.user.email.split('@')[0];
 
-      localStorage.setItem('idToken', idToken);
-      localStorage.setItem('userName', displayName);
-      if (typeof onLoginSuccess === 'function') onLoginSuccess(displayName, idToken);
+      // Exchange 1-hour ID token for a 14-day Firebase session cookie
+      let sessionToken = rawIdToken;
+      try {
+        const sessionRes = await axios.post(`${API_URL}/session-login`, {
+          idToken: rawIdToken,
+          name: displayName,
+        });
+        if (sessionRes.data && sessionRes.data.idToken) {
+          sessionToken = sessionRes.data.idToken;
+        }
+      } catch (exchangeErr) {
+        console.warn('Session exchange failed, falling back to ID token:', exchangeErr);
+      }
+
+      saveAuthSession(sessionToken, displayName);
+      if (typeof onLoginSuccess === 'function') onLoginSuccess(displayName, sessionToken);
       navigate('/dashboard');
     } catch (err) {
       setIsError(true);
-      setStatusMessage(err.message || 'Google login failed');
+      // Map common Firebase auth errors to user-friendly messages
+      const code = err.code || '';
+      if (code === 'auth/popup-blocked') {
+        setStatusMessage('Pop-up was blocked by your browser. Please allow pop-ups for this site and try again.');
+      } else if (code === 'auth/popup-closed-by-user') {
+        setStatusMessage('Sign-in was cancelled.');
+      } else if (code === 'auth/unauthorized-domain') {
+        setStatusMessage('This domain is not authorized for Google sign-in. Please contact support.');
+      } else {
+        setStatusMessage(err.message || 'Google login failed');
+      }
     } finally {
       setIsLoading(false);
     }
@@ -112,10 +159,9 @@ function Login({ onLoginSuccess }) {
 
     try {
       const res = await axios.post(`${API_URL}/login`, { email: 'demo@jeegenius.com', password: 'demo123' });
-      if (res.data.token) {
-        localStorage.setItem('idToken', res.data.token);
-        localStorage.setItem('userName', 'Demo User');
-        if (typeof onLoginSuccess === 'function') onLoginSuccess('Demo User', res.data.token);
+      if (res.data.idToken) {
+        saveAuthSession(res.data.idToken, 'Demo User', res.data.refreshToken);
+        if (typeof onLoginSuccess === 'function') onLoginSuccess('Demo User', res.data.idToken);
         navigate('/dashboard');
       } else {
         setIsError(true);
@@ -137,13 +183,15 @@ function Login({ onLoginSuccess }) {
           <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-accent-500/10 border border-accent-500/20 mb-4">
             <GraduationCap className="w-6 h-6 text-accent-400" />
           </div>
-          <h2 className="text-2xl font-bold text-white mb-1">Welcome back</h2>
-          <p className="text-surface-400 text-sm">Sign in to continue your preparation</p>
+          <h2 className="text-2xl font-bold text-white mb-1">{isForgotMode ? 'Reset password' : 'Welcome back'}</h2>
+          <p className="text-surface-400 text-sm">
+            {isForgotMode ? "Enter your email and we'll send you a reset link" : 'Sign in to continue your preparation'}
+          </p>
         </div>
 
         {/* form card */}
         <div className="bg-surface-800 rounded-xl border border-surface-700 p-6">
-          <form className="space-y-4" onSubmit={handleSubmit}>
+          <form className="space-y-4" onSubmit={isForgotMode ? handleForgotPassword : handleSubmit}>
             <InputField
               icon={Mail}
               label="Email"
@@ -154,17 +202,31 @@ function Login({ onLoginSuccess }) {
               required
             />
 
-            <InputField
-              icon={Lock}
-              label="Password"
-              type={showPassword ? 'text' : 'password'}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
-              required
-              showPassword={showPassword}
-              onTogglePassword={() => setShowPassword(!showPassword)}
-            />
+            {!isForgotMode && (
+              <>
+                <InputField
+                  icon={Lock}
+                  label="Password"
+                  type={showPassword ? 'text' : 'password'}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢"
+                  required
+                  showPassword={showPassword}
+                  onTogglePassword={() => setShowPassword(!showPassword)}
+                />
+
+                <div className="text-right -mt-1">
+                  <button
+                    type="button"
+                    onClick={() => switchMode(true)}
+                    className="text-xs text-accent-400 hover:text-accent-300 font-medium transition-colors"
+                  >
+                    Forgot password?
+                  </button>
+                </div>
+              </>
+            )}
 
             {/* status */}
             {statusMessage && (
@@ -188,12 +250,24 @@ function Login({ onLoginSuccess }) {
               ) : (
                 <>
                   <LogIn className="w-4 h-4" />
-                  Sign In
+                  {isForgotMode ? 'Send Reset Link' : 'Sign In'}
                 </>
               )}
             </button>
+
+            {isForgotMode && (
+              <button
+                type="button"
+                onClick={() => switchMode(false)}
+                className="w-full py-2 rounded-xl text-surface-400 hover:text-surface-200 text-xs font-medium transition-colors"
+              >
+                Back to sign in
+              </button>
+            )}
           </form>
 
+          {!isForgotMode && (
+            <>
           {/* divider */}
           <div className="flex items-center gap-3 my-5">
             <div className="flex-1 h-px bg-surface-700" />
@@ -224,6 +298,8 @@ function Login({ onLoginSuccess }) {
           >
             Try Demo Account
           </button>
+            </>
+          )}
         </div>
 
         {/* sign up link */}
@@ -239,3 +315,4 @@ function Login({ onLoginSuccess }) {
 }
 
 export default Login;
+

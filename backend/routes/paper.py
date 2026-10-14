@@ -30,6 +30,9 @@ def start_paper_generation():
 
         user_uid = user_info['uid']
         user_name = user_info['name']
+        model_mode = data.get('model_mode', 'api')
+        if model_mode not in {'api', 'local'}:
+            return jsonify({"error": "model_mode must be either 'api' or 'local'"}), 400
 
         for job_id, job in paper_generation_jobs.items():
             if job.user_uid == user_uid and job.status in ['pending', 'running']:
@@ -40,7 +43,7 @@ def start_paper_generation():
                 }), 200
 
         job_id = str(uuid.uuid4())
-        job = PaperGenerationJob(job_id, user_uid, user_name)
+        job = PaperGenerationJob(job_id, user_uid, user_name, model_mode)
         paper_generation_jobs[job_id] = job
 
         thread = threading.Thread(
@@ -149,6 +152,9 @@ def generate_paper_endpoint():
 
         user_uid = user_info['uid']
         user_name = user_info['name']
+        model_mode = data.get('model_mode', 'api')
+        if model_mode not in {'api', 'local'}:
+            return jsonify({"error": "model_mode must be either 'api' or 'local'"}), 400
 
         print(f"User data received: name={user_name}, token={'***' if user_token else 'None'}")
 
@@ -163,6 +169,7 @@ def generate_paper_endpoint():
         initial_state = {
             "paper_structure": concepts_for_paper,
             "weak_concepts": user_test_data,
+            "model_mode": model_mode,
             "errors_encountered": []
         }
 

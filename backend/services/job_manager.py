@@ -45,10 +45,11 @@ def get_langgraph_app():
 class PaperGenerationJob:
     """Lightweight job tracking for background paper generation."""
 
-    def __init__(self, job_id, user_uid, user_name):
+    def __init__(self, job_id, user_uid, user_name, model_mode='api'):
         self.job_id = job_id
         self.user_uid = user_uid
         self.user_name = user_name
+        self.model_mode = model_mode
         self.status = 'pending'  # pending, running, completed, failed
         self.progress = 0
         self.stage = 'initializing'
@@ -72,6 +73,7 @@ class PaperGenerationJob:
             'progress': self.progress,
             'stage': self.stage,
             'message': self.message,
+            'model_mode': self.model_mode,
             'questions_generated': self.questions_generated,
             'total_questions': self.total_questions,
             'paper_id': self.paper_id,
@@ -119,6 +121,7 @@ def generate_paper_background(job_id):
         initial_state = {
             "paper_structure": concepts_for_paper,
             "weak_concepts": user_test_data,
+            "model_mode": job.model_mode,
             "errors_encountered": []
         }
 
@@ -132,7 +135,14 @@ def generate_paper_background(job_id):
         
         # Stream through the agent
         for event in app_instance.stream(initial_state):
+            if job.status == 'cancelled':
+                print(f"🛑 Job {job_id} cancelled by user during streaming.")
+                return
+
             for node_name, node_output in event.items():
+                if job.status == 'cancelled':
+                    print(f"🛑 Job {job_id} cancelled by user.")
+                    return
                 
                 if node_name == "plan_paper":
                     job.update(stage='planning', progress=20, 
@@ -163,6 +173,10 @@ def generate_paper_background(job_id):
                 elif node_name == "process_distractor":
                     job.update(stage='distractors', progress=75, 
                                message='Adding answer options and distractors...')
+
+        if job.status == 'cancelled':
+            print(f"🛑 Job {job_id} cancelled by user before final invoke.")
+            return
 
         job.update(stage='finalizing', progress=90, 
                    message='Finalizing paper...')

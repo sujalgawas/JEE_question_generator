@@ -8,9 +8,13 @@ import openai
 from typing import Dict, Any, List
 from tenacity import retry, stop_after_attempt, wait_random_exponential
 
-from tools.llm import client, wait_for_rate_limit, apply_retry_after, _extract_json_object
+from tools.llm import (
+    generate_json_response,
+    _extract_json_object,
+    wait_for_rate_limit,
+    apply_retry_after,
+)
 from tools.embeddings import get_embedding, load_embedding
-
 
 # --- Load JEE Data and FAISS Indexes ---
 df = pd.read_csv("data/question_difficulty_concept.csv")
@@ -84,7 +88,8 @@ def search_content_for_concept(concept: str, num_chunks: int = 3) -> List[str]:
 # --- JEE Question Generation Functions ---
 
 def generate_distractors(question_text: str, correct_answer_text: str,
-                         concept: str, difficulty: str, n: int = 3) -> Dict[str, Any]:
+                         concept: str, difficulty: str, n: int = 3,
+                         model_mode: str = "api") -> Dict[str, Any]:
     """Generate plausible wrong options (distractors) for a JEE MCQ."""
     escaped_question_text = question_text.replace('{', '{{').replace('}', '}}')
     safe_correct_answer = correct_answer_text or "N/A"
@@ -124,15 +129,12 @@ def generate_distractors(question_text: str, correct_answer_text: str,
     print(f"   DEBUG: Calling generate_distractors for Concept: {concept}")
 
     try:
-        response = client.chat.completions.create(
-            model="llama-3.1-8b-instant",
-            messages=[{"role": "user", "content": prompt}],
-            response_format={"type": "json_object"},
+        raw = generate_json_response(
+            [{"role": "user", "content": prompt}],
+            model_mode=model_mode,
             temperature=0.7,
-            timeout=120
+            timeout=120,
         )
-
-        raw = response.choices[0].message.content
         print(f"   DEBUG: Raw distractor response: {raw[:300]}...")
 
         try:
@@ -172,10 +174,12 @@ def generate_distractors(question_text: str, correct_answer_text: str,
 
 
 @retry(wait=wait_random_exponential(min=1, max=60), stop=stop_after_attempt(5))
-def generate_similar_question(original_question_text: str, difficulty: str, concept: str, ncert_content: str) -> Dict[str, Any]:
+def generate_similar_question(original_question_text: str, difficulty: str,
+                              concept: str, ncert_content: str,
+                              model_mode: str = "api") -> Dict[str, Any]:
     """
-    Generates a similar JEE question using Groq, including options, answer,
-    and explanation, and returns it as a structured dictionary.
+    Generates a similar JEE question using the selected API or local model
+    pool, including options, answer, and explanation.
     """
     print(f"--- Generating new structured question for: {concept} (Difficulty: {difficulty}) ---")
 
@@ -217,17 +221,15 @@ def generate_similar_question(original_question_text: str, difficulty: str, conc
     }}
     """
     try:
-        wait_for_rate_limit()
+        if model_mode == "api":
+            wait_for_rate_limit()
 
-        response = client.chat.completions.create(
-            model="llama-3.1-8b-instant",
-            messages=[{"role": "user", "content": prompt}],
-            response_format={"type": "json_object"},
+        raw_response_text = generate_json_response(
+            [{"role": "user", "content": prompt}],
+            model_mode=model_mode,
             temperature=0.7,
-            timeout=120
+            timeout=120,
         )
-
-        raw_response_text = response.choices[0].message.content
         try:
             return json.loads(raw_response_text)
         except json.JSONDecodeError:

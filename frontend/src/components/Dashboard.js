@@ -11,6 +11,7 @@ import {
   History,
   Briefcase,
 } from 'lucide-react';
+import { getAuthSession } from './authUtils';
 
 /* ── quick action card ── */
 const QuickAction = ({ icon: Icon, title, description, onClick, color }) => (
@@ -33,7 +34,8 @@ const QuickAction = ({ icon: Icon, title, description, onClick, color }) => (
 export default function Dashboard({ userName, appMode, onModeChange }) {
   const navigate = useNavigate();
 
-  const displayName = userName || localStorage.getItem('userName') || 'Student';
+  const { name: cookieUserName } = getAuthSession();
+  const displayName = userName || cookieUserName || 'Student';
   const greeting = (() => {
     const h = new Date().getHours();
     if (h < 12) return 'Good morning';

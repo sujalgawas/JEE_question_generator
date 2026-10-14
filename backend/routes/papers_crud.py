@@ -2,6 +2,7 @@
 from flask import Blueprint, request, jsonify,send_file
 
 from services.firebase_service import db, admin_auth
+from services.auth_service import verify_firebase_token
 from backend.agents.placement.agent import get_agent_graph
 
 papers_crud_bp = Blueprint('papers_crud', __name__)
@@ -38,7 +39,9 @@ def delete_paper():
         if not token or not paper_id:
             return jsonify({'error': 'Missing required data'}), 400
         
-        decoded_token = admin_auth.verify_id_token(token)
+        decoded_token = verify_firebase_token(token)
+        if not decoded_token:
+            return jsonify({'error': 'Invalid or expired token'}), 401
         user_uid = decoded_token['uid']
         
         paper = db.child('papers').child(paper_id).get()
@@ -72,7 +75,9 @@ def retrieve_papers():
         if not token:
             return jsonify({'error': 'Missing token'}), 400
             
-        decoded_token = admin_auth.verify_id_token(token)
+        decoded_token = verify_firebase_token(token)
+        if not decoded_token:
+            return jsonify({'error': 'Invalid or expired token'}), 401
         user_uid = decoded_token['uid']
 
         all_papers_snapshot = db.child('papers').order_by_child('created_by_uid').equal_to(user_uid).get()
@@ -109,7 +114,9 @@ def placement_paper_id():
     if not token:
         return jsonify({'error':'Missing token'}),400
 
-    decoded_token = admin_auth.verify_id_token(token)
+    decoded_token = verify_firebase_token(token)
+    if not decoded_token:
+        return jsonify({'error': 'Invalid or expired token'}), 401
     uid = decoded_token['uid']
     
     all_papers = db.child('placements').get()
@@ -145,7 +152,9 @@ def placements_take_test():
     if not token:
         return jsonify({"message":"Missing token"}), 400
 
-    decoded_token = admin_auth.verify_id_token(token)
+    decoded_token = verify_firebase_token(token)
+    if not decoded_token:
+        return jsonify({'error': 'Invalid or expired token'}), 401
     uid = decoded_token['uid']
     
     paper,status = fetch_placement_paper(paper_id)
@@ -167,7 +176,9 @@ def placements_submit_test():
     if not token:
         return jsonify ({"message":"Missing Token"}), 400
     
-    decoded_token = admin_auth.verify_id_token(token)
+    decoded_token = verify_firebase_token(token)
+    if not decoded_token:
+        return jsonify({'error': 'Invalid or expired token'}), 401
     uid = decoded_token['uid']
 
     result_uid = str(uuid.uuid4())
@@ -214,7 +225,9 @@ def placement_question():
         if not token:
             return jsonify({'error': 'Missing token'}), 400
             
-        decoded_token = admin_auth.verify_id_token(token)
+        decoded_token = verify_firebase_token(token)
+        if not decoded_token:
+            return jsonify({'error': 'Invalid or expired token'}), 401
         user_uid = decoded_token['uid']
         
         placement_paper_id = str(uuid.uuid4())    
@@ -262,7 +275,9 @@ def placement_paper_pdf():
         if not token:
             return jsonify({"error":"token not found"}),400
 
-        decoded_token = admin_auth.verify_id_token(token)
+        decoded_token = verify_firebase_token(token)
+        if not decoded_token:
+            return jsonify({'error': 'Invalid or expired token'}), 401
         user_uid = decoded_token['uid']
         
         if not user_uid:

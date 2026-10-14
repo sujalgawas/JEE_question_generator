@@ -14,6 +14,7 @@ import {
     BarChart3,
 } from 'lucide-react';
 import API_URL from '../apiConfig';
+import { getAuthSession } from './authUtils';
 
 /* ── topic config ── */
 const TOPICS = [
@@ -37,8 +38,7 @@ export default function PlacementHome() {
     const [error, setError] = useState('');
 
     const handleGenerate = async () => {
-        const token = localStorage.getItem('idToken');
-        const name = localStorage.getItem('userName');
+        const { token, name } = getAuthSession();
         if (!token || !name) { navigate('/login'); return; }
 
         setIsGenerating(true);

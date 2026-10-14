@@ -18,6 +18,7 @@ import {
   ArrowRight,
 } from 'lucide-react';
 import API_URL from '../apiConfig';
+import { getAuthSession } from './authUtils';
 
 /* ────  helpers  ──── */
 const convertOptionsToArray = (optionsObj) => {
@@ -219,8 +220,7 @@ export default function MCQTest() {
 
   /* ── fetch paper ── */
   useEffect(() => {
-    const token = localStorage.getItem('idToken');
-    const userName = localStorage.getItem('userName');
+    const { token, name: userName } = getAuthSession();
 
     if (!token || !userName) { setError('User not authenticated'); setLoading(false); return; }
     if (!paperId) { setError('No paper ID provided'); setLoading(false); return; }
@@ -261,8 +261,7 @@ export default function MCQTest() {
   const handlePrev = () => { if (currentQuestionIndex > 0) setCurrentQuestionIndex((i) => i - 1); };
 
   const handleSubmitTest = async () => {
-    const token = localStorage.getItem('idToken');
-    const userName = localStorage.getItem('userName');
+    const { token, name: userName } = getAuthSession();
 
     try {
       const response = await fetch(`${API_URL}/submit-test-result`, {

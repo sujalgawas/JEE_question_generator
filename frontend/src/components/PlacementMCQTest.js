@@ -18,6 +18,7 @@ import {
   ArrowRight,
 } from 'lucide-react';
 import API_URL from '../apiConfig';
+import { getAuthSession } from './authUtils';
 
 /* ────  helpers  ──── */
 const formatTime = (seconds) => {
@@ -225,7 +226,7 @@ export default function PlacementMCQTest() {
 
   /* ── fetch placement paper ── */
   useEffect(() => {
-    const token = localStorage.getItem('idToken');
+    const { token } = getAuthSession();
 
     if (!token) { setError('User not authenticated'); setLoading(false); return; }
     if (!paperId) { setError('No paper ID provided'); setLoading(false); return; }
@@ -270,7 +271,7 @@ export default function PlacementMCQTest() {
   const handlePrev = () => { if (currentQuestionIndex > 0) setCurrentQuestionIndex((i) => i - 1); };
 
   const handleSubmitTest = async () => {
-    const token = localStorage.getItem('idToken');
+    const { token } = getAuthSession();
     const timeSpent = totalTime - timeLeft; // Uses dynamic totalTime now
 
     const answerArray = questions.map((_, index) => answers[index] || "");

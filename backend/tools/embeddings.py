@@ -15,8 +15,9 @@ def get_embedding(text):
     """Generates an embedding for a given text using Gemini."""
     try:
         result = gemini_client.models.embed_content(
-            model="text-embedding-004",
+            model="gemini-embedding-001",
             contents=text,
+            config={"output_dimensionality": 768},
         )
         return result.embeddings[0].values
     except Exception as e:
