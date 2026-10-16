@@ -157,11 +157,10 @@ def generate_paper_background(job_id):
                         else:
                             gen_progress = 20
                         
-                        if node_output.get('subjects_to_process'):
-                            subjects_remaining = len(node_output['subjects_to_process'])
-                            current_subject = list(concepts_for_paper.keys())[len(concepts_for_paper) - subjects_remaining - 1]
-                        else:
-                            current_subject = "Final subject"
+                        # Read the just-processed subject directly from the paper
+                        # rather than reverse-engineering it via index arithmetic.
+                        subjects_list = node_output['final_paper'].get('subject', [])
+                        current_subject = subjects_list[-1] if subjects_list else "Unknown subject"
                         
                         job.update(
                             stage='generating',
@@ -173,16 +172,18 @@ def generate_paper_background(job_id):
                 elif node_name == "process_distractor":
                     job.update(stage='distractors', progress=75, 
                                message='Adding answer options and distractors...')
+                    # Capture completed paper from this node — avoids a second
+                    # invoke() of the entire agent just to get the final state.
+                    final_state = node_output
 
         if job.status == 'cancelled':
-            print(f"🛑 Job {job_id} cancelled by user before final invoke.")
+            print(f"🛑 Job {job_id} cancelled by user after streaming.")
             return
 
         job.update(stage='finalizing', progress=90, 
                    message='Finalizing paper...')
         
-        final_state = app_instance.invoke(initial_state)
-        paper_data = final_state.get('final_paper')
+        paper_data = final_state.get('final_paper') if final_state else None
 
         if not paper_data:
             job.update(status='failed', error='Agent failed to produce paper data')

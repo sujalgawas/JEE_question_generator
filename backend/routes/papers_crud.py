@@ -186,10 +186,11 @@ def placements_submit_test():
     score = 0
 
     question_paper = db.child('placements').child(paper_id).get()
-    correct_answers = question_paper.get('correct_answer', [])
     
     if not question_paper:
         return jsonify({"message": "Question paper not found"}), 404
+    
+    correct_answers = question_paper.get('correct_answer', [])
     
     for i, ans in enumerate(answer):
         if i < len(correct_answers) and ans == correct_answers[i]:

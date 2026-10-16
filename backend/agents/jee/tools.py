@@ -87,6 +87,7 @@ def search_content_for_concept(concept: str, num_chunks: int = 3) -> List[str]:
 
 # --- JEE Question Generation Functions ---
 
+@retry(wait=wait_random_exponential(min=1, max=60), stop=stop_after_attempt(3))
 def generate_distractors(question_text: str, correct_answer_text: str,
                          concept: str, difficulty: str, n: int = 3,
                          model_mode: str = "api") -> Dict[str, Any]:
@@ -96,13 +97,14 @@ def generate_distractors(question_text: str, correct_answer_text: str,
     escaped_correct_answer = safe_correct_answer.replace('{', '{{').replace('}', '}}')
 
     prompt = f"""
-    Generate EXACTLY 3 plausible WRONG options (distractors) for the multiple-choice question below.
+    Generate EXACTLY {n} plausible WRONG options (distractors) for the multiple-choice question below.
     Do NOT include the correct answer among the distractors you generate.
     Do NOT provide chain-of-thought or any text outside the JSON object.
 
-    For each of the 3 distractors, provide:
+    For each of the {n} distractors, provide:
     - "label": A unique letter from "A", "B", "C". (Do NOT reuse labels).
     - "text": The text of the incorrect answer option.
+    - "rationale": A brief explanation of why a student might choose this wrong answer.
 
     Question:
     {escaped_question_text}
@@ -114,14 +116,14 @@ def generate_distractors(question_text: str, correct_answer_text: str,
     Difficulty: {difficulty}
 
     Your response MUST be a single, valid JSON object containing ONLY the key "distractors".
-    The value for "distractors" MUST be a JSON list containing exactly 3 JSON objects, each with "label" and "text" keys.
+    The value for "distractors" MUST be a JSON list containing exactly {n} JSON objects, each with "label", "text", and "rationale" keys.
 
     Example of the required EXACT JSON format:
     {{
       "distractors": [
-        {{"label": "A", "text": "Incorrect option text 1"}},
-        {{"label": "B", "text": "Incorrect option text 2"}},
-        {{"label": "C", "text": "Incorrect option text 3"}}
+        {{"label": "A", "text": "Incorrect option text 1", "rationale": "Common mistake explanation 1"}},
+        {{"label": "B", "text": "Incorrect option text 2", "rationale": "Common mistake explanation 2"}},
+        {{"label": "C", "text": "Incorrect option text 3", "rationale": "Common mistake explanation 3"}}
       ]
     }}
     """
@@ -155,14 +157,14 @@ def generate_distractors(question_text: str, correct_answer_text: str,
 
         valid_distractors = [d for d in data["distractors"] if isinstance(d, dict) and "text" in d and d.get("text")]
         
-        if len(valid_distractors) < 3:
-            print(f"   WARNING: Expected 3 valid distractors, received {len(valid_distractors)}. Valid ones: {valid_distractors}")
+        if len(valid_distractors) < n:
+            print(f"   WARNING: Expected {n} valid distractors, received {len(valid_distractors)}. Valid ones: {valid_distractors}")
             return {"distractors": valid_distractors}
-        elif len(valid_distractors) > 3:
-            print(f"   WARNING: Received {len(valid_distractors)} distractors, trimming to 3.")
-            return {"distractors": valid_distractors[:3]}
+        elif len(valid_distractors) > n:
+            print(f"   WARNING: Received {len(valid_distractors)} distractors, trimming to {n}.")
+            return {"distractors": valid_distractors[:n]}
         else:
-            print("   DEBUG: Received exactly 3 valid distractors.")
+            print(f"   DEBUG: Received exactly {n} valid distractors.")
             return {"distractors": valid_distractors}
 
     except openai.RateLimitError as rle:
@@ -170,7 +172,7 @@ def generate_distractors(question_text: str, correct_answer_text: str,
         raise
     except Exception as e:
         print(f"   ERROR: Unexpected error during distractor generation API call: {e!r}\n{traceback.format_exc()}")
-        return {"distractors": []}
+        raise
 
 
 @retry(wait=wait_random_exponential(min=1, max=60), stop=stop_after_attempt(5))
