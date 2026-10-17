@@ -121,15 +121,11 @@ def placement_paper_id():
     
     all_papers = db.child('placements').get()
     
-    all_paper_id = []
     user_paper_uid = []
-    for paper_id in all_papers:
-        all_paper_id.append(paper_id)
-        
-    for paper_id in all_paper_id:
-        temp_paper = db.child('placements').child(paper_id).get()
-        if temp_paper['user_uid'] == uid:
-               user_paper_uid.append(paper_id)
+    if all_papers and isinstance(all_papers, dict):
+        for paper_id, paper_data in all_papers.items():
+            if isinstance(paper_data, dict) and paper_data.get('user_uid') == uid:
+                user_paper_uid.append(paper_id)
     
     return {"message" : "paper generated successfully","all papers":user_paper_uid},201
 

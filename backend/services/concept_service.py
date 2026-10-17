@@ -15,12 +15,12 @@ def get_weak_concepts(uid: str):
     # 2. Filter papers by user
     # Assuming all_papers is a dict like {paper_id: {paper_data}}
     for paper_id, paper_data in all_papers.items():
-        if paper_data.get('user_id') == uid:
+        if isinstance(paper_data, dict) and (paper_data.get('user_uid') or paper_data.get('user_id')) == uid:
             user_paper[paper_id] = paper_data
             
     # 3. Filter answers by user and map to PAPER_ID
     for answer_id, answer_data in all_answers.items():
-        if answer_data.get('user_id') == uid:
+        if isinstance(answer_data, dict) and (answer_data.get('user_uid') or answer_data.get('user_id')) == uid:
             p_id = answer_data.get('paper_id') 
             if p_id:
                 user_answer[p_id] = answer_data

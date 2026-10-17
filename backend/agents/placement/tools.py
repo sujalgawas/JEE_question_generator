@@ -64,6 +64,8 @@ def generate_mcq(topic:str,model:str):
                                    option=options,correct_answer=correct_answer,
                                    explanation=explanation)
     
+    question_obj = {"question": "", "options": [], "correct_answer": "", "explanation": ""}
+
     if model == "gemini":
         client = genai.Client(api_key=gemini_key)
 
@@ -77,7 +79,16 @@ def generate_mcq(topic:str,model:str):
             contents=prompt
         )
         
-        output = json.loads(response.text)
+        try:
+            parsed = json.loads(response.text)
+            if isinstance(parsed, list) and len(parsed) > 0:
+                question_obj = parsed[0]
+            elif isinstance(parsed, dict):
+                question_obj = parsed
+            if "question_text" in question_obj and "question" not in question_obj:
+                question_obj["question"] = question_obj.pop("question_text")
+        except Exception:
+            question_obj = {"question": "", "options": [], "correct_answer": "", "explanation": ""}
         
     elif model == "qwen2.5:3b":
         llm = ChatOllama(model = "qwen2.5:3b",temperature=0,format='json')
@@ -92,11 +103,15 @@ def generate_mcq(topic:str,model:str):
         print(response_msg)
 
         try:
-            response = json.loads(response_msg.content)
-            if "question_text" in response and "question" not in response:
-                response["question"] = response.pop("question_text")
+            parsed = json.loads(response_msg.content)
+            if isinstance(parsed, list) and len(parsed) > 0:
+                question_obj = parsed[0]
+            elif isinstance(parsed, dict):
+                question_obj = parsed
+            if "question_text" in question_obj and "question" not in question_obj:
+                question_obj["question"] = question_obj.pop("question_text")
         except Exception:
-            response = {"question": "", "options": [], "correct_answer": "", "explanation": ""}
+            question_obj = {"question": "", "options": [], "correct_answer": "", "explanation": ""}
     
     elif model == "qwen3:4b":
         llm = ChatOllama(model = "qwen3:4b",temperature=0,format='json')
@@ -111,17 +126,19 @@ def generate_mcq(topic:str,model:str):
         print(response_msg)
 
         try:
-            response = json.loads(response_msg.content)
-            if "question_text" in response and "question" not in response:
-                response["question"] = response.pop("question_text")
+            parsed = json.loads(response_msg.content)
+            if isinstance(parsed, list) and len(parsed) > 0:
+                question_obj = parsed[0]
+            elif isinstance(parsed, dict):
+                question_obj = parsed
+            if "question_text" in question_obj and "question" not in question_obj:
+                question_obj["question"] = question_obj.pop("question_text")
         except Exception:
-            response = {"question": "", "options": [], "correct_answer": "", "explanation": ""}
+            question_obj = {"question": "", "options": [], "correct_answer": "", "explanation": ""}
             
-    output = [response]
+    question_obj["topic"] = topic
     
-    output[0]["topic"] = topic
-    
-    return output[0]
+    return question_obj
     
     
 def option_checker_tool(question_text:str, option:list,
@@ -145,7 +162,19 @@ def option_checker_tool(question_text:str, option:list,
             ),
             contents=prompt
         )
-    elif model == "ollama":
+        try:
+            parsed = json.loads(response.text)
+            if isinstance(parsed, list) and len(parsed) > 0:
+                result = parsed[0]
+            elif isinstance(parsed, dict):
+                result = parsed
+            else:
+                result = {"is_correct": False, "question": "", "options": [], "correct_answer": "", "explanation": ""}
+        except Exception:
+            result = {"is_correct": False, "question": "", "options": [], "correct_answer": "", "explanation": ""}
+    else:
+        ollama_model = model if model in ["qwen2.5:3b", "qwen3:4b"] else "qwen2.5:3b"
+        llm = ChatOllama(model=ollama_model, temperature=0, format='json')
 
         message = [
             ("system",SYSTEM_OPTION),
@@ -153,22 +182,21 @@ def option_checker_tool(question_text:str, option:list,
         ]
 
         response_msg = llm.invoke(message)
-
-    if model == "gemini":
-        output = json.loads(response.text)
-    else:
         try:
-            response = json.loads(response_msg.content)
-            if "question_text" in response and "question" not in response:
-                response["question"] = response.pop("question_text")
-            if "is_correct" not in response:
-                response["is_correct"] = False
+            result = json.loads(response_msg.content)
+            if isinstance(result, list) and len(result) > 0:
+                result = result[0]
+            if not isinstance(result, dict):
+                result = {"is_correct": False, "question": "", "options": [], "correct_answer": "", "explanation": ""}
         except Exception:
-            response = {"is_correct": False, "question": "", "options": [], "correct_answer": "", "explanation": ""}
-            
-        output = [response]
+            result = {"is_correct": False, "question": "", "options": [], "correct_answer": "", "explanation": ""}
+
+    if "question_text" in result and "question" not in result:
+        result["question"] = result.pop("question_text")
+    if "is_correct" not in result:
+        result["is_correct"] = False
     
-    return output[0]["is_correct"],output[0]
+    return result.get("is_correct", False), result
 
 
 def create_final_topics(question_total:int, weak_concept:list ,target_topic:None):
