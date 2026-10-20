@@ -1,15 +1,15 @@
 {
   "files": {
-    "main.css": "/JEE_question_generator/static/css/main.466b615b.css",
-    "main.js": "/JEE_question_generator/static/js/main.2f6066ab.js",
+    "main.css": "/JEE_question_generator/static/css/main.d52728e6.css",
+    "main.js": "/JEE_question_generator/static/js/main.3d8d6b7b.js",
     "static/js/453.54292a4b.chunk.js": "/JEE_question_generator/static/js/453.54292a4b.chunk.js",
     "index.html": "/JEE_question_generator/index.html",
-    "main.466b615b.css.map": "/JEE_question_generator/static/css/main.466b615b.css.map",
-    "main.2f6066ab.js.map": "/JEE_question_generator/static/js/main.2f6066ab.js.map",
+    "main.d52728e6.css.map": "/JEE_question_generator/static/css/main.d52728e6.css.map",
+    "main.3d8d6b7b.js.map": "/JEE_question_generator/static/js/main.3d8d6b7b.js.map",
     "453.54292a4b.chunk.js.map": "/JEE_question_generator/static/js/453.54292a4b.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.466b615b.css",
-    "static/js/main.2f6066ab.js"
+    "static/css/main.d52728e6.css",
+    "static/js/main.3d8d6b7b.js"
   ]
 }
