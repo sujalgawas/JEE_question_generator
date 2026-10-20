@@ -11,7 +11,7 @@ import json
 from app.tools import read_resume, audio_to_text
 from app.agent import get_agent_graph, interview_state
 from app.model import Interivew, ReviewCreate, TTSRequest
-from app.tts_service import synthesize_google_tts
+from app.tts_service import synthesize_unrealspeech_tts
 from app.rag import build_resume_vector_db
 from app.firebase_service import (
     create_interview_session,
@@ -295,16 +295,18 @@ def health():
 @app.post("/tts")
 async def tts_endpoint(payload: TTSRequest):
     result = await asyncio.to_thread(
-        synthesize_google_tts,
+        synthesize_unrealspeech_tts,
         text=payload.text,
         voice_name=payload.voice,
-        language_code=payload.language_code
+        speed=payload.speed or "0",
+        pitch=payload.pitch or "1"
     )
     if result.get("status") == "error":
         raise HTTPException(
             status_code=500,
-            detail=result.get("error", "TTS synthesis failed")
+            detail=result.get("error", "UnrealSpeech synthesis failed")
         )
     return result
+
 
 

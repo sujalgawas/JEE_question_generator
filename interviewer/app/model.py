@@ -30,7 +30,9 @@ class SubmissionPayload(BaseModel):
 
 class TTSRequest(BaseModel):
     text: str
-    voice: Optional[str] = "en-US-Chirp3-HD-Fenrir"
-    language_code: Optional[str] = "en-US"
+    voice: Optional[str] = "Daniel"
+    speed: Optional[str] = "0"
+    pitch: Optional[str] = "1"
+
 
 

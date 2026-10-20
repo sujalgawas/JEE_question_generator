@@ -20,7 +20,7 @@ import {
     MessageSquare,
     Loader2
 } from 'lucide-react';
-import { INTERVIEWER_API_URL, INTERVIEWER_WS_URL, GOOGLE_TTS_API_KEY, GOOGLE_TTS_DEFAULT_VOICE } from '../apiConfig';
+import { INTERVIEWER_API_URL, INTERVIEWER_WS_URL, UNREALSPEECH_API_KEY, UNREALSPEECH_DEFAULT_VOICE } from '../apiConfig';
 import { getAuthSession } from './authUtils';
 
 const ROLES = [
@@ -71,7 +71,7 @@ export default function PlacementInterview() {
     const [interviewError, setInterviewError] = useState('');
 
     const [ttsEnabled, setTtsEnabled] = useState(true);
-    const [ttsVoice, setTtsVoice] = useState(GOOGLE_TTS_DEFAULT_VOICE || 'en-US-Chirp3-HD-Fenrir');
+    const [ttsVoice, setTtsVoice] = useState(UNREALSPEECH_DEFAULT_VOICE || 'Daniel');
     const [isSpeaking, setIsSpeaking] = useState(false);
     const audioPlayerRef = useRef(null);
 
@@ -125,9 +125,9 @@ export default function PlacementInterview() {
         if (!ttsEnabled || !text) return;
         stopSpeaking();
 
-        const activeVoice = voiceToUse || ttsVoice || 'en-US-Chirp3-HD-Fenrir';
+        const activeVoice = voiceToUse || ttsVoice || 'Daniel';
 
-        // 1. Try backend Google Cloud TTS endpoint (Chirp 3: HD)
+        // 1. Try backend UnrealSpeech TTS endpoint
         try {
             const resp = await fetch(`${INTERVIEWER_API_URL}/interview/tts`, {
                 method: 'POST',
@@ -135,7 +135,8 @@ export default function PlacementInterview() {
                 body: JSON.stringify({
                     text: text,
                     voice: activeVoice,
-                    language_code: 'en-US'
+                    speed: '0',
+                    pitch: '1'
                 })
             });
 
@@ -152,51 +153,54 @@ export default function PlacementInterview() {
                 }
             }
         } catch (backendErr) {
-            console.warn('Backend Google TTS endpoint unavailable:', backendErr);
+            console.warn('Backend UnrealSpeech TTS endpoint unavailable:', backendErr);
         }
 
-        // 2. Direct Google Cloud TTS synthesize call if API key is present in client env
-        if (GOOGLE_TTS_API_KEY) {
+        // 2. Direct UnrealSpeech /stream API call if client key is configured
+        if (UNREALSPEECH_API_KEY) {
             try {
-                const directResp = await fetch(
-                    `https://texttospeech.googleapis.com/v1/text:synthesize?key=${GOOGLE_TTS_API_KEY}`,
-                    {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            input: { text: text },
-                            voice: {
-                                languageCode: 'en-US',
-                                name: activeVoice
-                            },
-                            audioConfig: {
-                                audioEncoding: 'MP3'
-                            }
-                        })
-                    }
-                );
+                const directResp = await fetch('https://api.v8.unrealspeech.com/stream', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${UNREALSPEECH_API_KEY}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        Text: text.length > 1000 ? text.slice(0, 997) + '...' : text,
+                        VoiceId: activeVoice,
+                        Bitrate: '192k',
+                        Speed: '0',
+                        Pitch: '1',
+                        Codec: 'libmp3lame'
+                    })
+                });
 
                 if (directResp.ok) {
-                    const directData = await directResp.json();
-                    if (directData && directData.audioContent) {
-                        const audio = new Audio(`data:audio/mp3;base64,${directData.audioContent}`);
-                        audioPlayerRef.current = audio;
-                        setIsSpeaking(true);
-                        audio.onended = () => setIsSpeaking(false);
-                        audio.onerror = () => setIsSpeaking(false);
-                        await audio.play();
-                        return;
-                    }
+                    const blob = await directResp.blob();
+                    const audioUrl = URL.createObjectURL(blob);
+                    const audio = new Audio(audioUrl);
+                    audioPlayerRef.current = audio;
+                    setIsSpeaking(true);
+                    audio.onended = () => {
+                        setIsSpeaking(false);
+                        URL.revokeObjectURL(audioUrl);
+                    };
+                    audio.onerror = () => {
+                        setIsSpeaking(false);
+                        URL.revokeObjectURL(audioUrl);
+                    };
+                    await audio.play();
+                    return;
                 } else {
                     const errPayload = await directResp.text();
-                    console.warn('Direct Google Cloud TTS API call returned:', directResp.status, errPayload);
+                    console.warn('Direct UnrealSpeech API returned:', directResp.status, errPayload);
                 }
             } catch (directErr) {
-                console.warn('Direct Google Cloud TTS call failed:', directErr);
+                console.warn('Direct UnrealSpeech call failed:', directErr);
             }
         }
 
-        // 3. Graceful fallback to browser speech synthesis if Google TTS is not yet configured/reachable
+        // 3. Graceful fallback to browser speech synthesis
         try {
             if (window.speechSynthesis) {
                 const utterance = new SpeechSynthesisUtterance(text);
@@ -630,14 +634,15 @@ export default function PlacementInterview() {
                                                 speakQuestion(currentQuestionText, v);
                                             }
                                         }}
-                                        title="Select Google Chirp 3: HD Voice"
+                                        title="Select UnrealSpeech Voice"
                                         className="bg-transparent text-white font-medium focus:outline-none cursor-pointer text-xs"
                                     >
-                                        <option value="en-US-Chirp3-HD-Fenrir" className="bg-surface-800 text-white">Chirp 3 HD: Fenrir (Male)</option>
-                                        <option value="en-US-Chirp3-HD-Aoede" className="bg-surface-800 text-white">Chirp 3 HD: Aoede (Female)</option>
-                                        <option value="en-US-Chirp3-HD-Puck" className="bg-surface-800 text-white">Chirp 3 HD: Puck (Male)</option>
-                                        <option value="en-US-Chirp3-HD-Kore" className="bg-surface-800 text-white">Chirp 3 HD: Kore (Female)</option>
-                                        <option value="en-US-Chirp3-HD-Charon" className="bg-surface-800 text-white">Chirp 3 HD: Charon (Deep Male)</option>
+                                        <option value="Daniel" className="bg-surface-800 text-white">UnrealSpeech: Daniel (Male)</option>
+                                        <option value="Charlotte" className="bg-surface-800 text-white">UnrealSpeech: Charlotte (Female)</option>
+                                        <option value="Rowan" className="bg-surface-800 text-white">UnrealSpeech: Rowan (Male)</option>
+                                        <option value="Emily" className="bg-surface-800 text-white">UnrealSpeech: Emily (Female)</option>
+                                        <option value="Oliver" className="bg-surface-800 text-white">UnrealSpeech: Oliver (Male)</option>
+                                        <option value="Amelia" className="bg-surface-800 text-white">UnrealSpeech: Amelia (Female)</option>
                                     </select>
                                 </div>
 
@@ -687,7 +692,7 @@ export default function PlacementInterview() {
                                             className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-purple-500/20 border border-purple-500/40 text-xs text-purple-300 hover:bg-purple-500/30 transition-all font-medium animate-pulse"
                                         >
                                             <VolumeX className="w-3.5 h-3.5" />
-                                            <span>AI Speaking (Chirp 3 HD) - Stop</span>
+                                            <span>AI Speaking (UnrealSpeech) - Stop</span>
                                         </button>
                                     ) : (
                                         <button
@@ -695,11 +700,12 @@ export default function PlacementInterview() {
                                             className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-surface-700/60 hover:bg-surface-700 border border-surface-600/70 text-xs text-purple-300 hover:text-purple-200 transition-all font-medium"
                                         >
                                             <Volume2 className="w-3.5 h-3.5" />
-                                            <span>Replay Audio (Chirp 3 HD)</span>
+                                            <span>Replay Audio (UnrealSpeech)</span>
                                         </button>
                                     )}
                                 </div>
                             </div>
+
 
 
                             <h3 className="text-lg sm:text-xl font-semibold text-white leading-relaxed mb-4">

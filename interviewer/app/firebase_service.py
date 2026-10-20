@@ -54,7 +54,7 @@ def get_firebase_db():
             with open(admin_key_path, "r", encoding="utf-8") as f:
                 admin_config = json.load(f)
 
-
+        service_key_path = _find_file("serviceAccountKey.json")
         database_url = os.getenv("FIREBASE_DATABASE_URL")
         if service_key_path and service_key_path.exists():
             with open(service_key_path, "r", encoding="utf-8") as f:
