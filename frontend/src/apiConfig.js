@@ -16,8 +16,6 @@ export let INTERVIEWER_WS_URL = process.env.REACT_APP_INTERVIEWER_WS_URL || 'ws:
 if (INTERVIEWER_WS_URL && INTERVIEWER_WS_URL.includes('localhost') && window.location.hostname !== 'localhost') {
     INTERVIEWER_WS_URL = INTERVIEWER_WS_URL.replace('localhost', window.location.hostname);
 }
-
-export let UNREALSPEECH_API_KEY = process.env.REACT_APP_UNREALSPEECH_API_KEY || '';
 export let UNREALSPEECH_DEFAULT_VOICE = process.env.REACT_APP_UNREALSPEECH_VOICE || 'Daniel';
 
 console.log('Using API URL:', API_URL);

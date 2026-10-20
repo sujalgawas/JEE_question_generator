@@ -7,9 +7,15 @@ import requests
 from dotenv import load_dotenv
 
 load_dotenv()
-env_path = Path(__file__).resolve().parent.parent.parent / ".env"
-if env_path.exists():
-    load_dotenv(dotenv_path=env_path)
+for p in [
+    Path.cwd() / ".env",
+    Path("/app") / ".env",
+    Path(__file__).resolve().parent.parent.parent / ".env",
+    Path(__file__).resolve().parent.parent / ".env",
+]:
+    if p.exists():
+        load_dotenv(dotenv_path=p)
+
 
 # Default UnrealSpeech voice (natural, articulate interviewer)
 DEFAULT_VOICE = os.getenv("UNREALSPEECH_VOICE", "Daniel")

@@ -20,7 +20,7 @@ import {
     MessageSquare,
     Loader2
 } from 'lucide-react';
-import { INTERVIEWER_API_URL, INTERVIEWER_WS_URL, UNREALSPEECH_API_KEY, UNREALSPEECH_DEFAULT_VOICE } from '../apiConfig';
+import { INTERVIEWER_API_URL, INTERVIEWER_WS_URL, UNREALSPEECH_DEFAULT_VOICE } from '../apiConfig';
 import { getAuthSession } from './authUtils';
 
 const ROLES = [
@@ -127,7 +127,8 @@ export default function PlacementInterview() {
 
         const activeVoice = voiceToUse || ttsVoice || 'Daniel';
 
-        // 1. Try backend UnrealSpeech TTS endpoint
+        // 1. Synthesize audio via the backend Interviewer TTS service
+        // The backend securely uses the 'unrealspeech' key from the root .env
         try {
             const resp = await fetch(`${INTERVIEWER_API_URL}/interview/tts`, {
                 method: 'POST',
@@ -151,56 +152,14 @@ export default function PlacementInterview() {
                     await audio.play();
                     return;
                 }
+            } else {
+                console.warn('Backend UnrealSpeech TTS returned non-200 status:', resp.status);
             }
         } catch (backendErr) {
-            console.warn('Backend UnrealSpeech TTS endpoint unavailable:', backendErr);
+            console.warn('Backend UnrealSpeech TTS service unavailable:', backendErr);
         }
 
-        // 2. Direct UnrealSpeech /stream API call if client key is configured
-        if (UNREALSPEECH_API_KEY) {
-            try {
-                const directResp = await fetch('https://api.v8.unrealspeech.com/stream', {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${UNREALSPEECH_API_KEY}`,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        Text: text.length > 1000 ? text.slice(0, 997) + '...' : text,
-                        VoiceId: activeVoice,
-                        Bitrate: '192k',
-                        Speed: '0',
-                        Pitch: '1',
-                        Codec: 'libmp3lame'
-                    })
-                });
-
-                if (directResp.ok) {
-                    const blob = await directResp.blob();
-                    const audioUrl = URL.createObjectURL(blob);
-                    const audio = new Audio(audioUrl);
-                    audioPlayerRef.current = audio;
-                    setIsSpeaking(true);
-                    audio.onended = () => {
-                        setIsSpeaking(false);
-                        URL.revokeObjectURL(audioUrl);
-                    };
-                    audio.onerror = () => {
-                        setIsSpeaking(false);
-                        URL.revokeObjectURL(audioUrl);
-                    };
-                    await audio.play();
-                    return;
-                } else {
-                    const errPayload = await directResp.text();
-                    console.warn('Direct UnrealSpeech API returned:', directResp.status, errPayload);
-                }
-            } catch (directErr) {
-                console.warn('Direct UnrealSpeech call failed:', directErr);
-            }
-        }
-
-        // 3. Graceful fallback to browser speech synthesis
+        // 2. Fallback to browser speech synthesis if backend is unreachable
         try {
             if (window.speechSynthesis) {
                 const utterance = new SpeechSynthesisUtterance(text);
