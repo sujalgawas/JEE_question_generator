@@ -27,3 +27,10 @@ class SubmissionPayload(BaseModel):
     question: str
     answer_text: Optional[str] = ""
 
+
+class TTSRequest(BaseModel):
+    text: str
+    voice: Optional[str] = "en-US-Chirp3-HD-Fenrir"
+    language_code: Optional[str] = "en-US"
+
+

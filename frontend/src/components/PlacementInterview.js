@@ -20,7 +20,7 @@ import {
     MessageSquare,
     Loader2
 } from 'lucide-react';
-import { INTERVIEWER_API_URL, INTERVIEWER_WS_URL } from '../apiConfig';
+import { INTERVIEWER_API_URL, INTERVIEWER_WS_URL, GOOGLE_TTS_API_KEY, GOOGLE_TTS_DEFAULT_VOICE } from '../apiConfig';
 import { getAuthSession } from './authUtils';
 
 const ROLES = [
@@ -71,6 +71,9 @@ export default function PlacementInterview() {
     const [interviewError, setInterviewError] = useState('');
 
     const [ttsEnabled, setTtsEnabled] = useState(true);
+    const [ttsVoice, setTtsVoice] = useState(GOOGLE_TTS_DEFAULT_VOICE || 'en-US-Chirp3-HD-Fenrir');
+    const [isSpeaking, setIsSpeaking] = useState(false);
+    const audioPlayerRef = useRef(null);
 
     const interviewWsRef = useRef(null);
     const submitWsRef = useRef(null);
@@ -85,13 +88,25 @@ export default function PlacementInterview() {
         }
     }, []);
 
+    const stopSpeaking = () => {
+        if (audioPlayerRef.current) {
+            try {
+                audioPlayerRef.current.pause();
+                audioPlayerRef.current.currentTime = 0;
+            } catch (_) { }
+            audioPlayerRef.current = null;
+        }
+        if (window.speechSynthesis) {
+            window.speechSynthesis.cancel();
+        }
+        setIsSpeaking(false);
+    };
+
     useEffect(() => {
         return () => {
             closeWebSockets();
             stopRecordingTimer();
-            if (window.speechSynthesis) {
-                window.speechSynthesis.cancel();
-            }
+            stopSpeaking();
         };
     }, []);
 
@@ -106,18 +121,98 @@ export default function PlacementInterview() {
         }
     };
 
-    const speakQuestion = (text) => {
-        if (!ttsEnabled || !window.speechSynthesis || !text) return;
+    const speakQuestion = async (text, voiceToUse = null) => {
+        if (!ttsEnabled || !text) return;
+        stopSpeaking();
+
+        const activeVoice = voiceToUse || ttsVoice || 'en-US-Chirp3-HD-Fenrir';
+
+        // 1. Try backend Google Cloud TTS endpoint (Chirp 3: HD)
         try {
-            window.speechSynthesis.cancel();
-            const utterance = new SpeechSynthesisUtterance(text);
-            utterance.rate = 1.0;
-            utterance.pitch = 1.0;
-            window.speechSynthesis.speak(utterance);
+            const resp = await fetch(`${INTERVIEWER_API_URL}/interview/tts`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    text: text,
+                    voice: activeVoice,
+                    language_code: 'en-US'
+                })
+            });
+
+            if (resp.ok) {
+                const data = await resp.json();
+                if (data && data.audioContent) {
+                    const audio = new Audio(`data:audio/mp3;base64,${data.audioContent}`);
+                    audioPlayerRef.current = audio;
+                    setIsSpeaking(true);
+                    audio.onended = () => setIsSpeaking(false);
+                    audio.onerror = () => setIsSpeaking(false);
+                    await audio.play();
+                    return;
+                }
+            }
+        } catch (backendErr) {
+            console.warn('Backend Google TTS endpoint unavailable:', backendErr);
+        }
+
+        // 2. Direct Google Cloud TTS synthesize call if API key is present in client env
+        if (GOOGLE_TTS_API_KEY) {
+            try {
+                const directResp = await fetch(
+                    `https://texttospeech.googleapis.com/v1/text:synthesize?key=${GOOGLE_TTS_API_KEY}`,
+                    {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            input: { text: text },
+                            voice: {
+                                languageCode: 'en-US',
+                                name: activeVoice
+                            },
+                            audioConfig: {
+                                audioEncoding: 'MP3'
+                            }
+                        })
+                    }
+                );
+
+                if (directResp.ok) {
+                    const directData = await directResp.json();
+                    if (directData && directData.audioContent) {
+                        const audio = new Audio(`data:audio/mp3;base64,${directData.audioContent}`);
+                        audioPlayerRef.current = audio;
+                        setIsSpeaking(true);
+                        audio.onended = () => setIsSpeaking(false);
+                        audio.onerror = () => setIsSpeaking(false);
+                        await audio.play();
+                        return;
+                    }
+                } else {
+                    const errPayload = await directResp.text();
+                    console.warn('Direct Google Cloud TTS API call returned:', directResp.status, errPayload);
+                }
+            } catch (directErr) {
+                console.warn('Direct Google Cloud TTS call failed:', directErr);
+            }
+        }
+
+        // 3. Graceful fallback to browser speech synthesis if Google TTS is not yet configured/reachable
+        try {
+            if (window.speechSynthesis) {
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.rate = 1.0;
+                utterance.pitch = 1.0;
+                utterance.onend = () => setIsSpeaking(false);
+                utterance.onerror = () => setIsSpeaking(false);
+                setIsSpeaking(true);
+                window.speechSynthesis.speak(utterance);
+            }
         } catch (e) {
-            console.warn('TTS error:', e);
+            console.warn('Browser SpeechSynthesis error:', e);
+            setIsSpeaking(false);
         }
     };
+
 
     const handleStartInterview = async (e) => {
         e.preventDefault();
@@ -521,9 +616,38 @@ export default function PlacementInterview() {
                                 </div>
                             </div>
 
-                            <div className="flex items-center gap-4">
+                            <div className="flex items-center gap-3">
+                                <div className="flex items-center gap-1.5 bg-surface-900/80 border border-surface-700/80 rounded-lg px-2.5 py-1 text-xs">
+                                    <Sparkles className="w-3.5 h-3.5 text-purple-400" />
+                                    <span className="text-surface-400 font-medium hidden sm:inline">Voice:</span>
+                                    <select
+                                        value={ttsVoice}
+                                        onChange={(e) => {
+                                            const v = e.target.value;
+                                            setTtsVoice(v);
+                                            if (isSpeaking) {
+                                                stopSpeaking();
+                                                speakQuestion(currentQuestionText, v);
+                                            }
+                                        }}
+                                        title="Select Google Chirp 3: HD Voice"
+                                        className="bg-transparent text-white font-medium focus:outline-none cursor-pointer text-xs"
+                                    >
+                                        <option value="en-US-Chirp3-HD-Fenrir" className="bg-surface-800 text-white">Chirp 3 HD: Fenrir (Male)</option>
+                                        <option value="en-US-Chirp3-HD-Aoede" className="bg-surface-800 text-white">Chirp 3 HD: Aoede (Female)</option>
+                                        <option value="en-US-Chirp3-HD-Puck" className="bg-surface-800 text-white">Chirp 3 HD: Puck (Male)</option>
+                                        <option value="en-US-Chirp3-HD-Kore" className="bg-surface-800 text-white">Chirp 3 HD: Kore (Female)</option>
+                                        <option value="en-US-Chirp3-HD-Charon" className="bg-surface-800 text-white">Chirp 3 HD: Charon (Deep Male)</option>
+                                    </select>
+                                </div>
+
                                 <button
-                                    onClick={() => setTtsEnabled(prev => !prev)}
+                                    onClick={() => {
+                                        if (ttsEnabled && isSpeaking) {
+                                            stopSpeaking();
+                                        }
+                                        setTtsEnabled(prev => !prev);
+                                    }}
                                     title={ttsEnabled ? 'Mute AI Voice' : 'Unmute AI Voice'}
                                     className={`p-2 rounded-lg border transition-colors ${ttsEnabled
                                         ? 'bg-purple-500/15 border-purple-500/30 text-purple-300'
@@ -550,20 +674,33 @@ export default function PlacementInterview() {
                         )}
 
                         <div className="bg-gradient-to-br from-surface-800 to-surface-850 rounded-2xl border border-surface-700/80 p-6 sm:p-8 shadow-xl relative overflow-hidden">
-                            <div className="flex items-center justify-between mb-4">
+                            <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
                                 <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 text-xs font-semibold">
                                     <Radio className="w-3.5 h-3.5 text-indigo-400 animate-pulse" />
                                     Active Question #{currentQuestionNumber}
                                 </div>
 
-                                <button
-                                    onClick={() => speakQuestion(currentQuestionText)}
-                                    className="inline-flex items-center gap-1.5 text-xs text-purple-400 hover:text-purple-300 transition-colors font-medium"
-                                >
-                                    <Volume2 className="w-3.5 h-3.5" />
-                                    Replay Audio
-                                </button>
+                                <div className="flex items-center gap-2">
+                                    {isSpeaking ? (
+                                        <button
+                                            onClick={stopSpeaking}
+                                            className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-purple-500/20 border border-purple-500/40 text-xs text-purple-300 hover:bg-purple-500/30 transition-all font-medium animate-pulse"
+                                        >
+                                            <VolumeX className="w-3.5 h-3.5" />
+                                            <span>AI Speaking (Chirp 3 HD) - Stop</span>
+                                        </button>
+                                    ) : (
+                                        <button
+                                            onClick={() => speakQuestion(currentQuestionText)}
+                                            className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-surface-700/60 hover:bg-surface-700 border border-surface-600/70 text-xs text-purple-300 hover:text-purple-200 transition-all font-medium"
+                                        >
+                                            <Volume2 className="w-3.5 h-3.5" />
+                                            <span>Replay Audio (Chirp 3 HD)</span>
+                                        </button>
+                                    )}
+                                </div>
                             </div>
+
 
                             <h3 className="text-lg sm:text-xl font-semibold text-white leading-relaxed mb-4">
                                 {currentQuestionText || (

@@ -17,8 +17,12 @@ if (INTERVIEWER_WS_URL && INTERVIEWER_WS_URL.includes('localhost') && window.loc
     INTERVIEWER_WS_URL = INTERVIEWER_WS_URL.replace('localhost', window.location.hostname);
 }
 
+export let GOOGLE_TTS_API_KEY = process.env.REACT_APP_GOOGLE_TTS_API_KEY || process.env.REACT_APP_GEMINI_API_KEY || '';
+export let GOOGLE_TTS_DEFAULT_VOICE = process.env.REACT_APP_GOOGLE_TTS_VOICE || 'en-US-Chirp3-HD-Fenrir';
+
 console.log('Using API URL:', API_URL);
 console.log('Using Interviewer API URL:', INTERVIEWER_API_URL);
 console.log('Using Interviewer WS URL:', INTERVIEWER_WS_URL);
+console.log('Using Google TTS Voice:', GOOGLE_TTS_DEFAULT_VOICE);
 
-export default API_URL;
+export default API_URL;
