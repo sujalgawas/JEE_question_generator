@@ -16,6 +16,7 @@ import {
   Zap,
   History,
   ArrowLeftRight,
+  Mic,
 } from 'lucide-react';
 
 const ROUTE_MAP = {
@@ -25,6 +26,7 @@ const ROUTE_MAP = {
   analytics: '/analytics',
   placement: '/',
   placementHistory: '/placement-history',
+  placementInterview: '/placement-interview',
   contact: '/contact',
   login: '/login',
   signup: '/signup',
@@ -55,6 +57,7 @@ const Navbar = ({ user, onLogout = () => { }, onNavigate, appMode, onModeChange 
     { page: 'home', label: 'Home', icon: Home },
     ...(user ? [
       { page: 'homepage', label: 'Dashboard', icon: LayoutDashboard },
+      { page: 'placementInterview', label: 'AI Interview', icon: Mic },
       { page: 'placementHistory', label: 'Past Tests', icon: History },
     ] : []),
     { page: 'contact', label: 'Contact', icon: Mail },

@@ -1,3 +1,5 @@
+fastapi[standard]
+pymupdf
 flask==3.0.3
 flask-cors==4.0.1
 pyrebase4
@@ -7,6 +9,7 @@ pandas==2.2.2
 numpy==1.26.4
 faiss-cpu==1.8.0
 openai>=1.56.1
+groq>=0.9.0
 python-dotenv==1.0.1
 tenacity==8.5.0
 langchain==0.2.12
@@ -22,3 +25,4 @@ turboquant
 accelerate
 huggingface_hub
 fpdf2
+chromadb

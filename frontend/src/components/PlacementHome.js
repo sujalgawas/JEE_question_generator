@@ -12,6 +12,7 @@ import {
     MessageSquare,
     User,
     BarChart3,
+    Mic,
 } from 'lucide-react';
 import API_URL from '../apiConfig';
 import { getAuthSession } from './authUtils';
@@ -91,6 +92,31 @@ export default function PlacementHome() {
                     <p className="text-surface-400 text-sm">
                         AI-powered AMCAT-style questions to ace your placement exams.
                     </p>
+                </div>
+
+                {/* AI Mock Interviewer Highlight Card */}
+                <div className="mb-8 p-5 sm:p-6 rounded-2xl bg-gradient-to-r from-purple-900/40 via-indigo-900/30 to-surface-800 border border-purple-500/30 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-xl">
+                    <div className="flex items-center gap-4">
+                        <div className="p-3 rounded-xl bg-purple-500/20 border border-purple-500/40 text-purple-400 shrink-0">
+                            <Mic className="w-6 h-6 animate-pulse" />
+                        </div>
+                        <div>
+                            <div className="flex items-center gap-2">
+                                <h3 className="text-base font-bold text-white">AI Technical Interviewer</h3>
+                                <span className="text-[10px] px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 font-semibold uppercase">New</span>
+                            </div>
+                            <p className="text-xs text-surface-400 mt-0.5">
+                                Practice real-time conversational technical interviews personalized to your resume.
+                            </p>
+                        </div>
+                    </div>
+                    <button
+                        onClick={() => navigate('/placement-interview')}
+                        className="w-full sm:w-auto shrink-0 flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-semibold text-sm transition-all duration-200 shadow-lg shadow-purple-600/25"
+                    >
+                        <Sparkles className="w-4 h-4" />
+                        <span>New Interviewer</span>
+                    </button>
                 </div>
 
                 {/* generator card */}

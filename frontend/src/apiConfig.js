@@ -2,11 +2,23 @@
 // and makes it available to the rest of your app.
 let API_URL = process.env.REACT_APP_API_URL;
 
-// If we are accessing the site via a local network IP (e.g. 192.168.x.x), 
-// we should rewrite 'localhost' in the API URL to match the current hostname.
 if (API_URL && API_URL.includes('localhost') && window.location.hostname !== 'localhost') {
     API_URL = API_URL.replace('localhost', window.location.hostname);
 }
 
+// Interviewer FastAPI service URLs (defaults to port 8000)
+export let INTERVIEWER_API_URL = process.env.REACT_APP_INTERVIEWER_API_URL || 'http://127.0.0.1:8000';
+if (INTERVIEWER_API_URL && INTERVIEWER_API_URL.includes('localhost') && window.location.hostname !== 'localhost') {
+    INTERVIEWER_API_URL = INTERVIEWER_API_URL.replace('localhost', window.location.hostname);
+}
+
+export let INTERVIEWER_WS_URL = process.env.REACT_APP_INTERVIEWER_WS_URL || 'ws://127.0.0.1:8000';
+if (INTERVIEWER_WS_URL && INTERVIEWER_WS_URL.includes('localhost') && window.location.hostname !== 'localhost') {
+    INTERVIEWER_WS_URL = INTERVIEWER_WS_URL.replace('localhost', window.location.hostname);
+}
+
 console.log('Using API URL:', API_URL);
+console.log('Using Interviewer API URL:', INTERVIEWER_API_URL);
+console.log('Using Interviewer WS URL:', INTERVIEWER_WS_URL);
+
 export default API_URL;

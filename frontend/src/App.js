@@ -18,7 +18,7 @@ import PlacementHome from './components/PlacementHome';
 import PlacementTest from './components/PlacementTest';
 import PlacementPastPapers from './components/PlacementPastPapers';
 import PlacementMCQTest from './components/PlacementMCQTest';
-import API_URL from './apiConfig';
+import PlacementInterview from './components/PlacementInterview';
 import {
     clearAuthSession,
     getAuthSession,
@@ -141,6 +141,8 @@ export default function App() {
                         <Route path="/placement" element={user ? <PlacementHome /> : <Navigate to="/login" />} />
                         <Route path="/placement-test" element={user ? <PlacementTest /> : <Navigate to="/login" />} />
                         <Route path="/placement-history" element={user ? <PlacementPastPapers /> : <Navigate to="/login" />} />
+                        <Route path="/placement-interview" element={user ? <PlacementInterview /> : <Navigate to="/login" />} />
+                        <Route path="/interview" element={user ? <PlacementInterview /> : <Navigate to="/login" />} />
 
                         <Route path="*" element={<Navigate to="/" />} />
                     </Routes>
