@@ -37,3 +37,9 @@ frontend/.DS_Store
 /frontend/npm-debug.log*
 /frontend/yarn-debug.log*
 /frontend/yarn-error.log*
+
+# Interviewer RAG vector stores and uploaded resumes
+interviewer/resume/
+interviewer/resumes/
+resume/
+resumes/

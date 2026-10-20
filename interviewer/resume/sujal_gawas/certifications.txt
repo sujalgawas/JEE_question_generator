@@ -1,5 +1,0 @@
-• Selected for the Institute Round of Smart India Hackathon (SIH) — Thakur Institute of Management Studies, Career Development 
-& Research (MCA). 
-• Ranked 3,293 (score: 0.26) in the CSIRO Image2Biomass Prediction competition on Kaggle, a regression-based biomass 
-estimation challenge. 
-• Earned GitHub’s “Pull Shark” achievement (x2) for merged open-source pull requests across multiple repositories.
