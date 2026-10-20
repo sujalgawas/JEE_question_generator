@@ -15,8 +15,18 @@ if env_path.exists():
 
 
 def _find_file(filename: str) -> Optional[Path]:
+    env_override = None
+    if "admin" in filename.lower():
+        env_override = os.getenv("ADMIN_SERVICE_KEY_PATH")
+    elif "service" in filename.lower():
+        env_override = os.getenv("SERVICE_ACCOUNT_KEY_PATH")
+
+    if env_override and Path(env_override).exists():
+        return Path(env_override)
+
     search_paths = [
         Path.cwd() / filename,
+        Path("/app") / filename,
         Path(__file__).resolve().parent.parent.parent / filename,
         Path(__file__).resolve().parent.parent / filename,
     ]
@@ -30,14 +40,20 @@ def get_firebase_db():
     try:
         firebase_admin.get_app()
     except ValueError:
-        admin_key_path = _find_file("adminServiceKey.json")
-        service_key_path = _find_file("serviceAccountKey.json")
+        admin_config = None
+        if os.getenv("FIREBASE_ADMIN_CONFIG"):
+            try:
+                admin_config = json.loads(os.getenv("FIREBASE_ADMIN_CONFIG"))
+            except Exception as e:
+                print(f"Warning: Failed to parse FIREBASE_ADMIN_CONFIG: {e}")
 
-        if not admin_key_path:
-            raise FileNotFoundError("adminServiceKey.json not found in project paths.")
+        if not admin_config:
+            admin_key_path = _find_file("adminServiceKey.json")
+            if not admin_key_path:
+                raise FileNotFoundError("adminServiceKey.json not found in project paths.")
+            with open(admin_key_path, "r", encoding="utf-8") as f:
+                admin_config = json.load(f)
 
-        with open(admin_key_path, "r", encoding="utf-8") as f:
-            admin_config = json.load(f)
 
         database_url = os.getenv("FIREBASE_DATABASE_URL")
         if service_key_path and service_key_path.exists():

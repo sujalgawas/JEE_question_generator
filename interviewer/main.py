@@ -283,3 +283,9 @@ async def websocket_submit_endpoint(
 @app.get("/")
 def home():
     return {"message": "Hello World"}
+
+
+@app.get("/health")
+def health():
+    return {"status": "ok", "service": "interviewer"}
+

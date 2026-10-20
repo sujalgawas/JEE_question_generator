@@ -8,3 +8,14 @@ services:
     envVars:
       - key: PYTHON_VERSION
         value: 3.10
+
+  - type: web
+    name: interviewer-service
+    env: python
+    plan: free
+    buildCommand: "pip install --upgrade pip && pip install -r interviewer/requirements.txt"
+    startCommand: "cd interviewer && uvicorn main:app --host 0.0.0.0 --port $PORT"
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.10
+

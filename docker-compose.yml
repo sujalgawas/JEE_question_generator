@@ -15,6 +15,25 @@ services:
       - tunnel_network
     restart: unless-stopped
 
+  interviewer:
+    build:
+      context: ./interviewer
+      dockerfile: Dockerfile
+    image: ghcr.io/sujalgawas/question_generator/interviewer:latest
+    container_name: interviewer
+    env_file:
+      - .env
+    volumes:
+      - ./interviewer:/app
+      - ./adminServiceKey.json:/app/adminServiceKey.json:ro
+      - ./serviceAccountKey.json:/app/serviceAccountKey.json:ro
+    ports:
+      - "8000:8000"
+    networks:
+      - tunnel_network
+    restart: unless-stopped
+
+
   ngrok:
     image: ngrok/ngrok:latest
     container_name: ngrok1

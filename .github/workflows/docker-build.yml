@@ -22,9 +22,16 @@ jobs:
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: Build and push Docker image
+    - name: Build and push Question Generator Docker image
       uses: docker/build-push-action@v7
       with:
         context: .
         push: true
         tags: ghcr.io/sujalgawas/question_generator/question_generator:latest
+
+    - name: Build and push Interviewer Docker image
+      uses: docker/build-push-action@v7
+      with:
+        context: ./interviewer
+        push: true
+        tags: ghcr.io/sujalgawas/question_generator/interviewer:latest
