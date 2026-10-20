@@ -1,0 +1,29 @@
+DevLegacy (GitHub) | Jan 2026 
+Python, FastAPI, React.js, PyTorch, Scikit-learn, PostgreSQL, Docker 
+• Built a developer analytics platform using the GitHub GraphQL API to aggregate repository data and surface insights into coding 
+habits and contribution history. 
+• Fine-tuned Qwen2.5-Coder-3B-Instruct on a custom dataset for automated code-quality analysis, classifying developer 
+proficiency and code maintainability. 
+• Built a role-recommendation engine using TF-IDF and Scikit-learn to predict optimal engineering roles from codebase semantics 
+and commit history. 
+• Architected a FastAPI + PostgreSQL backend with Redis caching, containerized with Docker; self-hosted the inference stack at 
+zero cost by converting a personal computer into a headless Linux server. 
+Question Paper Generator & AI Analytics Platform (GitHub) | July 2025 
+Python, Flask, LangGraph, JavaScript, Gemini API, React, Firebase, FAISS, OpenAI 
+• Built an end-to-end automated pipeline that reduced manual exam-paper creation time by an estimated 70%. 
+• Designed a Chain-of-Thought (CoT) agentic workflow in LangGraph to generate original MCQs, distractors, and step-by-step 
+solutions with 98% accuracy in structured JSON output. 
+• Built a hybrid RAG system using FAISS to ground generated questions in conceptual knowledge, maintaining 90%+ syllabus 
+relevance. 
+• Delivered secure Firebase authentication (Google OAuth), timed test modes, and personalized, user-specific analytics 
+dashboards. 
+Research Paper Re-Implementations (GitHub)  (HF Checkpoints) | Ongoing 
+• Re-implemented foundational deep learning architectures from scratch in PyTorch — the original Transformer, GPT-1, GPT-2, 
+RoPE, BERT, T5, and LoRA — to build a first-principles understanding of modern NLP model internals. 
+• Published trained checkpoints (e.g., GPT-2 built from scratch) publicly on Hugging Face. 
+Neurox — JEPA-Based Trading Bot (GitHub) | Sept 2026 
+• Building an algorithmic trading bot that combines a self-built JEPA (Joint Embedding Predictive Architecture) model with a 
+second complementary predictive system to improve forecasting accuracy on financial time-series data. 
+• Implementing the JEPA architecture from scratch in PyTorch to learn self-supervised, predictive market representations rather 
+than relying on hand-crafted technical indicators. 
+• Combining outputs from both systems in an ensemble setup to reduce prediction variance and improve signal reliability.
