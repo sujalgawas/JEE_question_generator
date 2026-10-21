@@ -1,15 +1,15 @@
 {
   "files": {
-    "main.css": "/JEE_question_generator/static/css/main.9de78676.css",
-    "main.js": "/JEE_question_generator/static/js/main.b5fe49ea.js",
+    "main.css": "/JEE_question_generator/static/css/main.f9c7ad40.css",
+    "main.js": "/JEE_question_generator/static/js/main.ca51bdae.js",
     "static/js/453.54292a4b.chunk.js": "/JEE_question_generator/static/js/453.54292a4b.chunk.js",
     "index.html": "/JEE_question_generator/index.html",
-    "main.9de78676.css.map": "/JEE_question_generator/static/css/main.9de78676.css.map",
-    "main.b5fe49ea.js.map": "/JEE_question_generator/static/js/main.b5fe49ea.js.map",
+    "main.f9c7ad40.css.map": "/JEE_question_generator/static/css/main.f9c7ad40.css.map",
+    "main.ca51bdae.js.map": "/JEE_question_generator/static/js/main.ca51bdae.js.map",
     "453.54292a4b.chunk.js.map": "/JEE_question_generator/static/js/453.54292a4b.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.9de78676.css",
-    "static/js/main.b5fe49ea.js"
+    "static/css/main.f9c7ad40.css",
+    "static/js/main.ca51bdae.js"
   ]
 }
