@@ -192,6 +192,12 @@ async def get_all_user_reviews(username: str):
     return {"status": "success", "username": username, "reviews": reviews}
 
 
+@app.get("/interview/health")
+@app.get("/health")
+def health():
+    return {"status": "ok", "service": "interviewer"}
+
+
 @app.get("/interview/{session_id}")
 async def get_interview(session_id: str):
     session_data = await asyncio.to_thread(get_interview_session, session_id)
@@ -302,10 +308,6 @@ def home():
     return {"message": "Hello World"}
 
 
-@app.get("/interview/health")
-@app.get("/health")
-def health():
-    return {"status": "ok", "service": "interviewer"}
 
 
 @app.post("/interview/tts")

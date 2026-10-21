@@ -76,6 +76,28 @@ def split_resume_into_sections(resume_text: str) -> Dict[str, str]:
     return cleaned_sections
 
 
+import hashlib
+
+
+class FastDeterministicEmbeddingFunction(chromadb.EmbeddingFunction):
+    def __init__(self):
+        try:
+            super().__init__()
+        except Exception:
+            pass
+
+    def __call__(self, input: chromadb.Documents) -> chromadb.Embeddings:
+        embeddings = []
+        for text in input:
+            h = hashlib.sha256(text.encode("utf-8")).digest()
+            vec = [(b / 255.0) - 0.5 for b in h[:64]]
+            embeddings.append(vec)
+        return embeddings
+
+
+_fast_ef = FastDeterministicEmbeddingFunction()
+
+
 def get_chroma_client(resume_dir: str):
     os.makedirs(resume_dir, exist_ok=True)
     return chromadb.PersistentClient(path=resume_dir)
@@ -109,6 +131,7 @@ def build_resume_vector_db(username: str, resume_text: str, base_dir: str = "./r
 
         collection = client.create_collection(
             name=collection_name,
+            embedding_function=_fast_ef,
             metadata={"hnsw:space": "cosine"}
         )
 
@@ -171,7 +194,10 @@ def query_resume_section(username: str, section: str, base_dir: str = "./resume"
         if os.path.exists(chroma_db_path):
             client = get_chroma_client(chroma_db_path)
             collection_name = f"resume_{username.lower()}"
-            collection = client.get_collection(name=collection_name)
+            collection = client.get_collection(
+                name=collection_name,
+                embedding_function=_fast_ef
+            )
 
             exact_match = collection.get(where={"section": canonical_query})
             if exact_match and exact_match.get("documents"):
