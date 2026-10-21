@@ -1,8 +1,6 @@
 # agents/placement/tools.py - Placement prep tools
 # Stub: implement when ready
-from google import genai
-from google.genai import types 
-from langchain_ollama import ChatOllama
+
 
 from pydantic import BaseModel
 from typing import List
@@ -25,19 +23,36 @@ except ImportError:
 
 load_dotenv()
 
-ROOT_DIR = Path(__file__).resolve().parent.parent.parent
-data_file_1 = Path("data/indiabix.json")
-if not data_file_1.exists():
-    data_file_1 = ROOT_DIR / "data" / "indiabix.json"
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent.parent
+data_candidates = [
+    Path("data"),
+    PROJECT_ROOT / "data",
+    Path(__file__).resolve().parent.parent.parent / "data",
+]
 
-data_file_2 = Path("data/placement_questions.json")
-if not data_file_2.exists():
-    data_file_2 = ROOT_DIR / "data" / "placement_questions.json"
+data_dir = PROJECT_ROOT / "data"
+for candidate in data_candidates:
+    if (candidate / "indiabix.json").exists():
+        data_dir = candidate
+        break
 
-json_1 = pd.read_json(data_file_1)
-json_2 = pd.read_json(data_file_2)
+data_file_1 = data_dir / "indiabix.json"
+data_file_2 = data_dir / "placement_questions.json"
 
-sample_question_dataframe = pd.concat([json_1, json_2], ignore_index=True)
+try:
+    df1 = pd.read_json(data_file_1) if data_file_1.exists() else pd.DataFrame()
+    df2 = pd.read_json(data_file_2) if data_file_2.exists() else pd.DataFrame()
+    if not df1.empty and not df2.empty:
+        sample_question_dataframe = pd.concat([df1, df2], ignore_index=True)
+    elif not df1.empty:
+        sample_question_dataframe = df1
+    elif not df2.empty:
+        sample_question_dataframe = df2
+    else:
+        sample_question_dataframe = pd.DataFrame()
+except Exception as e:
+    print(f"Warning: unable to load placement question datasets: {e}")
+    sample_question_dataframe = pd.DataFrame()
 
 # Same system prompt for consistency
 SYSTEM_GENERATE = "you are a expert mcq question designer for AMCAT exam"
