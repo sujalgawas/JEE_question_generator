@@ -12,7 +12,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 # Copy requirements and install dependencies
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --default-timeout=1000 --retries 10 --no-cache-dir -r requirements.txt
 
 # Copy service code
 COPY . .

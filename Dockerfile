@@ -2,11 +2,14 @@
 FROM python:3.10-slim
 
 # Set the working directory in the container
-WORKDIR app
+WORKDIR /app
 
-# Copy requirements and install dependencies
+# Upgrade pip and install dependencies with CPU-only PyTorch index and network timeout settings
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --default-timeout=1000 --retries 10 --no-cache-dir \
+    --extra-index-url https://download.pytorch.org/whl/cpu \
+    -r requirements.txt
 
 # Copy app code
 COPY . .
