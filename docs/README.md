@@ -1,8 +1,8 @@
 # Documentation
 
 This documentation describes the current implementation of JEE Question
-Generator. It is organized from the system boundary down to the two question
-generation agents.
+Generator. It is organized from the system boundary down to the question
+generation and interview agents.
 
 ## Start here
 
@@ -31,8 +31,17 @@ generation agents.
 - [Placement API behavior](placement/api.md)
 - [Placement architecture](placement/architecture.md)
 
+### Interview
+
+- [Interview agent workflow](interview/agent.md)
+- [Interview data and persistence](interview/database.md)
+- [Interview routes](interview/routes.md)
+- [Interview API behavior](interview/api.md)
+- [Interview architecture](interview/architecture.md)
+
 ## Documentation conventions
 
 Diagrams show the repository's current behavior. They are intentionally
 short; route names, storage keys, and implementation details are described in
 the tables below each diagram.
+

@@ -60,4 +60,5 @@ flowchart TD
 | GET | `/health` | Return `OK` |
 
 Payload details are intentionally kept close to their flows in the
-[JEE API](jee/api.md) and [placement API](placement/api.md) pages.
+[JEE API](jee/api.md), [placement API](placement/api.md), and [interview API](interview/api.md) pages.
+

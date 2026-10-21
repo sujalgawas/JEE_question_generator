@@ -43,5 +43,7 @@ The `:job_id` and `:paper_id` notation in this table means a URL path
 parameter. Flask declares those parameters with angle-bracket syntax.
 
 See the [API reference](api.md) for methods, authentication, and response
-intent. See the [JEE route details](jee/routes.md) and [placement route
-details](placement/routes.md) for mode-specific flows.
+intent. See the [JEE route details](jee/routes.md), [placement route
+details](placement/routes.md), and [interview route details](interview/routes.md)
+for mode-specific flows.
+
