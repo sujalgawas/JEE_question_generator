@@ -34,16 +34,32 @@ services:
     restart: unless-stopped
 
 
+  gateway:
+    image: nginx:alpine
+    container_name: gateway
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    ports:
+      - "8080:80"
+    networks:
+      - tunnel_network
+    depends_on:
+      - question_generator
+      - interviewer
+    restart: unless-stopped
+
   ngrok:
     image: ngrok/ngrok:latest
     container_name: ngrok1
-    command: http question_generator:8083 --domain=josh-preintellectual-vasiliki.ngrok-free.dev
+    command: http gateway:80 --domain=josh-preintellectual-vasiliki.ngrok-free.dev
     env_file:
       - .env.ngrok
     ports:
       - "4041:4040"
     networks:
       - tunnel_network
+    depends_on:
+      - gateway
     restart: unless-stopped
 
 networks:

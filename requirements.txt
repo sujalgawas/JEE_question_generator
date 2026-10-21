@@ -2,7 +2,6 @@ fastapi[standard]
 pymupdf
 flask==3.0.3
 flask-cors==4.0.1
-pyrebase4
 requests==2.29.0
 google-auth-oauthlib==1.2.1
 pandas==2.2.2
