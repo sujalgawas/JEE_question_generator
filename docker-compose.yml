@@ -28,7 +28,7 @@ services:
       - ./adminServiceKey.json:/app/adminServiceKey.json:ro
       - ./serviceAccountKey.json:/app/serviceAccountKey.json:ro
     ports:
-      - "8000:8000"
+      - "8086:8000"
     networks:
       - tunnel_network
     restart: unless-stopped
