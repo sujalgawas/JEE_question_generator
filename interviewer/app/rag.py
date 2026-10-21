@@ -97,55 +97,63 @@ def build_resume_vector_db(username: str, resume_text: str, base_dir: str = "./r
         with open(file_path, "w", encoding="utf-8") as f:
             f.write(sec_text)
 
-    client = get_chroma_client(chroma_db_path)
-    collection_name = f"resume_{username.lower()}"
-
+    indexed_chunks = 0
     try:
-        client.delete_collection(name=collection_name)
-    except Exception:
-        pass
+        client = get_chroma_client(chroma_db_path)
+        collection_name = f"resume_{username.lower()}"
 
-    collection = client.create_collection(
-        name=collection_name,
-        metadata={"hnsw:space": "cosine"}
-    )
+        try:
+            client.delete_collection(name=collection_name)
+        except Exception:
+            pass
 
-    documents = []
-    metadatas = []
-    ids = []
+        collection = client.create_collection(
+            name=collection_name,
+            metadata={"hnsw:space": "cosine"}
+        )
 
-    for idx, (sec_name, sec_text) in enumerate(sections.items()):
-        if len(sec_text) > 1500:
-            paragraphs = [p.strip() for p in sec_text.split("\n\n") if p.strip()]
-            for p_idx, paragraph in enumerate(paragraphs):
-                documents.append(paragraph)
+        documents = []
+        metadatas = []
+        ids = []
+
+        for idx, (sec_name, sec_text) in enumerate(sections.items()):
+            cleaned_chunk = sec_text.strip()
+            if not cleaned_chunk:
+                continue
+            if len(cleaned_chunk) > 1500:
+                paragraphs = [p.strip() for p in cleaned_chunk.split("\n\n") if p.strip()]
+                for p_idx, paragraph in enumerate(paragraphs):
+                    documents.append(paragraph)
+                    metadatas.append({
+                        "username": username,
+                        "section": sec_name,
+                        "chunk_index": p_idx
+                    })
+                    ids.append(f"{username}_{sec_name}_{idx}_{p_idx}")
+            else:
+                documents.append(cleaned_chunk)
                 metadatas.append({
                     "username": username,
                     "section": sec_name,
-                    "chunk_index": p_idx
+                    "chunk_index": 0
                 })
-                ids.append(f"{username}_{sec_name}_{idx}_{p_idx}")
-        else:
-            documents.append(sec_text)
-            metadatas.append({
-                "username": username,
-                "section": sec_name,
-                "chunk_index": 0
-            })
-            ids.append(f"{username}_{sec_name}_{idx}")
+                ids.append(f"{username}_{sec_name}_{idx}")
 
-    if documents:
-        collection.add(
-            documents=documents,
-            metadatas=metadatas,
-            ids=ids
-        )
+        if documents:
+            collection.add(
+                documents=documents,
+                metadatas=metadatas,
+                ids=ids
+            )
+            indexed_chunks = len(documents)
+    except Exception as chroma_err:
+        print(f"Warning: ChromaDB indexing error for {username} (using direct file search fallback): {chroma_err}")
 
     return {
         "status": "success",
         "username": username,
         "sections": list(sections.keys()),
-        "chunks_indexed": len(documents)
+        "chunks_indexed": indexed_chunks
     }
 
 

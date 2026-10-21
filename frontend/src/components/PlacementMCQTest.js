@@ -233,7 +233,10 @@ export default function PlacementMCQTest() {
 
     fetch(`${API_URL}/placements_take_test`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 
+        'Content-Type': 'application/json',
+        'ngrok-skip-browser-warning': 'true'
+      },
       body: JSON.stringify({ token, paper_id: paperId }),
     })
       .then((res) => res.json())
@@ -279,7 +282,10 @@ export default function PlacementMCQTest() {
     try {
       const response = await fetch(`${API_URL}/placements_submit_test`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'ngrok-skip-browser-warning': 'true'
+        },
         body: JSON.stringify({
           token: token,
           paper_id: paperId,

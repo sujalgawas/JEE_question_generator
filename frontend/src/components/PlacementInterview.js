@@ -132,7 +132,10 @@ export default function PlacementInterview() {
         try {
             const resp = await fetch(`${INTERVIEWER_API_URL}/interview/tts`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'ngrok-skip-browser-warning': 'true'
+                },
                 body: JSON.stringify({
                     text: text,
                     voice: activeVoice,
@@ -196,6 +199,9 @@ export default function PlacementInterview() {
             const uploadUrl = `${INTERVIEWER_API_URL}/resume/${encodeURIComponent(candidateUser)}`;
             const res = await fetch(uploadUrl, {
                 method: 'POST',
+                headers: {
+                    'ngrok-skip-browser-warning': 'true'
+                },
                 body: formData
             });
 
@@ -211,7 +217,10 @@ export default function PlacementInterview() {
             startLiveInterview(candidateUser, createdSessionId, role);
         } catch (err) {
             console.error('Resume upload error:', err);
-            setSetupError(err.message || 'Failed to connect to the interviewer server.');
+            const userMsg = err.message === 'Failed to fetch'
+                ? 'Unable to connect to the Interviewer service. Please ensure the backend is running and tunnel is active.'
+                : (err.message || 'Failed to connect to the interviewer server.');
+            setSetupError(userMsg);
             setUploadingResume(false);
         }
     };

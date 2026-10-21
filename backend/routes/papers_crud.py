@@ -3,7 +3,10 @@ from flask import Blueprint, request, jsonify,send_file
 
 from services.firebase_service import db, admin_auth
 from services.auth_service import verify_firebase_token
-from backend.agents.placement.agent import get_agent_graph
+try:
+    from agents.placement.agent import get_agent_graph
+except ImportError:
+    from backend.agents.placement.agent import get_agent_graph
 
 papers_crud_bp = Blueprint('papers_crud', __name__)
 
@@ -243,9 +246,10 @@ def placement_question():
         final_state = app_instane.invoke(initial_state)
         paper_data = final_state.get("final_paper")
         
+        if not paper_data or not isinstance(paper_data, dict):
+            return jsonify({"message": "Failed to generate paper data"}), 500
         
-        #paper_data = db.child('papers').child('0490b0f1-103c-478d-9e2c-adfa752b5585').get().val()
-        if target_topic == None:
+        if target_topic is None:
             target_topic = "All"
         
         paper_data["user_uid"] = user_uid
@@ -256,11 +260,13 @@ def placement_question():
             .child(placement_paper_id)\
             .set(paper_data)
             
-        return {"message" : "paper generated successfully","paper_id": placement_paper_id, "paper_data":paper_data},201
-        
+        return jsonify({"message": "paper generated successfully", "paper_id": placement_paper_id, "paper_data": paper_data}), 201
         
     except Exception as e:
-        return {"message":f"Error {e}"},410        
+        print(f"Error generating placement question paper: {e}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({"message": f"Error: {str(e)}"}), 500        
 
 @papers_crud_bp.route('/placement_download_pdf',methods=['POST'])
 def placement_paper_pdf():

@@ -31,7 +31,7 @@ app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origin_regex=r"^https?://.*",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -45,24 +45,38 @@ ANSWER_EVENTS: Dict[str, asyncio.Event] = {}
 
 @app.post("/resume/{username}")
 async def upload_resume(username: str, resume: UploadFile = File(...)):
-    resume_txt = await read_resume(resume)
-    session_id_str = str(uuid.uuid4())
-    
-    rag_info = build_resume_vector_db(username=username, resume_text=resume_txt, base_dir="./resume")
-    session_data = create_interview_session(
-        username=username,
-        session_id=session_id_str,
-        resume_text=resume_txt,
-        rag_info=rag_info
-    )
+    try:
+        resume_txt = await read_resume(resume)
+        if not resume_txt.strip():
+            resume_txt = f"Candidate Profile: {username}. Technical applicant."
+        session_id_str = str(uuid.uuid4())
+        
+        rag_info = await asyncio.to_thread(
+            build_resume_vector_db,
+            username=username,
+            resume_text=resume_txt,
+            base_dir="./resume"
+        )
+        session_data = await asyncio.to_thread(
+            create_interview_session,
+            username=username,
+            session_id=session_id_str,
+            resume_text=resume_txt,
+            rag_info=rag_info
+        )
 
-    return {
-        "username": username,
-        "session_id_str": session_id_str,
-        "resume_text": resume_txt,
-        "rag": rag_info,
-        "session": session_data
-    }
+        return {
+            "username": username,
+            "session_id_str": session_id_str,
+            "resume_text": resume_txt,
+            "rag": rag_info,
+            "session": session_data
+        }
+    except Exception as e:
+        print(f"Error processing resume upload for {username}: {e}")
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @app.websocket("/interview/{username}/{session_id}")
@@ -93,7 +107,7 @@ async def interview(websocket: WebSocket, username: str, session_id: str, role: 
         current_q_num = state["current_question"]
         current_q_text = state["questions"][current_q_num]
 
-        save_interview_question(session_id, current_q_num, current_q_text)
+        await asyncio.to_thread(save_interview_question, session_id, current_q_num, current_q_text)
 
         await websocket.send_json({
             "status": "in_progress",
@@ -108,10 +122,11 @@ async def interview(websocket: WebSocket, username: str, session_id: str, role: 
             if "answer" in client_data:
                 candidate_ans = client_data["answer"]
                 state["answer"][state["current_question"]] = candidate_ans
-                save_interview_answer(session_id, state["current_question"], candidate_ans)
+                await asyncio.to_thread(save_interview_answer, session_id, state["current_question"], candidate_ans)
 
             if state["current_question"] >= state["max_questions"]:
-                complete_interview(
+                await asyncio.to_thread(
+                    complete_interview,
                     session_id=session_id,
                     questions=state["questions"],
                     answers=state["answer"],
@@ -132,7 +147,7 @@ async def interview(websocket: WebSocket, username: str, session_id: str, role: 
             current_q_num = state["current_question"]
             current_question = state["questions"].get(current_q_num, "")
 
-            save_interview_question(session_id, current_q_num, current_question)
+            await asyncio.to_thread(save_interview_question, session_id, current_q_num, current_question)
 
             await websocket.send_json({
                 "status": "in_progress",
@@ -150,7 +165,8 @@ async def interview(websocket: WebSocket, username: str, session_id: str, role: 
 
 @app.post("/review/{username}")
 async def review_user(username: str, review: ReviewCreate):
-    saved_review = save_review(
+    saved_review = await asyncio.to_thread(
+        save_review,
         username=username,
         session_id=review.session_id,
         review_data=review.model_dump()
@@ -164,7 +180,7 @@ async def review_user(username: str, review: ReviewCreate):
 
 @app.get("/review/{username}/{session_id}")
 async def get_user_review(username: str, session_id: str):
-    review = get_review(session_id)
+    review = await asyncio.to_thread(get_review, session_id)
     if not review:
         raise HTTPException(status_code=404, detail="Review not found for this session")
     return {"status": "success", "username": username, "review": review}
@@ -172,13 +188,13 @@ async def get_user_review(username: str, session_id: str):
 
 @app.get("/reviews/{username}")
 async def get_all_user_reviews(username: str):
-    reviews = list_user_reviews(username)
+    reviews = await asyncio.to_thread(list_user_reviews, username)
     return {"status": "success", "username": username, "reviews": reviews}
 
 
 @app.get("/interview/{session_id}")
 async def get_interview(session_id: str):
-    session_data = get_interview_session(session_id)
+    session_data = await asyncio.to_thread(get_interview_session, session_id)
     if not session_data:
         raise HTTPException(status_code=404, detail="Interview session not found")
     return {"status": "success", "interview": session_data}
@@ -186,13 +202,13 @@ async def get_interview(session_id: str):
 
 @app.get("/interviews/{username}")
 async def get_candidate_interviews(username: str):
-    interviews = list_user_interviews(username)
+    interviews = await asyncio.to_thread(list_user_interviews, username)
     return {"status": "success", "username": username, "interviews": interviews}
 
 
 @app.delete("/interview/{session_id}")
 async def delete_interview(session_id: str):
-    delete_interview_session(session_id)
+    await asyncio.to_thread(delete_interview_session, session_id)
     return {"status": "success", "message": f"Interview {session_id} deleted successfully"}
 
 
@@ -286,6 +302,7 @@ def home():
     return {"message": "Hello World"}
 
 
+@app.get("/interview/health")
 @app.get("/health")
 def health():
     return {"status": "ok", "service": "interviewer"}

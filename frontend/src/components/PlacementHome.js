@@ -48,7 +48,10 @@ export default function PlacementHome() {
         try {
             const res = await fetch(`${API_URL}/placement_question`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'ngrok-skip-browser-warning': 'true'
+                },
                 body: JSON.stringify({
                     token,
                     question_total: questionCount,

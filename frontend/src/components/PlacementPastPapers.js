@@ -37,7 +37,10 @@ export default function PlacementPastPapers() {
             try {
                 const res = await fetch(`${API_URL}/placement_paper_id`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'ngrok-skip-browser-warning': 'true'
+                    },
                     body: JSON.stringify({ token }),
                 });
 
@@ -80,7 +83,10 @@ export default function PlacementPastPapers() {
         try {
             const res = await fetch(`${API_URL}/placement_download_pdf`, {
                 method: "POST",
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'ngrok-skip-browser-warning': 'true'
+                },
                 body: JSON.stringify({ token, paper_id: paperId }),
             });
 

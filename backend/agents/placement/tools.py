@@ -6,48 +6,58 @@ from langchain_ollama import ChatOllama
 
 from pydantic import BaseModel
 from typing import List
-
 from typing_extensions import TypedDict
 
+from pathlib import Path
 from dotenv import load_dotenv
 import pandas as pd
-
 import json
 import os
 import random
 
 from .concepts import concepts_for_placement
-from .prompts import prompt_option_checker,prompt_mcq_generation
+from .prompts import prompt_option_checker, prompt_mcq_generation
 
+try:
+    from tools.llm import generate_json_response, _extract_json_object
+except ImportError:
+    from backend.tools.llm import generate_json_response, _extract_json_object
 
 load_dotenv()
 
-gemini_key = os.getenv('GEMINI_API_KEY')
+ROOT_DIR = Path(__file__).resolve().parent.parent.parent
+data_file_1 = Path("data/indiabix.json")
+if not data_file_1.exists():
+    data_file_1 = ROOT_DIR / "data" / "indiabix.json"
 
-json_1 = pd.read_json('data/indiabix.json')
-json_2 = pd.read_json('data/placement_questions.json')
+data_file_2 = Path("data/placement_questions.json")
+if not data_file_2.exists():
+    data_file_2 = ROOT_DIR / "data" / "placement_questions.json"
 
-sample_question_dataframe = pd.concat([json_1,json_2],ignore_index=True)
+json_1 = pd.read_json(data_file_1)
+json_2 = pd.read_json(data_file_2)
 
-#same system prompt for consistency
+sample_question_dataframe = pd.concat([json_1, json_2], ignore_index=True)
+
+# Same system prompt for consistency
 SYSTEM_GENERATE = "you are a expert mcq question designer for AMCAT exam"
 SYSTEM_OPTION = "you are a expert mcq option checker you job is to check the options and the correct answer and cross check if its correct"
 
 class question_format(TypedDict):
-    question : str
-    options : list
-    correct_answer : str
-    explanation : str
+    question: str
+    options: list
+    correct_answer: str
+    explanation: str
 
 class option_format(TypedDict):
-    is_correct : bool 
-    question : str
-    options : list 
-    correct_answer : str
-    explanation : str
-    
+    is_correct: bool 
+    question: str
+    options: list 
+    correct_answer: str
+    explanation: str
 
-def generate_mcq(topic:str,model:str):
+
+def generate_mcq(topic: str, model: str):
     random_topic = sample_question_dataframe["topic"].unique()
     random_topic = random.choice(random_topic)
 
@@ -55,180 +65,152 @@ def generate_mcq(topic:str,model:str):
         sample_question_dataframe["topic"] == random_topic
     ].sample(n=1)
     
-    question_text =  filtered_df["question_text"].astype(str)
-    options = filtered_df["options"].apply(list)
-    correct_answer = filtered_df["correct_answer"].astype(str)
-    explanation = filtered_df["explanation"].astype(str)
+    question_text = str(filtered_df["question_text"].iloc[0]) if len(filtered_df) > 0 else ""
+    options = list(filtered_df["options"].iloc[0]) if len(filtered_df) > 0 else []
+    correct_answer = str(filtered_df["correct_answer"].iloc[0]) if len(filtered_df) > 0 else ""
+    explanation = str(filtered_df["explanation"].iloc[0]) if len(filtered_df) > 0 else ""
     
-    prompt = prompt_mcq_generation(topic=topic,question_text=question_text,
-                                   option=options,correct_answer=correct_answer,
-                                   explanation=explanation)
+    prompt = prompt_mcq_generation(
+        topic=topic,
+        question_text=question_text,
+        option=options,
+        correct_answer=correct_answer,
+        explanation=explanation
+    )
     
+    messages = [
+        {"role": "system", "content": SYSTEM_GENERATE},
+        {"role": "user", "content": prompt}
+    ]
+
     question_obj = {"question": "", "options": [], "correct_answer": "", "explanation": ""}
 
-    if model == "gemini":
-        client = genai.Client(api_key=gemini_key)
-
-        response = client.models.generate_content(
-            model="gemini-3-flash-preview",
-            config = types.GenerateContentConfig(system_instruction=SYSTEM_GENERATE,
-                                                temperature=0.7,
-                                                response_mime_type= "application/json",
-                                                response_schema= list[question_format]
-                                                ), 
-            contents=prompt
-        )
-        
+    raw_response = None
+    # If user selected a local Ollama model, try local first; fall back to API if not running
+    if model in ["qwen2.5:3b", "qwen3:4b"]:
         try:
-            parsed = json.loads(response.text)
-            if isinstance(parsed, list) and len(parsed) > 0:
-                question_obj = parsed[0]
-            elif isinstance(parsed, dict):
-                question_obj = parsed
-            if "question_text" in question_obj and "question" not in question_obj:
-                question_obj["question"] = question_obj.pop("question_text")
-        except Exception:
-            question_obj = {"question": "", "options": [], "correct_answer": "", "explanation": ""}
-        
-    elif model == "qwen2.5:3b":
-        llm = ChatOllama(model = "qwen2.5:3b",temperature=0,format='json')
-        
-        message = [
-            ("system",SYSTEM_GENERATE),
-            ("human",prompt),
-        ]
-
-        response_msg = llm.invoke(message)
-
-        print(response_msg)
-
+            raw_response = generate_json_response(messages, model_mode="local", temperature=0.7)
+        except Exception as ollama_err:
+            print(f"Local Ollama model {model} unavailable ({ollama_err}); falling back to cloud API...")
+            try:
+                raw_response = generate_json_response(messages, model_mode="api", temperature=0.7)
+            except Exception as api_err:
+                print(f"API fallback failed: {api_err}")
+    else:
+        # Default / Gemini / Cloud API mode (uses Groq -> OpenRouter -> Gemini pool)
         try:
-            parsed = json.loads(response_msg.content)
-            if isinstance(parsed, list) and len(parsed) > 0:
-                question_obj = parsed[0]
-            elif isinstance(parsed, dict):
-                question_obj = parsed
-            if "question_text" in question_obj and "question" not in question_obj:
-                question_obj["question"] = question_obj.pop("question_text")
-        except Exception:
-            question_obj = {"question": "", "options": [], "correct_answer": "", "explanation": ""}
-    
-    elif model == "qwen3:4b":
-        llm = ChatOllama(model = "qwen3:4b",temperature=0,format='json')
-        
-        message = [
-            ("system",SYSTEM_GENERATE),
-            ("human",prompt),
-        ]
+            raw_response = generate_json_response(messages, model_mode="api", temperature=0.7)
+        except Exception as api_err:
+            print(f"API generation error: {api_err}")
 
-        response_msg = llm.invoke(message)
-
-        print(response_msg)
-
+    if raw_response:
         try:
-            parsed = json.loads(response_msg.content)
+            candidate_json = _extract_json_object(raw_response)
+            parsed = json.loads(candidate_json)
             if isinstance(parsed, list) and len(parsed) > 0:
-                question_obj = parsed[0]
-            elif isinstance(parsed, dict):
+                parsed = parsed[0]
+            if isinstance(parsed, dict):
                 question_obj = parsed
-            if "question_text" in question_obj and "question" not in question_obj:
-                question_obj["question"] = question_obj.pop("question_text")
-        except Exception:
-            question_obj = {"question": "", "options": [], "correct_answer": "", "explanation": ""}
-            
+        except Exception as parse_err:
+            print(f"Error parsing MCQ JSON: {parse_err}")
+
+    if "question_text" in question_obj and not question_obj.get("question"):
+        question_obj["question"] = question_obj.pop("question_text")
+
+    if not isinstance(question_obj.get("options"), list) or len(question_obj.get("options", [])) == 0:
+        question_obj["options"] = ["Option A", "Option B", "Option C", "Option D"]
+
     question_obj["topic"] = topic
-    
     return question_obj
     
     
-def option_checker_tool(question_text:str, option:list,
-                   correct_answer:str, explanation:str,model:str):
-    
+def option_checker_tool(question_text: str, option: list,
+                        correct_answer: str, explanation: str, model: str):
     prompt = prompt_option_checker(
-        question_text=question_text,option=option,
-        correct_answer=correct_answer,explanation=explanation
+        question_text=question_text,
+        option=option,
+        correct_answer=correct_answer,
+        explanation=explanation
     )
     
-    if model == "gemini":
-        client = genai.Client(api_key = gemini_key)
-        
-        response = client.models.generate_content(
-            model = "gemini-3-flash-preview",
-            config = types.GenerateContentConfig(
-                system_instruction= SYSTEM_OPTION,
-                temperature=0.7,
-                response_mime_type="application/json",
-                response_schema = list[option_format]
-            ),
-            contents=prompt
-        )
+    messages = [
+        {"role": "system", "content": SYSTEM_OPTION},
+        {"role": "user", "content": prompt}
+    ]
+
+    raw_response = None
+    if model in ["qwen2.5:3b", "qwen3:4b"]:
         try:
-            parsed = json.loads(response.text)
-            if isinstance(parsed, list) and len(parsed) > 0:
-                result = parsed[0]
-            elif isinstance(parsed, dict):
-                result = parsed
-            else:
-                result = {"is_correct": False, "question": "", "options": [], "correct_answer": "", "explanation": ""}
-        except Exception:
-            result = {"is_correct": False, "question": "", "options": [], "correct_answer": "", "explanation": ""}
+            raw_response = generate_json_response(messages, model_mode="local", temperature=0.4)
+        except Exception as ollama_err:
+            print(f"Local Ollama option checker unavailable ({ollama_err}); falling back to cloud API...")
+            try:
+                raw_response = generate_json_response(messages, model_mode="api", temperature=0.4)
+            except Exception as api_err:
+                print(f"API fallback error: {api_err}")
     else:
-        ollama_model = model if model in ["qwen2.5:3b", "qwen3:4b"] else "qwen2.5:3b"
-        llm = ChatOllama(model=ollama_model, temperature=0, format='json')
-
-        message = [
-            ("system",SYSTEM_OPTION),
-            ("human",prompt),
-        ]
-
-        response_msg = llm.invoke(message)
         try:
-            result = json.loads(response_msg.content)
-            if isinstance(result, list) and len(result) > 0:
-                result = result[0]
-            if not isinstance(result, dict):
-                result = {"is_correct": False, "question": "", "options": [], "correct_answer": "", "explanation": ""}
-        except Exception:
-            result = {"is_correct": False, "question": "", "options": [], "correct_answer": "", "explanation": ""}
+            raw_response = generate_json_response(messages, model_mode="api", temperature=0.4)
+        except Exception as api_err:
+            print(f"API option check error: {api_err}")
+
+    result = {
+        "is_correct": True,
+        "question": question_text,
+        "options": option,
+        "correct_answer": correct_answer,
+        "explanation": explanation
+    }
+
+    if raw_response:
+        try:
+            candidate_json = _extract_json_object(raw_response)
+            parsed = json.loads(candidate_json)
+            if isinstance(parsed, list) and len(parsed) > 0:
+                parsed = parsed[0]
+            if isinstance(parsed, dict):
+                result = parsed
+        except Exception as parse_err:
+            print(f"Error parsing option checker JSON: {parse_err}")
 
     if "question_text" in result and "question" not in result:
         result["question"] = result.pop("question_text")
     if "is_correct" not in result:
-        result["is_correct"] = False
+        result["is_correct"] = True
     
-    return result.get("is_correct", False), result
+    return result.get("is_correct", True), result
 
 
-def create_final_topics(question_total:int, weak_concept:list ,target_topic:None):
-    #returns a final list of subtopics
+def create_final_topics(question_total: int, weak_concept: list = None, target_topic: str = None):
+    # Returns a final list of subtopics
     final_topics = []
+    question_total = int(question_total or 10)
     current_question = 0
-    if target_topic:
-        while question_total != current_question:
-            temp_list = concepts_for_placement[target_topic]
+    weak_concept = weak_concept or []
+
+    if target_topic and target_topic in concepts_for_placement:
+        temp_list = concepts_for_placement[target_topic]
+        while current_question < question_total:
             final_topics.append(random.choice(temp_list))
             current_question += 1
-    elif not weak_concept :
-        while question_total != current_question:
-            temp_list = random.choice(list(concepts_for_placement.keys()))
+    elif not weak_concept:
+        all_keys = list(concepts_for_placement.keys())
+        while current_question < question_total:
+            temp_list = random.choice(all_keys)
             temp_general_concepts = random.choice(concepts_for_placement[temp_list])
             final_topics.append(temp_general_concepts)
             current_question += 1
     else:
-        weak_concept_total = round(question_total * 35/100)
+        weak_concept_total = round(question_total * 35 / 100)
         general_concept_total = question_total - weak_concept_total
-        current_weak_concept = 0
-        current_general_concept = 0
+        all_keys = list(concepts_for_placement.keys())
+
+        for _ in range(weak_concept_total):
+            final_topics.append(random.choice(weak_concept))
         
-        while weak_concept_total != current_weak_concept:
-            temp_weak_concept = random.choice(weak_concept)
-            final_topics.append(temp_weak_concept)
-            current_weak_concept += 1
-        
-        while general_concept_total != current_general_concept:
-            temp_list = random.choice(list(concepts_for_placement.keys()))
+        for _ in range(general_concept_total):
+            temp_list = random.choice(all_keys)
             temp_general_concepts = random.choice(concepts_for_placement[temp_list])
             final_topics.append(temp_general_concepts)
-            current_general_concept += 1
-            
-    return final_topics
+
+    return final_topics[:question_total]

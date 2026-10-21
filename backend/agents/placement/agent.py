@@ -2,7 +2,10 @@
 # Stub: implement when ready
 from typing_extensions import TypedDict,List,Any,Dict
 from langgraph.graph import END,START,StateGraph
-from services.concept_service import get_weak_concepts
+try:
+    from services.concept_service import get_weak_concepts
+except ImportError:
+    from backend.services.concept_service import get_weak_concepts
 import random
 
 from .concepts import concepts_for_placement
@@ -16,23 +19,27 @@ class PaperData(TypedDict):
     explanation : List[str]
     topic : List[str]
 
-class PaperGenerationState(TypedDict):
-    question_total : int
-    target_topic : List[str]
-    option_checking : bool
-    model : str
+class PaperGenerationState(TypedDict, total=False):
+    uid: str
+    question_total: int
+    target_topic: Any
+    option_checker: bool
+    option_checking: bool
+    model: str
     
-    weak_concepts : List[str]
-    
-    final_topics : List[str]
-    final_paper : PaperData
+    weak_concepts: List[str]
+    final_topics: List[str]
+    final_paper: PaperData
 
 
 def weak_concept_priority(state: PaperGenerationState):
     uid = state.get('uid')
-    weak_concepts = get_weak_concepts(uid)
-    print(weak_concepts)
-    return {"weak_concepts" : weak_concepts}
+    try:
+        weak_concepts = get_weak_concepts(uid) if uid else []
+    except Exception as e:
+        print(f"Warning: Failed to fetch weak concepts: {e}")
+        weak_concepts = []
+    return {"weak_concepts": weak_concepts}
     
 def plan_paper(state : PaperGenerationState):
     question_total = state.get("question_total")
@@ -89,8 +96,8 @@ def option_checker(state: PaperGenerationState):
     return{"final_paper" : final_paper}
 
 def route_option_checker(state: PaperGenerationState):
-    if state.get("option_checker"):
-        return "option_checker"
+    if state.get("option_checker") or state.get("option_checking"):
+        return "validate_options"
     
     return END
 
@@ -98,18 +105,18 @@ def get_agent_graph():
     """build and compile of placement service Langraph workflow"""
     graph = StateGraph(PaperGenerationState)
     
-    graph.add_node(weak_concept_priority)
-    graph.add_node(plan_paper)
-    graph.add_node(question_generation)
-    graph.add_node(option_checker)
+    graph.add_node("weak_concept_priority", weak_concept_priority)
+    graph.add_node("plan_paper", plan_paper)
+    graph.add_node("question_generation", question_generation)
+    graph.add_node("validate_options", option_checker)
     
-    graph.add_edge(START,"weak_concept_priority")
-    graph.add_edge("weak_concept_priority","plan_paper")
-    graph.add_edge("plan_paper","question_generation")
+    graph.add_edge(START, "weak_concept_priority")
+    graph.add_edge("weak_concept_priority", "plan_paper")
+    graph.add_edge("plan_paper", "question_generation")
     
-    graph.add_conditional_edges("question_generation",route_option_checker)
+    graph.add_conditional_edges("question_generation", route_option_checker)
 
-    graph.add_edge("option_checker",END)
+    graph.add_edge("validate_options", END)
     
     app = graph.compile()
     
