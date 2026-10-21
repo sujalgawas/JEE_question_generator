@@ -26,6 +26,7 @@ const ROUTE_MAP = {
   analytics: '/analytics',
   placement: '/',
   placementHistory: '/placement-history',
+  placementAnalytics: '/placement-analytics',
   placementInterview: '/placement-interview',
   contact: '/contact',
   login: '/login',
@@ -59,6 +60,7 @@ const Navbar = ({ user, onLogout = () => { }, onNavigate, appMode, onModeChange 
       { page: 'homepage', label: 'Dashboard', icon: LayoutDashboard },
       { page: 'placementInterview', label: 'AI Interview', icon: Mic },
       { page: 'placementHistory', label: 'Past Tests', icon: History },
+      { page: 'placementAnalytics', label: 'Analytics', icon: BarChart3 },
     ] : []),
     { page: 'contact', label: 'Contact', icon: Mail },
   ];

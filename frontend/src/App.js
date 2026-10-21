@@ -13,6 +13,7 @@ import Dashboard from './components/Dashboard';
 import PastPaper from './components/PastPapers';
 import MCQTest from './components/MCQTest';
 import Analytics from './components/Analytics';
+import PlacementAnalytics from './components/PlacementAnalytics';
 import Contact from './components/Contact';
 import PlacementHome from './components/PlacementHome';
 import PlacementTest from './components/PlacementTest';
@@ -134,13 +135,14 @@ export default function App() {
 
                         {/* JEE routes */}
                         <Route path="/past-papers" element={user ? <PastPaper /> : <Navigate to="/login" />} />
-                        <Route path="/analytics" element={user ? <Analytics /> : <Navigate to="/login" />} />
+                        <Route path="/analytics" element={user ? (appMode === 'placement' ? <PlacementAnalytics /> : <Analytics />) : <Navigate to="/login" />} />
 
                         {/* Placement routes */}
                         <Route path="/placementMCQ-test/:paperId" element={user ? <PlacementMCQTest /> : <Navigate to="/login" />} />
                         <Route path="/placement" element={user ? <PlacementHome /> : <Navigate to="/login" />} />
                         <Route path="/placement-test" element={user ? <PlacementTest /> : <Navigate to="/login" />} />
                         <Route path="/placement-history" element={user ? <PlacementPastPapers /> : <Navigate to="/login" />} />
+                        <Route path="/placement-analytics" element={user ? <PlacementAnalytics /> : <Navigate to="/login" />} />
                         <Route path="/placement-interview" element={user ? <PlacementInterview /> : <Navigate to="/login" />} />
                         <Route path="/interview" element={user ? <PlacementInterview /> : <Navigate to="/login" />} />
 

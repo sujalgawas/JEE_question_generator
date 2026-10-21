@@ -165,8 +165,9 @@ def placements_take_test():
 @papers_crud_bp.route('/placements_submit_test',methods=['POST'])
 def placements_submit_test():
     import uuid
+    from datetime import datetime, timezone
     
-    data = request.json
+    data = request.json or {}
     token = data.get('token')
     answer = data.get('answer')
     paper_id = data.get('paper_id')
@@ -191,24 +192,198 @@ def placements_submit_test():
     
     correct_answers = question_paper.get('correct_answer', [])
     
-    for i, ans in enumerate(answer):
+    for i, ans in enumerate(answer or []):
         if i < len(correct_answers) and ans == correct_answers[i]:
             score += 1
             
-    percentage = (score / int(question_paper['question_total'])) * 100
+    total_q = int(question_paper.get('question_total', len(correct_answers) or 1))
+    percentage = round((score / total_q) * 100, 1) if total_q > 0 else 0
+    completed_at = datetime.now(timezone.utc).isoformat()
     
-    result = {"answers" : answer,
-              "user_uid" : uid,
-              "paper_id": paper_id,
-              "percentage":percentage,
-              "score":score,
-              "total_time_spent":time,
-              "result_id":result_uid
-              }
+    result = {
+        "answers": answer,
+        "user_uid": uid,
+        "paper_id": paper_id,
+        "percentage": percentage,
+        "score": score,
+        "total_time_spent": time,
+        "result_id": result_uid,
+        "completed_at": completed_at
+    }
     
     db.child('test_results').child('placements').child(result_uid).set(result)
     
-    return jsonify({"message":"result updated in the database"})
+    return jsonify({
+        "message": "result updated in the database",
+        "result_id": result_uid,
+        "score": score,
+        "percentage": percentage,
+        "result": result
+    }), 200
+
+
+@papers_crud_bp.route('/get-placement-analytics', methods=['POST'])
+def get_placement_analytics():
+    try:
+        data = request.json or {}
+        token = data.get('token')
+        
+        if not token:
+            return jsonify({'error': 'Missing authentication token'}), 400
+            
+        decoded_token = verify_firebase_token(token)
+        if not decoded_token:
+            return jsonify({'error': 'Invalid or expired token'}), 401
+        uid = decoded_token['uid']
+        
+        all_answers = db.child('test_results').child('placements').get()
+        all_papers = db.child('placements').get()
+        
+        if not all_answers or not isinstance(all_answers, dict):
+            return jsonify({
+                'success': True,
+                'results': [],
+                'total_tests': 0,
+                'weak_concepts': [],
+                'strong_concepts': [],
+                'summary': {
+                    'total_tests': 0,
+                    'total_questions': 0,
+                    'total_correct': 0,
+                    'average_percentage': 0,
+                    'average_time': 0
+                },
+                'topic_stats': {}
+            }), 200
+            
+        if not all_papers or not isinstance(all_papers, dict):
+            all_papers = {}
+            
+        user_results = []
+        topic_stats = {}
+        total_questions_overall = 0
+        total_correct_overall = 0
+        total_time_overall = 0
+        
+        for ans_id, ans_data in all_answers.items():
+            if not isinstance(ans_data, dict):
+                continue
+            if (ans_data.get('user_uid') or ans_data.get('user_id')) == uid:
+                p_id = ans_data.get('paper_id')
+                paper = all_papers.get(p_id, {}) if (p_id and isinstance(all_papers, dict)) else {}
+                
+                correct_answers = paper.get('correct_answer', [])
+                user_answers = ans_data.get('answers', [])
+                topics = paper.get('topic', [])
+                question_texts = paper.get('question_text', [])
+                options = paper.get('option', [])
+                explanations = paper.get('explanation', [])
+                question_numbers = paper.get('question_number', list(range(1, len(question_texts) + 1)))
+                
+                num_q = max(len(correct_answers), len(user_answers), len(question_texts))
+                if num_q == 0 and paper.get('question_total'):
+                    try:
+                        num_q = int(paper.get('question_total'))
+                    except Exception:
+                        num_q = 0
+                        
+                test_correct = ans_data.get('score', 0)
+                total_questions_overall += num_q
+                total_correct_overall += test_correct
+                test_time = ans_data.get('total_time_spent', 0)
+                try:
+                    total_time_overall += int(test_time)
+                except Exception:
+                    pass
+                    
+                # Topic stats
+                for idx in range(min(len(topics), len(correct_answers), len(user_answers))):
+                    t = topics[idx]
+                    if not t:
+                        continue
+                    if t not in topic_stats:
+                        topic_stats[t] = {'total': 0, 'correct': 0}
+                    topic_stats[t]['total'] += 1
+                    if user_answers[idx] == correct_answers[idx]:
+                        topic_stats[t]['correct'] += 1
+                        
+                calc_pct = ans_data.get('percentage')
+                if calc_pct is None:
+                    calc_pct = round((test_correct / num_q * 100), 1) if num_q > 0 else 0
+                else:
+                    try:
+                        calc_pct = round(float(calc_pct), 1)
+                    except Exception:
+                        calc_pct = 0
+                        
+                formatted_test = {
+                    'result_id': ans_id,
+                    'paper_id': p_id,
+                    'score': test_correct,
+                    'total_questions': num_q,
+                    'percentage': calc_pct,
+                    'total_time_spent': test_time,
+                    'completed_at': ans_data.get('completed_at') or paper.get('created_at'),
+                    'target_topic': paper.get('target_topic', 'All'),
+                    'answers': user_answers,
+                    'paper_details': {
+                        'question_number': question_numbers,
+                        'question_text': question_texts,
+                        'option': options,
+                        'correct_answer': correct_answers,
+                        'explanation': explanations,
+                        'topic': topics,
+                        'target_topic': paper.get('target_topic', 'All'),
+                        'question_total': str(num_q)
+                    }
+                }
+                user_results.append(formatted_test)
+                
+        # Sort results: newest first
+        user_results.reverse()
+        
+        weak_concepts = []
+        strong_concepts = []
+        for t, stats in topic_stats.items():
+            tot = stats['total']
+            cor = stats['correct']
+            pct = round((cor / tot) * 100, 1) if tot > 0 else 0
+            stats['accuracy'] = pct
+            if pct < 60:
+                weak_concepts.append({'topic': t, 'accuracy': pct, 'total': tot, 'correct': cor})
+            elif pct >= 70:
+                strong_concepts.append({'topic': t, 'accuracy': pct, 'total': tot, 'correct': cor})
+                
+        weak_concepts.sort(key=lambda x: x['accuracy'])
+        strong_concepts.sort(key=lambda x: x['accuracy'], reverse=True)
+        
+        avg_pct = round((total_correct_overall / total_questions_overall) * 100, 1) if total_questions_overall > 0 else 0
+        avg_time = round(total_time_overall / len(user_results)) if user_results else 0
+        
+        summary = {
+            'total_tests': len(user_results),
+            'total_questions': total_questions_overall,
+            'total_correct': total_correct_overall,
+            'average_percentage': avg_pct,
+            'average_time': avg_time
+        }
+        
+        return jsonify({
+            'success': True,
+            'results': user_results,
+            'total_tests': len(user_results),
+            'weak_concepts': [w['topic'] for w in weak_concepts],
+            'weak_concepts_detailed': weak_concepts,
+            'strong_concepts': strong_concepts,
+            'summary': summary,
+            'topic_stats': topic_stats
+        }), 200
+        
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({'error': str(e)}), 500
+
 
 @papers_crud_bp.route('/placement_question',methods=['POST'])
 def placement_question():

@@ -82,6 +82,13 @@ export default function Dashboard({ userName, appMode, onModeChange }) {
                     onClick={() => navigate('/placement-history')}
                     color="bg-purple-500/10 text-purple-400"
                   />
+                  <QuickAction
+                    icon={BarChart3}
+                    title="Analytics"
+                    description="View placement performance & weak concepts"
+                    onClick={() => navigate('/placement-analytics')}
+                    color="bg-purple-500/10 text-purple-400"
+                  />
                 </>
               ) : (
                 <>
