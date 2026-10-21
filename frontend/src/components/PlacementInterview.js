@@ -20,7 +20,7 @@ import {
     MessageSquare,
     Loader2
 } from 'lucide-react';
-import { INTERVIEWER_API_URL, INTERVIEWER_WS_URL, UNREALSPEECH_DEFAULT_VOICE } from '../apiConfig';
+import { INTERVIEWER_API_URL, INTERVIEWER_WS_URL, UNREALSPEECH_DEFAULT_VOICE, UNREALSPEECH_API_KEY } from '../apiConfig';
 import { getAuthSession } from './authUtils';
 
 const ROLES = [
@@ -127,8 +127,55 @@ export default function PlacementInterview() {
 
         const activeVoice = voiceToUse || ttsVoice || 'Daniel';
 
-        // 1. Synthesize audio via the backend Interviewer TTS service
-        // The backend securely uses the 'unrealspeech' key from the root .env
+        // 1. Direct Frontend UnrealSpeech TTS (Lowest latency, no backend proxy hop)
+        if (UNREALSPEECH_API_KEY) {
+            try {
+                let cleanedText = text.trim();
+                if (cleanedText.length > 1000) {
+                    cleanedText = cleanedText.slice(0, 997) + '...';
+                }
+
+                const resp = await fetch('https://api.v8.unrealspeech.com/stream', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${UNREALSPEECH_API_KEY.trim()}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        Text: cleanedText,
+                        VoiceId: activeVoice,
+                        Bitrate: '192k',
+                        Speed: '0',
+                        Pitch: '1',
+                        Codec: 'libmp3lame'
+                    })
+                });
+
+                if (resp.ok) {
+                    const audioBlob = await resp.blob();
+                    const audioUrl = URL.createObjectURL(audioBlob);
+                    const audio = new Audio(audioUrl);
+                    audioPlayerRef.current = audio;
+                    setIsSpeaking(true);
+                    audio.onended = () => {
+                        setIsSpeaking(false);
+                        URL.revokeObjectURL(audioUrl);
+                    };
+                    audio.onerror = () => {
+                        setIsSpeaking(false);
+                        URL.revokeObjectURL(audioUrl);
+                    };
+                    await audio.play();
+                    return;
+                } else {
+                    console.warn('Direct UnrealSpeech client API returned non-200 status:', resp.status);
+                }
+            } catch (directErr) {
+                console.warn('Direct UnrealSpeech client synthesis error, trying fallback:', directErr);
+            }
+        }
+
+        // 2. Fallback to backend Interviewer TTS service if direct call fails
         try {
             const resp = await fetch(`${INTERVIEWER_API_URL}/interview/tts`, {
                 method: 'POST',
@@ -162,7 +209,7 @@ export default function PlacementInterview() {
             console.warn('Backend UnrealSpeech TTS service unavailable:', backendErr);
         }
 
-        // 2. Fallback to browser speech synthesis if backend is unreachable
+        // 3. Fallback to browser speech synthesis if all remote APIs fail
         try {
             if (window.speechSynthesis) {
                 const utterance = new SpeechSynthesisUtterance(text);

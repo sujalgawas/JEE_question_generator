@@ -100,7 +100,11 @@ def main():
             "color": GREEN,
             "cwd": ROOT_DIR / "frontend",
             "cmd": [npm_cmd, "start"],
-            "env": {**os.environ, "BROWSER": "none"}
+            "env": {
+                **os.environ,
+                "BROWSER": "none",
+                "REACT_APP_UNREALSPEECH_API_KEY": os.getenv("unrealspeech") or os.getenv("UNREALSPEECH_API_KEY") or os.getenv("REACT_APP_UNREALSPEECH_API_KEY", "")
+            }
         }
     ]
 

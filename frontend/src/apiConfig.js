@@ -52,11 +52,13 @@ if (rawInterviewerWs && rawInterviewerWs.includes('localhost') && typeof window 
 
 export let INTERVIEWER_WS_URL = rawInterviewerWs;
 export let UNREALSPEECH_DEFAULT_VOICE = process.env.REACT_APP_UNREALSPEECH_VOICE || 'Daniel';
+export let UNREALSPEECH_API_KEY = process.env.REACT_APP_UNREALSPEECH_API_KEY || '';
 
 console.log('Using API URL:', API_URL);
 console.log('Using Interviewer API URL:', INTERVIEWER_API_URL);
 console.log('Using Interviewer WS URL:', INTERVIEWER_WS_URL);
 console.log('Using UnrealSpeech Voice:', UNREALSPEECH_DEFAULT_VOICE);
+console.log('UnrealSpeech Direct Client TTS:', UNREALSPEECH_API_KEY ? 'Configured (Fast Direct Streaming)' : 'Not Set (Fallback to backend/browser)');
 
 export default API_URL;
 
