@@ -97,29 +97,63 @@ export default function PlacementHome() {
                     </p>
                 </div>
 
-                {/* AI Mock Interviewer Highlight Card */}
-                <div className="mb-8 p-5 sm:p-6 rounded-2xl bg-gradient-to-r from-purple-900/40 via-indigo-900/30 to-surface-800 border border-purple-500/30 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-xl">
-                    <div className="flex items-center gap-4">
-                        <div className="p-3 rounded-xl bg-purple-500/20 border border-purple-500/40 text-purple-400 shrink-0">
-                            <Mic className="w-6 h-6 animate-pulse" />
-                        </div>
-                        <div>
-                            <div className="flex items-center gap-2">
-                                <h3 className="text-base font-bold text-white">AI Technical Interviewer</h3>
-                                <span className="text-[10px] px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 font-semibold uppercase">New</span>
+                {/* Quick Nav Cards: AI Interviewer & Placement Analytics */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+                    {/* AI Mock Interviewer Highlight Card */}
+                    <div className="p-5 rounded-2xl bg-gradient-to-br from-purple-900/40 via-indigo-900/30 to-surface-800 border border-purple-500/30 flex flex-col justify-between gap-4 shadow-xl">
+                        <div className="flex items-start gap-3.5">
+                            <div className="p-2.5 rounded-xl bg-purple-500/20 border border-purple-500/40 text-purple-400 shrink-0">
+                                <Mic className="w-5 h-5 animate-pulse" />
                             </div>
-                            <p className="text-xs text-surface-400 mt-0.5">
-                                Practice real-time conversational technical interviews personalized to your resume.
-                            </p>
+                            <div>
+                                <div className="flex items-center gap-2">
+                                    <h3 className="text-sm font-bold text-white">AI Technical Interviewer</h3>
+                                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 font-semibold uppercase">New</span>
+                                </div>
+                                <p className="text-xs text-surface-400 mt-1 leading-relaxed">
+                                    Conversational mock technical interviews tailored to your resume.
+                                </p>
+                            </div>
                         </div>
+                        <button
+                            onClick={() => {
+                                localStorage.setItem('appMode', 'placement');
+                                navigate('/placement-interview');
+                            }}
+                            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-semibold text-xs transition-all duration-200 shadow-lg shadow-purple-600/25"
+                        >
+                            <Sparkles className="w-3.5 h-3.5" />
+                            <span>Start Interview</span>
+                        </button>
                     </div>
-                    <button
-                        onClick={() => navigate('/placement-interview')}
-                        className="w-full sm:w-auto shrink-0 flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-semibold text-sm transition-all duration-200 shadow-lg shadow-purple-600/25"
-                    >
-                        <Sparkles className="w-4 h-4" />
-                        <span>New Interviewer</span>
-                    </button>
+
+                    {/* Placement Analytics Highlight Card */}
+                    <div className="p-5 rounded-2xl bg-gradient-to-br from-surface-800 via-purple-950/20 to-surface-800 border border-purple-500/30 flex flex-col justify-between gap-4 shadow-xl">
+                        <div className="flex items-start gap-3.5">
+                            <div className="p-2.5 rounded-xl bg-purple-500/20 border border-purple-500/40 text-purple-400 shrink-0">
+                                <BarChart3 className="w-5 h-5" />
+                            </div>
+                            <div>
+                                <div className="flex items-center gap-2">
+                                    <h3 className="text-sm font-bold text-white">Placement Analytics</h3>
+                                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 font-semibold uppercase">Insights</span>
+                                </div>
+                                <p className="text-xs text-surface-400 mt-1 leading-relaxed">
+                                    View aptitude scores, topic accuracy breakdown, and AI weak concepts.
+                                </p>
+                            </div>
+                        </div>
+                        <button
+                            onClick={() => {
+                                localStorage.setItem('appMode', 'placement');
+                                navigate('/placement-analytics');
+                            }}
+                            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-surface-700 hover:bg-purple-600 text-white font-semibold text-xs transition-all duration-200 border border-surface-600 hover:border-purple-500 shadow-sm"
+                        >
+                            <BarChart3 className="w-3.5 h-3.5" />
+                            <span>View Placement Analytics</span>
+                        </button>
+                    </div>
                 </div>
 
                 {/* generator card */}

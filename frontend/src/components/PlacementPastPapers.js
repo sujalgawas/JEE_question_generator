@@ -11,7 +11,8 @@ import {
     BrainCircuit,
     RotateCcw,
     Loader2,
-    Download
+    Download,
+    BarChart3
 } from 'lucide-react';
 
 import API_URL from '../apiConfig';
@@ -137,12 +138,24 @@ export default function PlacementPastPapers() {
         <div className="min-h-screen bg-surface-900">
             <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
                 {/* header */}
-                <div className="mb-8">
-                    <div className="flex items-center gap-2 mb-1">
-                        <BrainCircuit className="w-6 h-6 text-purple-400" />
-                        <h1 className="text-2xl sm:text-3xl font-bold text-white">Placement History</h1>
+                <div className="mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                        <div className="flex items-center gap-2 mb-1">
+                            <BrainCircuit className="w-6 h-6 text-purple-400" />
+                            <h1 className="text-2xl sm:text-3xl font-bold text-white">Placement History</h1>
+                        </div>
+                        <p className="text-surface-400 text-sm">Review your past placement test results</p>
                     </div>
-                    <p className="text-surface-400 text-sm">Review your past placement test results</p>
+                    <button
+                        onClick={() => {
+                            localStorage.setItem('appMode', 'placement');
+                            navigate('/placement-analytics');
+                        }}
+                        className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-sm font-semibold transition-all shadow-md shadow-purple-600/20"
+                    >
+                        <BarChart3 className="w-4 h-4" />
+                        <span>View Analytics</span>
+                    </button>
                 </div>
 
                 {/* alerts */}

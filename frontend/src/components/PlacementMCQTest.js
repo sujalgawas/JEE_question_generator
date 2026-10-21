@@ -296,6 +296,7 @@ export default function PlacementMCQTest() {
       const data = await response.json();
       if (response.ok) { 
         setTestSubmitted(true); 
+        localStorage.setItem('appMode', 'placement');
         navigate('/placement-analytics'); 
       } else {
         alert('Error submitting test: ' + (data.message || "Unknown Error"));

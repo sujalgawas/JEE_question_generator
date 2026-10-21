@@ -19,6 +19,7 @@ import {
     Award,
     RotateCcw,
     Home,
+    BarChart3,
 } from 'lucide-react';
 
 /* ────  helpers  ──── */
@@ -170,7 +171,7 @@ const SubmitConfirmation = ({ questions, answers, totalTime, timeLeft, onSubmit,
 /* ───────────────────────────────────────
    Results Screen
    ─────────────────────────────────────── */
-const ResultsScreen = ({ questions, answers, totalTime, timeLeft, onGoHome, onRetake }) => {
+const ResultsScreen = ({ questions, answers, totalTime, timeLeft, onGoHome, onRetake, onViewAnalytics }) => {
     const totalQ = questions.length;
     const answeredCount = Object.keys(answers).length;
     let correct = 0;
@@ -214,19 +215,27 @@ const ResultsScreen = ({ questions, answers, totalTime, timeLeft, onGoHome, onRe
                         <div className="flex justify-between"><span className="text-surface-400">Time Spent</span><span className="text-white font-medium">{timeSpent}</span></div>
                     </div>
 
-                    <div className="flex gap-3">
+                    <div className="flex flex-col gap-2.5">
                         <button
-                            onClick={onGoHome}
-                            className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-surface-700 hover:bg-surface-600 text-surface-300 font-medium transition-colors"
+                            onClick={onViewAnalytics}
+                            className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-semibold transition-colors shadow-lg shadow-purple-600/20"
                         >
-                            <Home className="w-4 h-4" /> Dashboard
+                            <BarChart3 className="w-4 h-4" /> View Placement Analytics
                         </button>
-                        <button
-                            onClick={onRetake}
-                            className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-semibold transition-colors"
-                        >
-                            <RotateCcw className="w-4 h-4" /> New Test
-                        </button>
+                        <div className="flex gap-2.5">
+                            <button
+                                onClick={onGoHome}
+                                className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-surface-700 hover:bg-surface-600 text-surface-300 font-medium transition-colors text-sm"
+                            >
+                                <Home className="w-4 h-4" /> Dashboard
+                            </button>
+                            <button
+                                onClick={onRetake}
+                                className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-surface-700 hover:bg-surface-600 text-purple-300 font-medium transition-colors text-sm border border-purple-500/20"
+                            >
+                                <RotateCcw className="w-4 h-4" /> New Test
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -368,8 +377,15 @@ export default function PlacementTest() {
                 answers={answers}
                 totalTime={totalTime}
                 timeLeft={timeLeft}
-                onGoHome={() => navigate('/dashboard')}
+                onGoHome={() => {
+                    localStorage.setItem('appMode', 'placement');
+                    navigate('/placement');
+                }}
                 onRetake={() => navigate('/placement')}
+                onViewAnalytics={() => {
+                    localStorage.setItem('appMode', 'placement');
+                    navigate('/placement-analytics');
+                }}
             />
         );
     }

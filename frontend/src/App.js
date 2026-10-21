@@ -1,6 +1,5 @@
-// App.jsx
 import React, { useState, useEffect } from 'react';
-import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { HashRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 
 // Components
 import Navbar from './components/Navbar';
@@ -27,6 +26,31 @@ import {
     forceTokenRefresh,
     decodeTokenExpiration,
 } from './components/authUtils';
+
+function RouteModeSync({ appMode, onModeChange }) {
+    const location = useLocation();
+
+    useEffect(() => {
+        const path = (location.pathname || '').toLowerCase();
+        if (
+            path.startsWith('/placement') ||
+            path.startsWith('/interview')
+        ) {
+            if (appMode !== 'placement') {
+                onModeChange('placement');
+            }
+        } else if (
+            path.startsWith('/past-papers') ||
+            path.startsWith('/mcq-test')
+        ) {
+            if (appMode !== 'jee') {
+                onModeChange('jee');
+            }
+        }
+    }, [location.pathname, appMode, onModeChange]);
+
+    return null;
+}
 
 export default function App() {
     const [user, setUser] = useState(null);
@@ -118,6 +142,7 @@ export default function App() {
     return (
         <div className="min-h-screen bg-surface-900 text-surface-200 font-sans">
             <Router>
+                <RouteModeSync appMode={appMode} onModeChange={handleModeChange} />
                 <Navbar user={user} onLogout={handleLogout} appMode={appMode} onModeChange={handleModeChange} />
 
                 <main className="flex-grow">
@@ -139,10 +164,13 @@ export default function App() {
 
                         {/* Placement routes */}
                         <Route path="/placementMCQ-test/:paperId" element={user ? <PlacementMCQTest /> : <Navigate to="/login" />} />
+                        <Route path="/placementmcq-test/:paperId" element={user ? <PlacementMCQTest /> : <Navigate to="/login" />} />
+                        <Route path="/placement-mcq-test/:paperId" element={user ? <PlacementMCQTest /> : <Navigate to="/login" />} />
                         <Route path="/placement" element={user ? <PlacementHome /> : <Navigate to="/login" />} />
                         <Route path="/placement-test" element={user ? <PlacementTest /> : <Navigate to="/login" />} />
                         <Route path="/placement-history" element={user ? <PlacementPastPapers /> : <Navigate to="/login" />} />
                         <Route path="/placement-analytics" element={user ? <PlacementAnalytics /> : <Navigate to="/login" />} />
+                        <Route path="/placement/analytics" element={user ? <PlacementAnalytics /> : <Navigate to="/login" />} />
                         <Route path="/placement-interview" element={user ? <PlacementInterview /> : <Navigate to="/login" />} />
                         <Route path="/interview" element={user ? <PlacementInterview /> : <Navigate to="/login" />} />
 

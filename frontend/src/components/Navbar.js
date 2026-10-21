@@ -40,13 +40,24 @@ const Navbar = ({ user, onLogout = () => { }, onNavigate, appMode, onModeChange 
 
   const navigateTo = (page) => {
     if (typeof onNavigate === 'function') { onNavigate(page); return; }
-    const route = ROUTE_MAP[page] || '/';
+    let route = ROUTE_MAP[page] || '/';
+    if ((page === 'analytics' || page === 'placementAnalytics') && appMode === 'placement') {
+      route = '/placement-analytics';
+    }
     try { routerNavigate(route); } catch { window.location.href = route; }
   };
 
   const handleLogoutClick = () => { onLogout(); setIsMenuOpen(false); };
   const handleNavClick = (page, e) => { e?.preventDefault?.(); navigateTo(page); setIsMenuOpen(false); };
-  const isActive = (page) => location.pathname === ROUTE_MAP[page];
+  const isActive = (page) => {
+    if (page === 'placementAnalytics') {
+      return location.pathname === '/placement-analytics' || (appMode === 'placement' && location.pathname === '/analytics');
+    }
+    if (page === 'analytics') {
+      return location.pathname === '/analytics' && appMode === 'jee';
+    }
+    return location.pathname === ROUTE_MAP[page];
+  };
 
   const handleModeSwitch = () => {
     const newMode = appMode === 'placement' ? 'jee' : 'placement';
